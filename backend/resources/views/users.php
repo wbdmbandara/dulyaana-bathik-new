@@ -44,10 +44,10 @@
                     </div>
 
                     <!-- users table -->
-                    <table class="table table-striped">
+                    <table class="table table-striped table-bordered mt-3">
                         <thead>
-                            <tr>
-                                <th scope="col">#</th>
+                            <tr class="text-center">
+                                <th scope="col">ID</th>
                                 <th scope="col">Name</th>
                                 <th scope="col">Email</th>
                                 <th scope="col">Role</th>
@@ -59,12 +59,12 @@
                             <?php
                                 foreach ($users as $index => $user): ?>
                                     <tr>
-                                        <th scope="row"><?= $index + 1 ?></th>
+                                        <th class="text-center" scope="row"><?= $index + 1 ?></th>
                                         <td><?= htmlspecialchars($user['name']) ?></td>
                                         <td><?= htmlspecialchars($user['email']) ?></td>
-                                        <td><?= htmlspecialchars($user['role']) ?></td>
+                                        <td class="text-capitalize"><?= htmlspecialchars($user['role']) ?></td>
                                         <td><?= htmlspecialchars($user['mobileno']) ?></td>
-                                        <td>
+                                        <td class="text-center">
                                             <button class="btn btn-sm btn-warning editbtn" onclick="editUser(<?= $user['id'] ?>)"><i class="bi bi-pencil"></i> Edit</button>
                                             <button class="btn btn-sm btn-danger deletebtn" onclick="deleteUser(<?= $user['id'] . ',\'' . $user['name'] . '\'' ?>)"><i class="bi bi-trash"></i> Delete</button>
                                         </td>
