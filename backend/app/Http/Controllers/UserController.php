@@ -3,6 +3,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
 class UserController extends Controller
@@ -14,8 +16,38 @@ class UserController extends Controller
         $this->user = $user;
     }
 
+    public function showLogin() {
+        if (Auth::check()) {
+            return redirect('/dashboard');
+        }
+        return view('login');
+    }
+
+    public function login(Request $request){
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->intended('dashboard');
+        }
+
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email');
+    }
+
+    public function logout(Request $request) {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/');
+    }
+
     public function index ()
     {
+        if (!Auth::check()) {
+            return redirect('/');
+        }
         $response['users'] = $this->user->all();
         return view('users', $response);
     }
@@ -79,6 +111,9 @@ class UserController extends Controller
 
     public function show ($id)
     {
+        if (!Auth::check()) {
+            return redirect('/');
+        }
         $user = $this->user->find($id);
         if ($user) {
             return response()->json([
