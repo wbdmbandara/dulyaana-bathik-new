@@ -161,6 +161,47 @@ class UserController extends Controller
             return redirect()->back()->with('error', 'Error updating user: ' . $e->getMessage())->withInput();
         }
     }
+
+    public function delete (Request $request, $id)
+    {
+        try {
+            // Find the user by ID
+            $user = $this->user->find($id);
+            if (!$user) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'User not found.'
+                    ], 404);
+                }
+                return redirect()->back()->with('error', 'User not found.');
+            }
+
+            // Delete the user
+            $user->delete();
+
+            // Return success response
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'User deleted successfully.'
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'User deleted successfully.');
+
+        } catch (\Exception $e) {
+            // Handle any errors during user deletion
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error deleting user: ' . $e->getMessage()
+                ], 500);
+            }
+            return redirect()->back()->with('error', 'Error deleting user: ' . $e->getMessage());
+        }
+    }
+
 }
 
 

@@ -66,7 +66,7 @@
                                         <td><?= htmlspecialchars($user['mobileno']) ?></td>
                                         <td>
                                             <button class="btn btn-sm btn-warning editbtn" onclick="editUser(<?= $user['id'] ?>)"><i class="bi bi-pencil"></i> Edit</button>
-                                            <button class="btn btn-sm btn-danger deletebtn" onclick="deleteUser(<?= $user['id'] . ',' . $user['name'] ?>)"><i class="bi bi-trash"></i> Delete</button>
+                                            <button class="btn btn-sm btn-danger deletebtn" onclick="deleteUser(<?= $user['id'] . ',\'' . $user['name'] . '\'' ?>)"><i class="bi bi-trash"></i> Delete</button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -258,5 +258,58 @@
         } catch (err) {
             console.error('Unexpected error in editUser:', err);
         }
+    }
+
+    function deleteUser(userId, userName) {
+        Swal.fire({
+            title: `Are you sure you want to delete ${userName}?`,
+            text: "This action cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, Delete!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Send AJAX request to delete user
+                fetch(`/users/delete/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '<?= csrf_token() ?>',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: data.message || 'User has been deleted.',
+                            timer: 6000,
+                            showConfirmButton: false
+                        });
+
+                        setTimeout(() => {
+                            location.reload();
+                        }, 6000);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Failed to delete user.'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An unexpected error occurred.'
+                    });
+                });
+            }
+        });
     }
 </script>
