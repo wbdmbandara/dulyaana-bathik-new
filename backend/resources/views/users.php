@@ -49,47 +49,27 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Name</th>
-                                <th scope="col">Position</th>
-                                <th scope="col">Age</th>
-                                <th scope="col">Start Date</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Role</th>
+                                <th scope="col">Mobile No</th>
+                                <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>Brandon Jacob</td>
-                                <td>Designer</td>
-                                <td>28</td>
-                                <td>2016-05-25</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">2</th>
-                                <td>Bridie Kessler</td>
-                                <td>Developer</td>
-                                <td>35</td>
-                                <td>2014-12-05</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">3</th>
-                                <td>Ashleigh Langosh</td>
-                                <td>Finance</td>
-                                <td>45</td>
-                                <td>2011-08-12</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">4</th>
-                                <td>Angus Grady</td>
-                                <td>HR</td>
-                                <td>34</td>
-                                <td>2012-06-11</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">5</th>
-                                <td>Raheem Lehner</td>
-                                <td>Dynamic Division Officer</td>
-                                <td>47</td>
-                                <td>2011-04-19</td>
-                            </tr>
+                            <?php
+                                foreach ($users as $index => $user): ?>
+                                    <tr>
+                                        <th scope="row"><?= $index + 1 ?></th>
+                                        <td><?= htmlspecialchars($user['name']) ?></td>
+                                        <td><?= htmlspecialchars($user['email']) ?></td>
+                                        <td><?= htmlspecialchars($user['role']) ?></td>
+                                        <td><?= htmlspecialchars($user['mobileno']) ?></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-warning editbtn" onclick="editUser(<?= $user['id'] ?>)"><i class="bi bi-pencil"></i> Edit</button>
+                                            <button class="btn btn-sm btn-danger deletebtn" onclick="deleteUser(<?= $user['id'] . ',' . $user['name'] ?>)"><i class="bi bi-trash"></i> Delete</button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
                         </tbody>
                     </table>
                     <!-- End users table -->
@@ -118,6 +98,7 @@
                         </div>
 
                         <div class="mb-3">
+                            <input type="hidden" id="userId" name="id">
                             <label for="userName" class="form-label">Name</label>
                             <input type="text" class="form-control" id="userName" name="name" required>
                         </div>
@@ -160,6 +141,7 @@
         const newUserForm = document.getElementById('newUserForm');
         const validationErrors = document.getElementById('validationErrors');
         const errorList = document.getElementById('errorList');
+        const userId = document.getElementById('userId');
 
         newUserForm.addEventListener('submit', function (e) {
             e.preventDefault();
@@ -171,8 +153,12 @@
             // Get form data
             const formData = new FormData(newUserForm);
 
+            let url = '/users/new';
+            if (userId.value) {
+                url = `/users/update/${userId.value}`;
+            }
             // Send AJAX request
-            fetch('/users/new', {
+            fetch(url, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -190,13 +176,14 @@
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',
-                        text: 'User created successfully!',
-                        timer: 2000,
+                        text: data.message || 'User saved successfully',
+                        timer: 6000,
                         showConfirmButton: false
                     });
-                    
-                    // Optionally reload the page to show new user
-                    location.reload();
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 6000);
                 } else {
                     // Show error message
                     if (data.errors) {
@@ -227,4 +214,49 @@
             });
         });
     });
+
+    document.getElementById('newUserModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('newUserForm').reset();
+        document.getElementById('userId').value = '';
+        document.getElementById('validationErrors').style.display = 'none';
+        document.getElementById('errorList').innerHTML = '';
+        document.querySelector('#newUserModal .modal-title').textContent = 'Add New User';
+        document.getElementById('userPassword').required = true;
+    });
+
+    function editUser(userId) {
+        try {
+            const modal = new bootstrap.Modal(document.getElementById('newUserModal'));
+            const modalTitle = document.querySelector('#newUserModal .modal-title');
+            modalTitle.textContent = 'Edit User';
+            document.getElementById('userPassword').required = false;
+            modal.show();
+
+            // Fetch user data via AJAX and populate the modal fields
+            fetch(`/users/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                const user = data.user;
+                document.getElementById('userId').value = user.id;
+                document.getElementById('userName').value = user.name;
+                document.getElementById('userEmail').value = user.email;
+                document.getElementById('userRole').value = user.role;
+                document.getElementById('mobileno').value = user.mobileno;
+                } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to fetch user data'
+                });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching user data:', error);
+            });
+
+        } catch (err) {
+            console.error('Unexpected error in editUser:', err);
+        }
+    }
 </script>

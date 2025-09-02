@@ -76,6 +76,91 @@ class UserController extends Controller
             return redirect()->back()->with('error', 'Error creating user: ' . $e->getMessage())->withInput();
         }
     }
+
+    public function show ($id)
+    {
+        $user = $this->user->find($id);
+        if ($user) {
+            return response()->json([
+                'success' => true,
+                'user' => $user
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.'
+            ], 404);
+        }
+    }
+
+    public function update (Request $request, $id)
+    {
+        try {
+            // Find the user by ID
+            $user = $this->user->find($id);
+            if (!$user) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'User not found.'
+                    ], 404);
+                }
+                return redirect()->back()->with('error', 'User not found.');
+            }
+
+            // Validate the incoming request data
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:191|unique:users,email,' . $id,
+                'mobileno' => 'required|string|max:15|unique:users,mobileno,' . $id,
+                'role' => 'required|string|in:admin,customer',
+                'password' => 'nullable|string|min:8',
+            ]);
+
+            // Update user details
+            $user->name = $validatedData['name'];
+            $user->email = $validatedData['email'];
+            $user->mobileno = $validatedData['mobileno'];
+            $user->role = $validatedData['role'];
+            if (!empty($validatedData['password'])) {
+                $user->password = bcrypt($validatedData['password']);
+            }
+            $user->save();
+
+            // Return success response
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'User updated successfully.',
+                    'user' => $user
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'User updated successfully.');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation errors
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed.',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors($e->errors())->withInput();
+
+        } catch (\Exception $e) {
+            // Handle any other errors during user update
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error updating user: ' . $e->getMessage()
+                ], 500);
+            }
+            return redirect()->back()->with('error', 'Error updating user: ' . $e->getMessage())->withInput();
+        }
+    }
 }
 
 
