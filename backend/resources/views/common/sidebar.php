@@ -1,15 +1,24 @@
+<?php
+  function setActiveMenuItem($active , $subMenu) {
+    ?>
   <aside id="sidebar" class="sidebar">
 
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link " href="/dashboard">
+        <a class="nav-link <?php if($active != 'dashboard'){echo 'collapsed';} ?>" href="/dashboard">
           <i class="bi bi-grid"></i>
           <span>Dashboard</span>
         </a>
       </li><!-- End Dashboard Nav -->
 
       <li class="nav-item">
+        <a class="nav-link <?php if($active != 'users'){echo 'collapsed';} ?>" href="/users">
+          <i class="bi bi-people"></i>
+          <span>Users</span>
+        </a>
+
+      <!-- <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-layout-text-window-reverse"></i><span>Tables</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
@@ -25,17 +34,21 @@
             </a>
           </li>
         </ul>
-      </li><!-- End Tables Nav -->
+      </li> -->
 
-      <li class="nav-heading">Pages</li>
+      <!-- <li class="nav-heading">Pages</li> -->
 
-      <li class="nav-item">
+      <!-- <li class="nav-item">
         <a class="nav-link collapsed" href="pages-blank.html">
           <i class="bi bi-file-earmark"></i>
           <span>Blank</span>
         </a>
-      </li><!-- End Blank Page Nav -->
+      </li> -->
 
     </ul>
 
   </aside>
+
+  <?php
+  }
+?>

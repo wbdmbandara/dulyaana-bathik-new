@@ -3,6 +3,7 @@
     setTitle('Dashboard');
     include_once 'common/topbar.php';
     include_once 'common/sidebar.php';
+    setActiveMenuItem('dashboard', '');
 ?>
 
   <main id="main" class="main">
@@ -11,7 +12,7 @@
       <h1>Dashboard</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="/">Home</a></li>
           <li class="breadcrumb-item active">Dashboard</li>
         </ol>
       </nav>

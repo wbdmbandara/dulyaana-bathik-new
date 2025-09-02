@@ -1,0 +1,82 @@
+<?php
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use App\Models\User;
+
+class UserController extends Controller
+{
+    protected $user;
+
+    public function __construct(User $user)
+    {
+        $this->user = $user;
+    }
+
+    public function index ()
+    {
+        $response['users'] = $this->user->all();
+        return view('users', $response);
+    }
+    
+    public function store (Request $request)
+    {
+        try {
+            // Validate the incoming request data
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:191|unique:users',
+                'mobileno' => 'required|string|max:15|unique:users',
+                'role' => 'required|string|in:admin,customer',
+                'password' => 'required|string|min:8',
+            ]);
+
+            // Create the user with validated data
+            $user = $this->user->create([
+                'name' => $validatedData['name'],
+                'email' => $validatedData['email'],
+                'mobileno' => $validatedData['mobileno'],
+                'role' => $validatedData['role'],
+                'password' => bcrypt($validatedData['password']),
+            ]);
+
+            // Return success response
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'User created successfully.',
+                    'user' => $user
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'User created successfully.');
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation errors
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed.',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors($e->errors())->withInput();
+            
+        } catch (\Exception $e) {
+            // Handle any other errors during user creation
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error creating user: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Error creating user: ' . $e->getMessage())->withInput();
+        }
+    }
+}
+
+
+?>
