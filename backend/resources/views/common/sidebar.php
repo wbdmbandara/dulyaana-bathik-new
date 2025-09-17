@@ -13,28 +13,29 @@
       </li><!-- End Dashboard Nav -->
 
       <li class="nav-item">
+        <a class="nav-link <?php if($active != 'sarees'){echo 'collapsed';} ?>" data-bs-target="#sarees-nav" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-layout-text-window-reverse"></i><span>Sarees</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="sarees-nav" class="nav-content <?php if($active != 'sarees'){echo 'collapse';} ?>" data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="#" class="<?php if($subMenu == 'sarees'){echo 'active';} ?>">
+              <i class="bi bi-circle"></i><span>Sarees</span>
+            </a>
+          </li>
+          <li>
+            <a href="/categories" class="<?php if($subMenu == 'categories'){echo 'active';} ?>">
+              <i class="bi bi-circle"></i><span>Categories</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <li class="nav-item">
         <a class="nav-link <?php if($active != 'users'){echo 'collapsed';} ?>" href="/users">
           <i class="bi bi-people"></i>
           <span>Users</span>
         </a>
 
-      <!-- <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-layout-text-window-reverse"></i><span>Tables</span><i class="bi bi-chevron-down ms-auto"></i>
-        </a>
-        <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="tables-general.html">
-              <i class="bi bi-circle"></i><span>General Tables</span>
-            </a>
-          </li>
-          <li>
-            <a href="tables-data.html">
-              <i class="bi bi-circle"></i><span>Data Tables</span>
-            </a>
-          </li>
-        </ul>
-      </li> -->
 
       <!-- <li class="nav-heading">Pages</li> -->
 
