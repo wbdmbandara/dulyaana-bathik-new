@@ -21,6 +21,14 @@ class ItemsController extends Controller
         if (!Auth::check()) {
             return redirect('/');
         }
+        if (session()->has('temp_image')) {
+            $previousTempImage = session('temp_image');
+            if (file_exists($previousTempImage)) {
+                unlink($previousTempImage);
+            }
+            session()->forget('temp_image');
+        }
+
         $response['sarees'] = $this->item
             ->leftJoin('item_category as category', 'items.category', '=', 'category.id')
             ->select('items.*', 'category.cat_name as category_name')
@@ -43,6 +51,22 @@ class ItemsController extends Controller
         try {
             if (!Auth::check()) {
                 return redirect('/');
+            }
+
+            // Store the uploaded image temporarily for redisplay if validation fails
+            if ($request->hasFile('main_image')) {
+                if (session()->has('temp_image')) {
+                    $previousTempImage = session('temp_image');
+                    if (file_exists($previousTempImage)) {
+                        unlink($previousTempImage);
+                    }
+                    session()->forget('temp_image');
+                }
+                $tempImage = $request->file('main_image');
+                $tempImageName = 'temp_image.' . $tempImage->getClientOriginalExtension();
+                $tempPath = 'assets/sarees';
+                copy($tempImage->getRealPath(), $tempPath . '/' . $tempImageName);
+                session(['temp_image' => 'assets/sarees/' . $tempImageName]);
             }
 
             $rules = [
@@ -87,12 +111,14 @@ class ItemsController extends Controller
 
             $validatedData = $request->validate($rules, $messages);
 
-            if ($request->hasFile('main_image')) {
-                $image = $request->file('main_image');
-                $imageName = time() . '.' . $image->getClientOriginalExtension();
-                $destinationPath = 'assets/sarees';
-                $image->move($destinationPath, $imageName);
-                $validatedData['main_image'] = 'assets/sarees/' . $imageName;
+            if (session()->has('temp_image')) {
+                $previousTempImage = session('temp_image');
+                if (file_exists($previousTempImage)) {
+                    $imageName = time() . '.' . pathinfo($previousTempImage, PATHINFO_EXTENSION);
+                    rename($previousTempImage, 'assets/sarees/' . $imageName);
+                    $validatedData['main_image'] = 'assets/sarees/' . $imageName;
+                    session()->forget('temp_image');
+                }
             } else {
                 $validatedData['main_image'] = null;
             }
@@ -109,6 +135,13 @@ class ItemsController extends Controller
             }
             if ($item) {
                 $request->session()->flash('success', 'Item added successfully.');
+                if (session()->has('temp_image')) {
+                    $previousTempImage = session('temp_image');
+                    if (file_exists($previousTempImage)) {
+                        unlink($previousTempImage);
+                    }
+                    session()->forget('temp_image');
+                }
             } else {
                 $request->session()->flash('error', 'Failed to add item. Please try again.');
             }

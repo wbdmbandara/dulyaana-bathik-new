@@ -150,6 +150,17 @@
                             </div>
                             <div class="mb-2">
                                 <label for="mainImage" class="form-label">Main Image</label>
+                                <?php if(session()->has('temp_image') && file_exists(session('temp_image'))): ?>
+                                    <div class="mb-2" id="existingImageContainer">
+                                        <p class="text-muted small">Current image:</p>
+                                        <img src="<?= session('temp_image') ?>" alt="Current Image" class="img-fluid mb-2" style="max-height: 300px;">
+                                        <br>
+                                        <div class="d-flex justify-content-center">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeExistingImage()">Remove Current Image</button>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="existing_main_image" value="<?= session('temp_image') ?>">
+                                <?php endif; ?>
                                 <div class="mb-2" id="imagePreviewContainer" style="display:none;">
                                     <img id="imagePreview" src="#" alt="Image Preview" class="img-fluid mb-2" style="max-height: 300px;">
                                     <br>
@@ -179,6 +190,7 @@
 
 <script>
     document.getElementById('mainImage').addEventListener('change', function(event) {
+        removeExistingImage();
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
@@ -205,5 +217,16 @@
         const name = document.getElementById('name').value;
         const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
         document.getElementById('url').value = slug;
+    }
+
+    function removeExistingImage() {
+        const existingImageContainer = document.getElementById('existingImageContainer');
+        if (existingImageContainer) {
+            existingImageContainer.remove();
+        }
+        const existingImageInput = document.querySelector('input[name="existing_main_image"]');
+        if (existingImageInput) {
+            existingImageInput.remove();
+        }
     }
 </script>
