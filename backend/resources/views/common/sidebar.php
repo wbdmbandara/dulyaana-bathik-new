@@ -18,8 +18,13 @@
         </a>
         <ul id="sarees-nav" class="nav-content <?php if($active != 'sarees'){echo 'collapse';} ?>" data-bs-parent="#sidebar-nav">
           <li>
-            <a href="#" class="<?php if($subMenu == 'sarees'){echo 'active';} ?>">
+            <a href="/sarees" class="<?php if($subMenu == 'sarees'){echo 'active';} ?>">
               <i class="bi bi-circle"></i><span>Sarees</span>
+            </a>
+          </li>
+          <li>
+            <a href="/new-saree" class="<?php if($subMenu == 'new-saree'){echo 'active';} ?>">
+              <i class="bi bi-circle"></i><span>New Saree</span>
             </a>
           </li>
           <li>

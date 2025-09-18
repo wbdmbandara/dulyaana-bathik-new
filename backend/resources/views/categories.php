@@ -47,7 +47,7 @@
                     <table class="table table-striped table-bordered mt-3">
                         <thead>
                             <tr class="text-center">
-                                <th scope="col">ID</th>
+                                <th scope="col">#</th>
                                 <th scope="col">Name</th>
                                 <th scope="col">Description</th>
                                 <th scope="col">Parent Category</th>
@@ -107,7 +107,7 @@
                         <div class="mb-3">
                             <label for="parentCategory" class="form-label">Parent Category</label>
                             <select class="form-select" id="parentCategory" name="parent_id" required>
-                                <option value="" disabled selected>Select Parent Category</option>
+                                <option value="" hidden selected>Select Parent Category</option>
                                 <option value="0">None</option>
                                 <?php foreach ($categories as $category): ?>
                                     <option value="<?= $category['id'] ?>"><?= htmlspecialchars($category['cat_name']) ?></option>

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ItemsController;
 
 Route::get('/', [UserController::class, 'showLogin']);
 Route::get('/login', [UserController::class, 'showLogin']);
@@ -18,6 +19,10 @@ Route::post('/users/new', [UserController::class, 'store']);
 Route::get('/users/{id}', [UserController::class, 'show']);
 Route::post('/users/update/{id}', [UserController::class, 'update']);
 Route::post('/users/delete/{id}', [UserController::class, 'delete']);
+
+Route::get('/sarees', [ItemsController::class, 'index']);
+Route::get('/new-saree', [ItemsController::class, 'create']);
+Route::post('/sarees/new', [ItemsController::class, 'store']);
 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::post('/categories/new', [CategoryController::class, 'store']);
