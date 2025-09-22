@@ -203,7 +203,7 @@
                                             <?php foreach(session('temp_videos') as $index => $videoPath): ?>
                                                 <?php if(file_exists(public_path($videoPath))): ?>
                                                     <div class="position-relative border rounded p-2" style="min-width: 200px;">
-                                                        <video controls class="w-100" style="max-height: 150px;">
+                                                        <video controls style="max-height: 150px;">
                                                             <source src="/<?= $videoPath ?>" type="video/mp4">
                                                             Your browser does not support the video tag.
                                                         </video>
@@ -289,19 +289,17 @@
         const files = event.target.files;
         const maxImages = 20;
         const existingImagesCount = document.querySelectorAll('#existingAdditionalImagesContainer .position-relative').length;
-        const totalImages = existingImagesCount + files.length;
+        const currentPreviewsCount = document.querySelectorAll('#additionalImagesContainer .mb-2').length;
+        const totalImages = existingImagesCount + currentPreviewsCount + files.length;
         
         if (totalImages > maxImages) {
-            errorDiv.innerHTML = `<div>You can only upload up to ${maxImages} additional images. You currently have ${existingImagesCount} existing images.</div>`;
+            errorDiv.innerHTML = `<div>You can only upload up to ${maxImages} additional images. You currently have ${existingImagesCount + currentPreviewsCount} images.</div>`;
             errorDiv.style.display = 'block';
             event.target.value = '';
             return;
         }
         
         if (files.length > 0) {
-            // Clear previous previews
-            container.innerHTML = '';
-            
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 
@@ -349,19 +347,17 @@
         const files = event.target.files;
         const maxVideos = 5;
         const existingVideosCount = document.querySelectorAll('#existingVideosContainer .position-relative').length;
-        const totalVideos = existingVideosCount + files.length;
+        const currentPreviewsCount = document.querySelectorAll('#videosContainer .mb-2').length;
+        const totalVideos = existingVideosCount + currentPreviewsCount + files.length;
         
         if (totalVideos > maxVideos) {
-            errorDiv.innerHTML = `<div>You can only upload up to ${maxVideos} videos. You currently have ${existingVideosCount} existing videos.</div>`;
+            errorDiv.innerHTML = `<div>You can only upload up to ${maxVideos} videos. You currently have ${existingVideosCount + currentPreviewsCount} videos.</div>`;
             errorDiv.style.display = 'block';
             event.target.value = '';
             return;
         }
         
         if (files.length > 0) {
-            // Clear previous previews
-            container.innerHTML = '';
-            
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 
@@ -388,7 +384,7 @@
                     videoDiv.className = 'mb-2 d-inline-block me-2';
                     videoDiv.innerHTML = `
                         <div class="position-relative border rounded p-2" style="min-width: 200px;">
-                            <video controls class="w-100" style="max-height: 150px;">
+                            <video controls style="max-height: 150px;">
                                 <source src="${e.target.result}" type="${file.type}">
                                 Your browser does not support the video tag.
                             </video>
@@ -402,7 +398,9 @@
                 reader.readAsDataURL(file);
             }
         }
-    });    function removeAdditionalImage(button) {
+    });
+    
+    function removeAdditionalImage(button) {
         button.closest('.mb-2').remove();
     }
 
