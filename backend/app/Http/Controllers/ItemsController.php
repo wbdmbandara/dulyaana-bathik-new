@@ -28,6 +28,20 @@ class ItemsController extends Controller
         if (!Auth::check()) {
             return redirect('/');
         }
+        
+        $response['sarees'] = $this->item
+            ->leftJoin('item_category as category', 'items.category', '=', 'category.id')
+            ->select('items.*', 'category.cat_name as category_name')
+            ->get();
+        return view('sarees', $response);
+    }
+
+    public function create()
+    {
+        if (!Auth::check()) {
+            return redirect('/');
+        }
+        
         if (session()->has('temp_image')) {
             $previousTempImage = session('temp_image');
             if (file_exists($previousTempImage)) {
@@ -52,19 +66,6 @@ class ItemsController extends Controller
                 }
             }
             session()->forget('temp_videos');
-        }
-
-        $response['sarees'] = $this->item
-            ->leftJoin('item_category as category', 'items.category', '=', 'category.id')
-            ->select('items.*', 'category.cat_name as category_name')
-            ->get();
-        return view('sarees', $response);
-    }
-
-    public function create()
-    {
-        if (!Auth::check()) {
-            return redirect('/');
         }
         // session(['success' => "Test success message"]);
         $response['categories'] = Categories::all();
@@ -194,9 +195,6 @@ class ItemsController extends Controller
                 'wash_care' => 'nullable|string|max:255',
                 'status' => 'required|string|max:50',
                 'category' => 'required|integer|exists:item_category,id',
-                'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-                'additional_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-                'videos.*' => 'nullable|file|mimes:mp4,webm,ogg,avi,mov,wmv|max:51200',
             ];
 
             $messages = [
@@ -213,15 +211,6 @@ class ItemsController extends Controller
                 'status.required' => 'The status is required.',
                 'category.required' => 'Please select a category.',
                 'category.exists' => 'The selected category is invalid.',
-                'main_image.image' => 'The file must be an image.',
-                'main_image.mimes' => 'The image must be jpeg, png, jpg, gif, or svg format.',
-                'main_image.max' => 'The image size must not exceed 5MB.',
-                'additional_images.*.image' => 'Each additional file must be an image.',
-                'additional_images.*.mimes' => 'Each additional image must be jpeg, png, jpg, gif, or svg format.',
-                'additional_images.*.max' => 'Each additional image size must not exceed 5MB.',
-                'videos.*.file' => 'Each video must be a valid file.',
-                'videos.*.mimes' => 'Each video must be mp4, webm, ogg, avi, mov, or wmv format.',
-                'videos.*.max' => 'Each video size must not exceed 50MB.',
             ];
 
             $validatedData = $request->validate($rules, $messages);
