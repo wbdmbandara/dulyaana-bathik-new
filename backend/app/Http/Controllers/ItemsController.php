@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Items;
 use App\Models\ItemImages;
+use App\Models\ItemVideos;
 use App\Models\Categories;
 use Illuminate\Contracts\Support\ValidatedData;
 
@@ -13,11 +14,13 @@ class ItemsController extends Controller
 {
     protected $item;
     protected $itemImages;
+    protected $itemVideos;
 
-    public function __construct(Items $item, ItemImages $itemImages)
+    public function __construct(Items $item, ItemImages $itemImages, ItemVideos $itemVideos)
     {
         $this->item = $item;
         $this->itemImages = $itemImages;
+        $this->itemVideos = $itemVideos;
     }
 
     public function index()
@@ -40,6 +43,15 @@ class ItemsController extends Controller
                 }
             }
             session()->forget('temp_additional_images');
+        }
+        if (session()->has('temp_videos')) {
+            $previousTempVideos = session('temp_videos');
+            foreach ($previousTempVideos as $prevVideo) {
+                if (file_exists($prevVideo)) {
+                    unlink($prevVideo);
+                }
+            }
+            session()->forget('temp_videos');
         }
 
         $response['sarees'] = $this->item
@@ -66,46 +78,102 @@ class ItemsController extends Controller
                 return redirect('/');
             }
 
-            // Store the uploaded image temporarily for redisplay if validation fails
+            // Store the uploaded main image temporarily for redisplay if validation fails
             if ($request->hasFile('main_image')) {
+                $mainImageFile = $request->file('main_image');
+                
                 if (session()->has('temp_image')) {
                     $previousTempImage = session('temp_image');
-                    if (file_exists($previousTempImage)) {
-                        unlink($previousTempImage);
+                    if (file_exists(public_path($previousTempImage))) {
+                        unlink(public_path($previousTempImage));
                     }
                     session()->forget('temp_image');
                 }
-                $tempImage = $request->file('main_image');
-                $tempImageName = 'temp_image.' . $tempImage->getClientOriginalExtension();
-                $tempPath = 'assets/sarees';
-                copy($tempImage->getRealPath(), $tempPath . '/' . $tempImageName);
-                session(['temp_image' => 'assets/sarees/' . $tempImageName]);
+                
+                $tempImageName = 'temp_main_' . time() . '.' . $mainImageFile->getClientOriginalExtension();
+                $tempPath = public_path('assets/sarees/temp');
+                
+                // Ensure directory exists
+                if (!file_exists($tempPath)) {
+                    mkdir($tempPath, 0755, true);
+                }
+                
+                $mainImageFile->move($tempPath, $tempImageName);
+                session(['temp_image' => 'assets/sarees/temp/' . $tempImageName]);
             }
 
+            // Handle existing additional images from session (for validation error redisplay)
+            $existingAdditionalImages = [];
+            if ($request->has('existing_additional_images')) {
+                $existingAdditionalImages = json_decode($request->input('existing_additional_images'), true) ?: [];
+                // Filter out invalid paths
+                $existingAdditionalImages = array_filter($existingAdditionalImages, function($path) {
+                    return file_exists(public_path($path));
+                });
+            }
+
+            // Handle new additional images
+            $newAdditionalImagePaths = [];
             if ($request->hasFile('additional_images')) {
-                if (session()->has('temp_additional_images')) {
-                    $previousTempImages = session('temp_additional_images');
-                    foreach ($previousTempImages as $prevImage) {
-                        if (file_exists($prevImage)) {
-                            unlink($prevImage);
-                        }
-                    }
-                    session()->forget('temp_additional_images');
-                }
                 $additionalImages = $request->file('additional_images');
-                $additionalImagePaths = [];
+                
                 foreach ($additionalImages as $index => $image) {
                     if ($image->isValid()) {
-                        $tempImageName = 'temp_image_' . $index . '.' . $image->getClientOriginalExtension();
-                        $tempPath = 'assets/sarees/temp';
+                        $tempImageName = 'temp_additional_' . time() . '_' . $index . '.' . $image->getClientOriginalExtension();
+                        $tempPath = public_path('assets/sarees/temp');
+                        
+                        // Ensure directory exists
                         if (!file_exists($tempPath)) {
                             mkdir($tempPath, 0755, true);
                         }
-                        copy($image->getRealPath(), $tempPath . '/' . $tempImageName);
-                        $additionalImagePaths[$index] = $tempPath . '/' . $tempImageName;
+                        
+                        $image->move($tempPath, $tempImageName);
+                        $newAdditionalImagePaths[] = 'assets/sarees/temp/' . $tempImageName;
                     }
                 }
-                session(['temp_additional_images' => $additionalImagePaths]);
+            }
+            
+            // Merge existing and new additional images
+            $allAdditionalImages = array_merge($existingAdditionalImages, $newAdditionalImagePaths);
+            if (!empty($allAdditionalImages)) {
+                session(['temp_additional_images' => $allAdditionalImages]);
+            }
+
+            // Handle existing videos from session (for validation error redisplay)
+            $existingVideos = [];
+            if ($request->has('existing_videos')) {
+                $existingVideos = json_decode($request->input('existing_videos'), true) ?: [];
+                // Filter out invalid paths
+                $existingVideos = array_filter($existingVideos, function($path) {
+                    return file_exists(public_path($path));
+                });
+            }
+
+            // Handle new videos
+            $newVideoPaths = [];
+            if ($request->hasFile('videos')) {
+                $videos = $request->file('videos');
+                
+                foreach ($videos as $index => $video) {
+                    if ($video->isValid()) {
+                        $tempVideoName = 'temp_video_' . time() . '_' . $index . '.' . $video->getClientOriginalExtension();
+                        $tempPath = public_path('assets/sarees/temp');
+                        
+                        // Ensure directory exists
+                        if (!file_exists($tempPath)) {
+                            mkdir($tempPath, 0755, true);
+                        }
+                        
+                        $video->move($tempPath, $tempVideoName);
+                        $newVideoPaths[] = 'assets/sarees/temp/' . $tempVideoName;
+                    }
+                }
+            }
+            
+            // Merge existing and new videos
+            $allVideos = array_merge($existingVideos, $newVideoPaths);
+            if (!empty($allVideos)) {
+                session(['temp_videos' => $allVideos]);
             }
 
             $rules = [
@@ -126,8 +194,9 @@ class ItemsController extends Controller
                 'wash_care' => 'nullable|string|max:255',
                 'status' => 'required|string|max:50',
                 'category' => 'required|integer|exists:item_category,id',
-                'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'additional_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+                'additional_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+                'videos.*' => 'nullable|file|mimes:mp4,webm,ogg,avi,mov,wmv|max:51200',
             ];
 
             $messages = [
@@ -146,40 +215,50 @@ class ItemsController extends Controller
                 'category.exists' => 'The selected category is invalid.',
                 'main_image.image' => 'The file must be an image.',
                 'main_image.mimes' => 'The image must be jpeg, png, jpg, gif, or svg format.',
-                'main_image.max' => 'The image size must not exceed 2MB.',
+                'main_image.max' => 'The image size must not exceed 5MB.',
                 'additional_images.*.image' => 'Each additional file must be an image.',
                 'additional_images.*.mimes' => 'Each additional image must be jpeg, png, jpg, gif, or svg format.',
-                'additional_images.*.max' => 'Each additional image size must not exceed 2MB.',
+                'additional_images.*.max' => 'Each additional image size must not exceed 5MB.',
+                'videos.*.file' => 'Each video must be a valid file.',
+                'videos.*.mimes' => 'Each video must be mp4, webm, ogg, avi, mov, or wmv format.',
+                'videos.*.max' => 'Each video size must not exceed 50MB.',
             ];
 
             $validatedData = $request->validate($rules, $messages);
 
+            // Move main image from temp to permanent location
             if (session()->has('temp_image')) {
-                $previousTempImage = session('temp_image');
-                if (file_exists($previousTempImage)) {
-                    $imageName = $validatedData['url'] . '.' . pathinfo($previousTempImage, PATHINFO_EXTENSION);
-                    rename($previousTempImage, 'assets/sarees/' . $imageName);
+                $tempImagePath = session('temp_image');
+                $fullTempPath = public_path($tempImagePath);
+                if (file_exists($fullTempPath)) {
+                    $imageName = $validatedData['url'] . '.' . pathinfo($tempImagePath, PATHINFO_EXTENSION);
+                    $destinationPath = public_path('assets/sarees/' . $imageName);
+                    rename($fullTempPath, $destinationPath);
                     $validatedData['main_image'] = 'assets/sarees/' . $imageName;
                     session()->forget('temp_image');
                 }
             } else {
                 $validatedData['main_image'] = null;
             }
+            
             $validatedData['added_by'] = Auth::id();
-
             $item = $this->item->create($validatedData);
 
+            // Move additional images from temp to permanent location and save to database
             if (session()->has('temp_additional_images')) {
-                $previousTempImages = session('temp_additional_images');
+                $tempAdditionalImages = session('temp_additional_images');
                 $additionalImagePaths = [];
-                foreach ($previousTempImages as $index => $tempImagePath) {
-                    if (file_exists($tempImagePath)) {
+                
+                foreach ($tempAdditionalImages as $index => $tempImagePath) {
+                    $fullTempPath = public_path($tempImagePath);
+                    if (file_exists($fullTempPath)) {
                         $imageName = $validatedData['url'] . '_' . $index . '.' . pathinfo($tempImagePath, PATHINFO_EXTENSION);
-                        $destinationPath = 'assets/sarees/' . $imageName;
-                        rename($tempImagePath, $destinationPath);
-                        $additionalImagePaths[] = $destinationPath;
+                        $destinationPath = public_path('assets/sarees/' . $imageName);
+                        rename($fullTempPath, $destinationPath);
+                        $additionalImagePaths[] = 'assets/sarees/' . $imageName;
                     }
                 }
+                
                 if (!empty($additionalImagePaths)) {
                     $itemImages = [];
                     foreach ($additionalImagePaths as $path) {
@@ -195,6 +274,53 @@ class ItemsController extends Controller
                 session()->forget('temp_additional_images');
             }
 
+            // Move videos from temp to permanent location and save to database
+            if (session()->has('temp_videos')) {
+                $tempVideos = session('temp_videos');
+                $videoPaths = [];
+                
+                // Ensure videos directory exists
+                $videosDir = public_path('assets/sarees/videos');
+                if (!file_exists($videosDir)) {
+                    mkdir($videosDir, 0755, true);
+                }
+                
+                foreach ($tempVideos as $index => $tempVideoPath) {
+                    $fullTempPath = public_path($tempVideoPath);
+                    if (file_exists($fullTempPath)) {
+                        $videoName = $validatedData['url'] . '_video_' . $index . '.' . pathinfo($tempVideoPath, PATHINFO_EXTENSION);
+                        $destinationPath = public_path('assets/sarees/videos/' . $videoName);
+                        rename($fullTempPath, $destinationPath);
+                        $videoPaths[] = 'assets/sarees/videos/' . $videoName;
+                    }
+                }
+                
+                if (!empty($videoPaths)) {
+                    $itemVideos = [];
+                    foreach ($videoPaths as $path) {
+                        $itemVideos[] = [
+                            'item_id' => $item->id,
+                            'video_url' => $path,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ];
+                    }
+                    $this->itemVideos->insert($itemVideos);
+                }
+                session()->forget('temp_videos');
+            }
+
+            // Clean up temp directory
+            $tempDir = public_path('assets/sarees/temp');
+            if (is_dir($tempDir)) {
+                $files = glob($tempDir . '/*');
+                foreach ($files as $file) {
+                    if (is_file($file)) {
+                        unlink($file);
+                    }
+                }
+            }
+
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
@@ -202,18 +328,7 @@ class ItemsController extends Controller
                     'item' => $item
                 ]);
             }
-            if ($item) {
-                $request->session()->flash('success', 'Item added successfully.');
-                if (session()->has('temp_image')) {
-                    $previousTempImage = session('temp_image');
-                    if (file_exists($previousTempImage)) {
-                        unlink($previousTempImage);
-                    }
-                    session()->forget('temp_image');
-                }
-            } else {
-                $request->session()->flash('error', 'Failed to add item. Please try again.');
-            }
+
             return redirect()->back()->with('success', 'Item added successfully.');
         } catch (\Illuminate\Validation\ValidationException $e) {
             if ($request->ajax()) {

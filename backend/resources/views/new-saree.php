@@ -150,10 +150,10 @@
                             </div>
                             <div class="mb-2">
                                 <label for="mainImage" class="form-label">Main Image</label>
-                                <?php if(session()->has('temp_image') && file_exists(session('temp_image'))): ?>
+                                <?php if(session()->has('temp_image') && file_exists(public_path(session('temp_image')))): ?>
                                     <div class="mb-2" id="existingImageContainer">
                                         <p class="text-muted small">Current image:</p>
-                                        <img src="<?= session('temp_image') ?>" alt="Current Image" class="img-fluid mb-2" style="max-height: 300px;">
+                                        <img src="/<?= session('temp_image') ?>" alt="Current Image" class="img-fluid mb-2" style="max-height: 300px;">
                                         <br>
                                         <div class="d-flex justify-content-center">
                                             <button type="button" class="btn btn-danger btn-sm" onclick="removeExistingImage()">Remove Current Image</button>
@@ -178,9 +178,9 @@
                                         <p class="text-muted small">Current additional images:</p>
                                         <div class="d-flex flex-wrap gap-2">
                                             <?php foreach(session('temp_additional_images') as $index => $imagePath): ?>
-                                                <?php if(file_exists($imagePath)): ?>
+                                                <?php if(file_exists(public_path($imagePath))): ?>
                                                     <div class="position-relative">
-                                                        <img src="<?= $imagePath ?>" alt="Additional Image" class="img-thumbnail" style="max-height: 150px; max-width: 150px;">
+                                                        <img src="/<?= $imagePath ?>" alt="Additional Image" class="img-thumbnail" style="max-height: 150px; max-width: 150px;">
                                                         <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" onclick="removeExistingAdditionalImage(this, <?= $index ?>)" style="transform: translate(25%, -25%);">×</button>
                                                     </div>
                                                 <?php endif; ?>
@@ -191,7 +191,34 @@
                                 <?php endif; ?>
                                 <div id="additionalImagesContainer"></div>
                                 <input class="form-control" type="file" id="additionalImages" name="additional_images[]" accept="image/jpeg,image/png,image/jpg,image/gif,image/svg+xml" multiple>
-                                <small class="text-muted">You can select multiple images</small>
+                                <small class="text-muted">You can select up to 20 additional images (JPEG, PNG, JPG, GIF, SVG formats, max 5MB each)</small>
+                            </div>
+                            <div class="mb-2">
+                                <label for="videos" class="form-label">Videos</label>
+                                <div class="alert alert-danger" id="videosError" style="display:none;"></div>
+                                <?php if(session()->has('temp_videos') && !empty(session('temp_videos'))): ?>
+                                    <div class="mb-2" id="existingVideosContainer">
+                                        <p class="text-muted small">Current videos:</p>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <?php foreach(session('temp_videos') as $index => $videoPath): ?>
+                                                <?php if(file_exists(public_path($videoPath))): ?>
+                                                    <div class="position-relative border rounded p-2" style="min-width: 200px;">
+                                                        <video controls class="w-100" style="max-height: 150px;">
+                                                            <source src="/<?= $videoPath ?>" type="video/mp4">
+                                                            Your browser does not support the video tag.
+                                                        </video>
+                                                        <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" onclick="removeExistingVideo(this, <?= $index ?>)" style="transform: translate(25%, -25%);">×</button>
+                                                        <small class="text-muted d-block mt-1"><?= basename($videoPath) ?></small>
+                                                    </div>
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        </div>
+                                        <input type="hidden" name="existing_videos" value="<?= htmlspecialchars(json_encode(session('temp_videos'))) ?>">
+                                    </div>
+                                <?php endif; ?>
+                                <div id="videosContainer"></div>
+                                <input class="form-control" type="file" id="videos" name="videos[]" accept="video/mp4,video/webm,video/ogg,video/avi,video/mov,video/wmv" multiple>
+                                <small class="text-muted">You can select up to 5 videos (MP4, WebM, OGG, AVI, MOV, WMV formats, max 50MB each)</small>
                             </div>
                         </div>
                         <div class="text-center mt-3">
@@ -252,7 +279,7 @@
             existingImageInput.remove();
         }
     }
-
+    
     document.getElementById('additionalImages').addEventListener('change', function(event) {
         const container = document.getElementById('additionalImagesContainer');
         const errorDiv = document.getElementById('additionalImagesError');
@@ -260,7 +287,21 @@
         errorDiv.innerHTML = '';
         
         const files = event.target.files;
+        const maxImages = 20;
+        const existingImagesCount = document.querySelectorAll('#existingAdditionalImagesContainer .position-relative').length;
+        const totalImages = existingImagesCount + files.length;
+        
+        if (totalImages > maxImages) {
+            errorDiv.innerHTML = `<div>You can only upload up to ${maxImages} additional images. You currently have ${existingImagesCount} existing images.</div>`;
+            errorDiv.style.display = 'block';
+            event.target.value = '';
+            return;
+        }
+        
         if (files.length > 0) {
+            // Clear previous previews
+            container.innerHTML = '';
+            
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 
@@ -272,10 +313,10 @@
                     continue;
                 }
 
-                // Validate file size (2MB = 2048KB = 2097152 bytes)
-                const maxSize = 2097152; // 2MB in bytes
+                // Validate file size (5MB = 5120KB = 5242880 bytes)
+                const maxSize = 5242880; // 5MB in bytes
                 if (file.size > maxSize) {
-                    errorDiv.innerHTML += `<div>${file.name} is too large. Maximum file size is 2MB</div>`;
+                    errorDiv.innerHTML += `<div>${file.name} is too large. Maximum file size is 5MB</div>`;
                     errorDiv.style.display = 'block';
                     continue;
                 }
@@ -299,8 +340,92 @@
         }
     });
 
-    function removeAdditionalImage(button) {
+    document.getElementById('videos').addEventListener('change', function(event) {
+        const container = document.getElementById('videosContainer');
+        const errorDiv = document.getElementById('videosError');
+        errorDiv.style.display = 'none';
+        errorDiv.innerHTML = '';
+        
+        const files = event.target.files;
+        const maxVideos = 5;
+        const existingVideosCount = document.querySelectorAll('#existingVideosContainer .position-relative').length;
+        const totalVideos = existingVideosCount + files.length;
+        
+        if (totalVideos > maxVideos) {
+            errorDiv.innerHTML = `<div>You can only upload up to ${maxVideos} videos. You currently have ${existingVideosCount} existing videos.</div>`;
+            errorDiv.style.display = 'block';
+            event.target.value = '';
+            return;
+        }
+        
+        if (files.length > 0) {
+            // Clear previous previews
+            container.innerHTML = '';
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                // Validate file type
+                const allowedTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/mov', 'video/wmv', 'video/quicktime', 'video/x-msvideo'];
+                if (!allowedTypes.includes(file.type)) {
+                    errorDiv.innerHTML += `<div>${file.name} is not a valid video format. Allowed formats: MP4, WebM, OGG, AVI, MOV, WMV</div>`;
+                    errorDiv.style.display = 'block';
+                    continue;
+                }
+
+                // Validate file size (50MB = 52428800 bytes)
+                const maxSize = 52428800; // 50MB in bytes
+                if (file.size > maxSize) {
+                    errorDiv.innerHTML += `<div>${file.name} is too large. Maximum file size is 50MB</div>`;
+                    errorDiv.style.display = 'block';
+                    continue;
+                }
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const videoDiv = document.createElement('div');
+                    videoDiv.className = 'mb-2 d-inline-block me-2';
+                    videoDiv.innerHTML = `
+                        <div class="position-relative border rounded p-2" style="min-width: 200px;">
+                            <video controls class="w-100" style="max-height: 150px;">
+                                <source src="${e.target.result}" type="${file.type}">
+                                Your browser does not support the video tag.
+                            </video>
+                            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" onclick="removeVideo(this)" style="transform: translate(25%, -25%);">×</button>
+                            <small class="text-muted d-block mt-1">${file.name}</small>
+                        </div>
+                    `;
+                    container.appendChild(videoDiv);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        }
+    });    function removeAdditionalImage(button) {
         button.closest('.mb-2').remove();
+    }
+
+    function removeVideo(button) {
+        button.closest('.mb-2').remove();
+    }
+
+    function removeExistingVideo(button, index) {
+        button.closest('.position-relative').remove();
+        const existingVideosInput = document.querySelector('input[name="existing_videos"]');
+        if (existingVideosInput) {
+            let existingVideos = JSON.parse(existingVideosInput.value);
+            existingVideos.splice(index, 1);
+            if (existingVideos.length > 0) {
+                existingVideosInput.value = JSON.stringify(existingVideos);
+            } else {
+                existingVideosInput.remove();
+                const existingContainer = document.getElementById('existingVideosContainer');
+                if (existingContainer) {
+                    existingContainer.remove();
+                }
+            }
+        }
     }
 
     function removeExistingAdditionalImage(button, index) {
