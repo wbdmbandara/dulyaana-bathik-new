@@ -168,7 +168,30 @@
                                         <button type="button" class="btn btn-danger btn-sm" id="removeImageBtn">Remove Image</button>
                                     </div>
                                 </div>
-                                <input class="form-control" type="file" id="mainImage" name="main_image" accept="image/*">
+                                <input class="form-control" type="file" id="mainImage" name="main_image" accept="image/jpeg,image/png,image/jpg,image/gif,image/svg+xml">
+                            </div>
+                            <div class="mb-2">
+                                <label for="additionalImages" class="form-label">Additional Images</label>
+                                <div class="alert alert-danger" id="additionalImagesError" style="display:none;"></div>
+                                <?php if(session()->has('temp_additional_images') && !empty(session('temp_additional_images'))): ?>
+                                    <div class="mb-2" id="existingAdditionalImagesContainer">
+                                        <p class="text-muted small">Current additional images:</p>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <?php foreach(session('temp_additional_images') as $index => $imagePath): ?>
+                                                <?php if(file_exists($imagePath)): ?>
+                                                    <div class="position-relative">
+                                                        <img src="<?= $imagePath ?>" alt="Additional Image" class="img-thumbnail" style="max-height: 150px; max-width: 150px;">
+                                                        <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" onclick="removeExistingAdditionalImage(this, <?= $index ?>)" style="transform: translate(25%, -25%);">×</button>
+                                                    </div>
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        </div>
+                                        <input type="hidden" name="existing_additional_images" value="<?= htmlspecialchars(json_encode(session('temp_additional_images'))) ?>">
+                                    </div>
+                                <?php endif; ?>
+                                <div id="additionalImagesContainer"></div>
+                                <input class="form-control" type="file" id="additionalImages" name="additional_images[]" accept="image/jpeg,image/png,image/jpg,image/gif,image/svg+xml" multiple>
+                                <small class="text-muted">You can select multiple images</small>
                             </div>
                         </div>
                         <div class="text-center mt-3">
@@ -227,6 +250,74 @@
         const existingImageInput = document.querySelector('input[name="existing_main_image"]');
         if (existingImageInput) {
             existingImageInput.remove();
+        }
+    }
+
+    document.getElementById('additionalImages').addEventListener('change', function(event) {
+        const container = document.getElementById('additionalImagesContainer');
+        const errorDiv = document.getElementById('additionalImagesError');
+        errorDiv.style.display = 'none';
+        errorDiv.innerHTML = '';
+        
+        const files = event.target.files;
+        if (files.length > 0) {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                // Validate file type
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/svg+xml'];
+                if (!allowedTypes.includes(file.type)) {
+                    errorDiv.innerHTML += `<div>${file.name} is not a valid image format. Allowed formats: JPEG, PNG, JPG, GIF, SVG</div>`;
+                    errorDiv.style.display = 'block';
+                    continue;
+                }
+
+                // Validate file size (2MB = 2048KB = 2097152 bytes)
+                const maxSize = 2097152; // 2MB in bytes
+                if (file.size > maxSize) {
+                    errorDiv.innerHTML += `<div>${file.name} is too large. Maximum file size is 2MB</div>`;
+                    errorDiv.style.display = 'block';
+                    continue;
+                }
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const imageDiv = document.createElement('div');
+                    imageDiv.className = 'mb-2 d-inline-block me-2';
+                    imageDiv.innerHTML = `
+                        <div class="position-relative">
+                            <img src="${e.target.result}" alt="Additional Image" class="img-thumbnail" style="max-height: 150px; max-width: 150px;">
+                            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" onclick="removeAdditionalImage(this)" style="transform: translate(25%, -25%);">×</button>
+                        </div>
+                    `;
+                    container.appendChild(imageDiv);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        }
+    });
+
+    function removeAdditionalImage(button) {
+        button.closest('.mb-2').remove();
+    }
+
+    function removeExistingAdditionalImage(button, index) {
+        button.closest('.position-relative').remove();
+        const existingImagesInput = document.querySelector('input[name="existing_additional_images"]');
+        if (existingImagesInput) {
+            let existingImages = JSON.parse(existingImagesInput.value);
+            existingImages.splice(index, 1);
+            if (existingImages.length > 0) {
+                existingImagesInput.value = JSON.stringify(existingImages);
+            } else {
+                existingImagesInput.remove();
+                const existingContainer = document.getElementById('existingAdditionalImagesContainer');
+                if (existingContainer) {
+                    existingContainer.remove();
+                }
+            }
         }
     }
 </script>

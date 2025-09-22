@@ -5,15 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Items;
+use App\Models\ItemImages;
 use App\Models\Categories;
 use Illuminate\Contracts\Support\ValidatedData;
 
 class ItemsController extends Controller
 {
     protected $item;
-    public function __construct(Items $item)
+    protected $itemImages;
+
+    public function __construct(Items $item, ItemImages $itemImages)
     {
         $this->item = $item;
+        $this->itemImages = $itemImages;
     }
 
     public function index()
@@ -27,6 +31,15 @@ class ItemsController extends Controller
                 unlink($previousTempImage);
             }
             session()->forget('temp_image');
+        }
+        if (session()->has('temp_additional_images')) {
+            $previousTempImages = session('temp_additional_images');
+            foreach ($previousTempImages as $prevImage) {
+                if (file_exists($prevImage)) {
+                    unlink($prevImage);
+                }
+            }
+            session()->forget('temp_additional_images');
         }
 
         $response['sarees'] = $this->item
@@ -69,6 +82,32 @@ class ItemsController extends Controller
                 session(['temp_image' => 'assets/sarees/' . $tempImageName]);
             }
 
+            if ($request->hasFile('additional_images')) {
+                if (session()->has('temp_additional_images')) {
+                    $previousTempImages = session('temp_additional_images');
+                    foreach ($previousTempImages as $prevImage) {
+                        if (file_exists($prevImage)) {
+                            unlink($prevImage);
+                        }
+                    }
+                    session()->forget('temp_additional_images');
+                }
+                $additionalImages = $request->file('additional_images');
+                $additionalImagePaths = [];
+                foreach ($additionalImages as $index => $image) {
+                    if ($image->isValid()) {
+                        $tempImageName = 'temp_image_' . $index . '.' . $image->getClientOriginalExtension();
+                        $tempPath = 'assets/sarees/temp';
+                        if (!file_exists($tempPath)) {
+                            mkdir($tempPath, 0755, true);
+                        }
+                        copy($image->getRealPath(), $tempPath . '/' . $tempImageName);
+                        $additionalImagePaths[$index] = $tempPath . '/' . $tempImageName;
+                    }
+                }
+                session(['temp_additional_images' => $additionalImagePaths]);
+            }
+
             $rules = [
                 'name' => 'required|string|max:255|unique:items,name',
                 'description' => 'required|string|max:255',
@@ -88,6 +127,7 @@ class ItemsController extends Controller
                 'status' => 'required|string|max:50',
                 'category' => 'required|integer|exists:item_category,id',
                 'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'additional_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ];
 
             $messages = [
@@ -107,6 +147,9 @@ class ItemsController extends Controller
                 'main_image.image' => 'The file must be an image.',
                 'main_image.mimes' => 'The image must be jpeg, png, jpg, gif, or svg format.',
                 'main_image.max' => 'The image size must not exceed 2MB.',
+                'additional_images.*.image' => 'Each additional file must be an image.',
+                'additional_images.*.mimes' => 'Each additional image must be jpeg, png, jpg, gif, or svg format.',
+                'additional_images.*.max' => 'Each additional image size must not exceed 2MB.',
             ];
 
             $validatedData = $request->validate($rules, $messages);
@@ -114,7 +157,7 @@ class ItemsController extends Controller
             if (session()->has('temp_image')) {
                 $previousTempImage = session('temp_image');
                 if (file_exists($previousTempImage)) {
-                    $imageName = time() . '.' . pathinfo($previousTempImage, PATHINFO_EXTENSION);
+                    $imageName = $validatedData['url'] . '.' . pathinfo($previousTempImage, PATHINFO_EXTENSION);
                     rename($previousTempImage, 'assets/sarees/' . $imageName);
                     $validatedData['main_image'] = 'assets/sarees/' . $imageName;
                     session()->forget('temp_image');
@@ -125,6 +168,32 @@ class ItemsController extends Controller
             $validatedData['added_by'] = Auth::id();
 
             $item = $this->item->create($validatedData);
+
+            if (session()->has('temp_additional_images')) {
+                $previousTempImages = session('temp_additional_images');
+                $additionalImagePaths = [];
+                foreach ($previousTempImages as $index => $tempImagePath) {
+                    if (file_exists($tempImagePath)) {
+                        $imageName = $validatedData['url'] . '_' . $index . '.' . pathinfo($tempImagePath, PATHINFO_EXTENSION);
+                        $destinationPath = 'assets/sarees/' . $imageName;
+                        rename($tempImagePath, $destinationPath);
+                        $additionalImagePaths[] = $destinationPath;
+                    }
+                }
+                if (!empty($additionalImagePaths)) {
+                    $itemImages = [];
+                    foreach ($additionalImagePaths as $path) {
+                        $itemImages[] = [
+                            'item_id' => $item->id,
+                            'image_path' => $path,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ];
+                    }
+                    $this->itemImages->insert($itemImages);
+                }
+                session()->forget('temp_additional_images');
+            }
 
             if ($request->ajax()) {
                 return response()->json([
