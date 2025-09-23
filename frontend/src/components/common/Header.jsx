@@ -2,6 +2,105 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 function Header() {
+	// Add mobile navigation styles for React compatibility
+	React.useEffect(() => {
+		const style = document.createElement('style');
+		style.id = 'mobile-nav-styles';
+		style.textContent = `
+			/* Mobile Navigation Styles for React - Ultra-fast response */
+			@media (max-width: 1199.98px) {
+				.navmenu {
+					position: fixed;
+					top: 100%;
+					left: 0;
+					width: 100%;
+					background: white;
+					box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+					transform: translateY(-100%);
+					transition: transform 0.05s ease, opacity 0.05s ease;
+					z-index: 1000;
+					opacity: 0;
+					visibility: hidden;
+					will-change: transform, opacity;
+				}
+				
+				.navmenu.show,
+				.mobile-nav-active .navmenu {
+					opacity: 1;
+					visibility: visible;
+					transform: translateY(0);
+				}
+				
+				.navmenu ul {
+					flex-direction: column;
+					padding: 0.5rem 0;
+					margin: 0;
+					list-style: none;
+				}
+				
+				.navmenu ul li {
+					width: 100%;
+					border-bottom: 1px solid #f0f0f0;
+				}
+				
+				.navmenu ul li:last-child {
+					border-bottom: none;
+				}
+				
+				.navmenu ul li a {
+					display: block;
+					padding: 0.75rem 1.5rem;
+					color: #333;
+					text-decoration: none;
+					transition: background-color 0.05s ease, color 0.05s ease;
+				}
+				
+				.navmenu ul li a i{
+					margin-left: 0.5rem;
+					transition: transform 0.05s ease;
+					float: right;
+					line-height: 1;
+					font-size: 0.75rem;
+				}
+				
+				.navmenu ul li a:hover,
+				.navmenu ul li a.active {
+					background: #f8f9fa;
+					color: #007bff;
+				}
+				
+				.mobile-nav-toggle {
+					cursor: pointer;
+					font-size: 1.5rem;
+					color: #333;
+					transition: color 0.05s ease;
+					touch-action: manipulation;
+					user-select: none;
+				}
+				
+				.mobile-nav-toggle:hover {
+					color: #007bff;
+				}	
+			}
+		`;
+		
+		// Remove existing styles if any
+		const existingStyle = document.getElementById('mobile-nav-styles');
+		if (existingStyle) {
+			existingStyle.remove();
+		}
+		
+		document.head.appendChild(style);
+		
+		// Cleanup on unmount
+		return () => {
+			const styleElement = document.getElementById('mobile-nav-styles');
+			if (styleElement) {
+				styleElement.remove();
+			}
+		};
+	}, []);
+
 	return (
 		<header id="header" className="header position-relative">
 
@@ -11,7 +110,7 @@ function Header() {
 					<div className="d-flex py-3 align-items-center justify-content-between">
 						{/*Logo */}
 						<a
-							href="index.html"
+							href="/"
 							className="logo d-flex align-items-center"
 						>
 							{/*Uncomment the line below if you also wish to use an image logo */}
@@ -249,10 +348,14 @@ function Header() {
 										</div>
 									</div>
 								</div>
-							</div>
-
-							{/*Mobile Navigation Toggle */}
-							<i className="mobile-nav-toggle d-xl-none bi bi-list me-0"></i>
+							</div>							{/*Mobile Navigation Toggle */}
+							<button 
+								className="mobile-nav-toggle d-xl-none border-0 bg-transparent p-0"
+								type="button"
+								aria-label="Toggle navigation"
+							>
+								<i className="bi bi-list"></i>
+							</button>
 						</div>
 					</div>
 				</div>
@@ -260,30 +363,29 @@ function Header() {
 
 			{/*Navigation */}
 			<div className="header-nav">
-				<div className="container-fluid container-xl position-relative">
-					<nav id="navmenu" className="navmenu">
+				<div className="container-fluid container-xl position-relative">					<nav id="navmenu" className="navmenu">
 						<ul>
 							<li>
-								<a href="index.html" className="active">
+								<Link to="/" className="active">
 									Home
-								</a>
+								</Link>
 							</li>
 							<li>
-								<a href="about.html">About</a>
+								<Link to="/about">About</Link>
 							</li>
 							<li>
-								<a href="category.html">Category</a>
+								<Link to="/category">Category</Link>
 							</li>
 							<li>
-								<a href="product-details.html">
+								<Link to="/product-details">
 									Product Details
-								</a>
+								</Link>
 							</li>
 							<li>
-								<a href="cart.html">Cart</a>
+								<Link to="/cart">Cart</Link>
 							</li>
 							<li>
-								<a href="checkout.html">Checkout</a>
+								<Link to="/checkout">Checkout</Link>
 							</li>
 							<li className="dropdown">
 								<a href="#">

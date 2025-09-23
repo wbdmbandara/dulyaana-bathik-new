@@ -8,7 +8,7 @@
 
 (function () {
 	"use strict";
-
+	
 	/**
 	 * Apply .scrolled class to the body as the page is scrolled down
 	 */
@@ -69,48 +69,219 @@
 			});
 	}
 
-	window.addEventListener("load", initSwiper);
-
+	window.addEventListener("load", initSwiper);	
+	
 	/**
-	 * Mobile nav toggle
+	 * Mobile nav toggle - Ultra-optimized for instant response
 	 */
-	const mobileNavToggleBtn = document.querySelector(".mobile-nav-toggle");
-
-	function mobileNavToogle() {
-		document.querySelector("body").classList.toggle("mobile-nav-active");
-		mobileNavToggleBtn.classList.toggle("bi-list");
-		mobileNavToggleBtn.classList.toggle("bi-x");
-	}
-	if (mobileNavToggleBtn) {
-		mobileNavToggleBtn.addEventListener("click", mobileNavToogle);
-	}
-
-	/**
-	 * Hide mobile nav on same-page/hash links
-	 */
-	document.querySelectorAll("#navmenu a").forEach((navmenu) => {
-		navmenu.addEventListener("click", () => {
-			if (document.querySelector(".mobile-nav-active")) {
-				mobileNavToogle();
+	function initMobileNavToggle() {
+		// Cache DOM elements for better performance
+		let cachedElements = {
+			body: null,
+			navMenu: null,
+			toggleBtn: null,
+			icon: null
+		};
+		
+		function cacheElements() {
+			if (!cachedElements.body) cachedElements.body = document.querySelector("body");
+			if (!cachedElements.navMenu) cachedElements.navMenu = document.querySelector("#navmenu");
+			if (!cachedElements.toggleBtn) cachedElements.toggleBtn = document.querySelector(".mobile-nav-toggle");
+			if (!cachedElements.icon && cachedElements.toggleBtn) {
+				cachedElements.icon = cachedElements.toggleBtn.querySelector("i") || cachedElements.toggleBtn;
 			}
-		});
+		}
+
+		function mobileNavToogle(e) {
+			e?.preventDefault();
+			e?.stopPropagation();
+			
+			// Cache elements on first use only
+			cacheElements();
+			
+			const { body, navMenu, icon } = cachedElements;
+			
+			// Ultra-fast toggle using direct class replacement
+			if (body) {
+				const hasActiveClass = body.classList.contains("mobile-nav-active");
+				body.className = hasActiveClass 
+					? body.className.replace(" mobile-nav-active", "").replace("mobile-nav-active", "")
+					: body.className + " mobile-nav-active";
+			}
+			
+			if (navMenu) {
+				const hasShowClass = navMenu.classList.contains("show");
+				navMenu.className = hasShowClass
+					? navMenu.className.replace(" show", "").replace("show", "")
+					: navMenu.className + " show";
+			}
+			
+			// Ultra-fast icon toggle
+			if (icon) {
+				const hasListIcon = icon.classList.contains("bi-list");
+				icon.className = hasListIcon
+					? icon.className.replace("bi-list", "bi-x")
+					: icon.className.replace("bi-x", "bi-list");
+			}
+		}
+		
+		// Use event delegation for better performance
+		document.addEventListener("click", function(e) {
+			if (e.target.closest(".mobile-nav-toggle")) {
+				mobileNavToogle(e);
+			}
+		}, { passive: false });
+		
+		return mobileNavToogle;
+	}
+
+	// Initialize mobile nav toggle once only
+	const mobileNavToogle = initMobileNavToggle();
+
+	// Minimal re-initialization - only if absolutely necessary
+	let isInitialized = false;
+	function reinitMobileNav() {
+		if (isInitialized) return; // Prevent unnecessary re-initialization
+		isInitialized = true;
+		setTimeout(() => { isInitialized = false; }, 100); // Reset flag after delay
+	}
+
+	// Listen only for specific changes that affect navigation	// Optimized observer - only watch for essential changes
+	let observerTimeout;
+	const observer = new MutationObserver((mutations) => {
+		// Debounce to prevent excessive calls
+		clearTimeout(observerTimeout);
+		observerTimeout = setTimeout(() => {
+			let needsReinit = false;
+			
+			// Only check if header/navigation was actually modified
+			for (const mutation of mutations) {
+				if (mutation.type === 'childList') {
+					const target = mutation.target;
+					// Only trigger if header or nav elements were modified
+					if (target.id === 'header' || target.closest('#header') || 
+						target.classList?.contains('mobile-nav-toggle') ||
+						target.querySelector?.('.mobile-nav-toggle')) {
+						needsReinit = true;
+						break;
+					}
+				}
+			}
+			
+			if (needsReinit) {
+				reinitMobileNav();
+			}
+		}, 200); // Increased debounce for better performance
 	});
 
-	/**
-	 * Toggle mobile nav dropdowns
-	 */
-	document
-		.querySelectorAll(".navmenu .toggle-dropdown")
-		.forEach((navmenu) => {
-			navmenu.addEventListener("click", function (e) {
-				e.preventDefault();
-				this.parentNode.classList.toggle("active");
-				this.parentNode.nextElementSibling.classList.toggle(
-					"dropdown-active"
-				);
-				e.stopImmediatePropagation();
-			});
+	// Only observe header changes specifically
+	const headerElement = document.getElementById('header');
+	if (headerElement) {
+		observer.observe(headerElement, {
+			childList: true,
+			subtree: true
 		});
+	}	/**
+	 * Hide mobile nav on navigation - Ultra-optimized with dropdown exception
+	 */
+	function initMobileNavHiding() {
+		// Use single event listener with efficient delegation
+		document.addEventListener('click', function(e) {
+			// Quick exit if clicked on dropdown toggle or its children
+			if (e.target.closest('.toggle-dropdown')) {
+				return; // Don't hide mobile nav when clicking dropdown toggles
+			}
+			
+			// Quick exit if not a navigation element
+			const navLink = e.target.closest('#navmenu a, #navmenu [role="link"]');
+			if (!navLink) return;
+			
+			// Cache body element
+			const body = document.body;
+			if (!body.classList.contains("mobile-nav-active")) return;
+			
+			// Ultra-fast class removal
+			body.className = body.className.replace(" mobile-nav-active", "").replace("mobile-nav-active", "");
+			
+			// Fast navmenu hide
+			const navMenu = document.querySelector("#navmenu");
+			if (navMenu) {
+				navMenu.className = navMenu.className.replace(" show", "").replace("show", "");
+			}
+			
+			// Fast icon reset
+			const mobileToggleBtn = document.querySelector(".mobile-nav-toggle i");
+			if (mobileToggleBtn && mobileToggleBtn.classList.contains("bi-x")) {
+				mobileToggleBtn.className = mobileToggleBtn.className.replace("bi-x", "bi-list");
+			}
+		}, { passive: true, capture: true });
+	}
+
+	// Initialize navigation hiding
+	initMobileNavHiding();	/**
+	 * Toggle mobile nav dropdowns - React compatible with event delegation
+	 */
+	function initMobileNavDropdowns() {
+		// Remove any existing global dropdown listener
+		document.removeEventListener("click", globalDropdownHandler);
+		
+		// Add single event listener using delegation for better performance
+		document.addEventListener("click", globalDropdownHandler);
+	}
+
+	function globalDropdownHandler(e) {
+		// Check if clicked element is a dropdown toggle
+		const dropdownToggle = e.target.closest(".toggle-dropdown");
+		if (dropdownToggle) {
+			handleDropdownToggle.call(dropdownToggle, e);
+		}
+	}
+	function handleDropdownToggle(e) {
+		e.preventDefault();
+		e.stopPropagation(); // Stop the event from bubbling up
+		e.stopImmediatePropagation(); // Prevent any other listeners from firing
+		
+		this.parentNode.classList.toggle("active");
+		this.parentNode.nextElementSibling.classList.toggle("dropdown-active");
+	}
+	// Initialize dropdown toggles
+	initMobileNavDropdowns();
+
+	// Re-initialize when React updates (more efficient observer)
+	const dropdownObserver = new MutationObserver((mutations) => {
+		let needsReinit = false;
+		
+		for (const mutation of mutations) {
+			if (mutation.type === 'childList') {
+				const addedNodes = Array.from(mutation.addedNodes);
+				const hasDropdownElements = addedNodes.some(node => 
+					node.nodeType === Node.ELEMENT_NODE && 
+					(node.classList?.contains('toggle-dropdown') || 
+					 node.querySelector?.('.toggle-dropdown'))
+				);
+				
+				if (hasDropdownElements) {
+					needsReinit = true;
+					break;
+				}
+			}
+		}
+		
+		if (needsReinit) {
+			initMobileNavDropdowns();
+		}
+	});
+
+	// Watch for changes in navigation elements only
+	document.addEventListener("DOMContentLoaded", () => {
+		const navElement = document.getElementById('navmenu');
+		if (navElement) {
+			dropdownObserver.observe(navElement, {
+				childList: true,
+				subtree: true
+			});
+		}
+	});
 
 	/**
 	 * Preloader
@@ -241,76 +412,149 @@
 					);
 				});
 		});
-
 	/**
-	 * Ecommerce Cart Functionality
+	 * Ecommerce Cart Functionality - React compatible
 	 * Handles quantity changes and item removal
 	 */
 
 	function ecommerceCartTools() {
-		// Get all quantity buttons and inputs directly
-		const decreaseButtons = document.querySelectorAll(
-			".quantity-btn.decrease"
-		);
-		const increaseButtons = document.querySelectorAll(
-			".quantity-btn.increase"
-		);
-		const quantityInputs = document.querySelectorAll(".quantity-input");
-		const removeButtons = document.querySelectorAll(".remove-item");
+		// Function to initialize cart controls
+		function initCartControls() {
+			// Get all quantity buttons and inputs
+			const decreaseButtons = document.querySelectorAll(".quantity-btn.decrease");
+			const increaseButtons = document.querySelectorAll(".quantity-btn.increase");
+			const quantityInputs = document.querySelectorAll(".quantity-input");
+			const removeButtons = document.querySelectorAll(".remove-item");
 
-		// Decrease quantity buttons
-		decreaseButtons.forEach((btn) => {
-			btn.addEventListener("click", function () {
-				const quantityInput = btn
-					.closest(".quantity-selector")
-					.querySelector(".quantity-input");
-				let currentValue = parseInt(quantityInput.value);
-				if (currentValue > 1) {
-					quantityInput.value = currentValue - 1;
-				}
+			// Decrease quantity buttons
+			decreaseButtons.forEach((btn) => {
+				btn.removeEventListener("click", handleDecrease);
+				btn.addEventListener("click", handleDecrease);
 			});
+
+			// Increase quantity buttons
+			increaseButtons.forEach((btn) => {
+				btn.removeEventListener("click", handleIncrease);
+				btn.addEventListener("click", handleIncrease);
+			});
+
+			// Manual quantity inputs
+			quantityInputs.forEach((input) => {
+				input.removeEventListener("change", handleQuantityChange);
+				input.addEventListener("change", handleQuantityChange);
+			});
+
+			// Remove item buttons
+			removeButtons.forEach((btn) => {
+				btn.removeEventListener("click", handleRemoveItem);
+				btn.addEventListener("click", handleRemoveItem);
+			});
+		}
+
+		// Event handlers
+		function handleDecrease() {
+			const quantityInput = this.closest(".quantity-selector").querySelector(".quantity-input");
+			let currentValue = parseInt(quantityInput.value);
+			if (currentValue > 1) {
+				quantityInput.value = currentValue - 1;
+				// Trigger change event for React state updates
+				quantityInput.dispatchEvent(new Event('change', { bubbles: true }));
+			}
+		}
+
+		function handleIncrease() {
+			const quantityInput = this.closest(".quantity-selector").querySelector(".quantity-input");
+			let currentValue = parseInt(quantityInput.value);
+			const maxValue = parseInt(quantityInput.getAttribute("max")) || 999;
+			if (currentValue < maxValue) {
+				quantityInput.value = currentValue + 1;
+				// Trigger change event for React state updates
+				quantityInput.dispatchEvent(new Event('change', { bubbles: true }));
+			}
+		}
+
+		function handleQuantityChange() {
+			let currentValue = parseInt(this.value);
+			const min = parseInt(this.getAttribute("min")) || 1;
+			const max = parseInt(this.getAttribute("max")) || 999;
+
+			// Validate input
+			if (isNaN(currentValue) || currentValue < min) {
+				this.value = min;
+			} else if (currentValue > max) {
+				this.value = max;
+			}
+		}
+
+		function handleRemoveItem() {
+			const cartItem = this.closest(".cart-item");
+			if (cartItem) {
+				cartItem.remove();
+			}
+		}
+
+		// Initialize cart controls
+		initCartControls();
+
+		// Re-initialize when React components update
+		const cartObserver = new MutationObserver(() => {
+			initCartControls();
 		});
 
-		// Increase quantity buttons
-		increaseButtons.forEach((btn) => {
-			btn.addEventListener("click", function () {
-				const quantityInput = btn
-					.closest(".quantity-selector")
-					.querySelector(".quantity-input");
-				let currentValue = parseInt(quantityInput.value);
-				if (
-					currentValue < parseInt(quantityInput.getAttribute("max"))
-				) {
-					quantityInput.value = currentValue + 1;
-				}
-			});
-		});
-
-		// Manual quantity inputs
-		quantityInputs.forEach((input) => {
-			input.addEventListener("change", function () {
-				let currentValue = parseInt(input.value);
-				const min = parseInt(input.getAttribute("min"));
-				const max = parseInt(input.getAttribute("max"));
-
-				// Validate input
-				if (isNaN(currentValue) || currentValue < min) {
-					input.value = min;
-				} else if (currentValue > max) {
-					input.value = max;
-				}
-			});
-		});
-
-		// Remove item buttons
-		removeButtons.forEach((btn) => {
-			btn.addEventListener("click", function () {
-				btn.closest(".cart-item").remove();
-			});
+		// Watch for changes in cart elements
+		const cartElements = document.querySelectorAll(".cart-dropdown, .cart-page, .checkout-page");
+		cartElements.forEach(element => {
+			if (element) {
+				cartObserver.observe(element, {
+					childList: true,
+					subtree: true
+				});
+			}
 		});
 	}
 
+	// Initialize cart tools
 	ecommerceCartTools();
+	/**
+	 * React-specific initialization - Ultra-lightweight
+	 */
+	function initReactCompatibility() {
+		// Minimal navigation listener with high performance
+		const handleNavigation = () => {
+			// Use requestAnimationFrame for smooth updates
+			requestAnimationFrame(() => {
+				const body = document.body;
+				if (body.classList.contains("mobile-nav-active")) {
+					// Auto-close mobile nav on route change
+					body.className = body.className.replace(" mobile-nav-active", "").replace("mobile-nav-active", "");
+					const navMenu = document.querySelector("#navmenu");
+					if (navMenu) {
+						navMenu.className = navMenu.className.replace(" show", "").replace("show", "");
+					}
+				}
+			});
+		};
+		
+		// Listen for React Router navigation
+		window.addEventListener('popstate', handleNavigation, { passive: true });
+		
+		// Intercept pushstate/replacestate with minimal overhead
+		const originalPushState = history.pushState;
+		const originalReplaceState = history.replaceState;
+		
+		history.pushState = function() {
+			originalPushState.apply(history, arguments);
+			handleNavigation();
+		};
+		
+		history.replaceState = function() {
+			originalReplaceState.apply(history, arguments);
+			handleNavigation();
+		};
+	}
+
+	// Initialize React compatibility
+	initReactCompatibility();
 
 	/**
 	 * Initiate glightbox
