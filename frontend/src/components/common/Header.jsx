@@ -4,128 +4,6 @@ import { Link } from "react-router-dom";
 function Header() {
 	return (
 		<header id="header" className="header position-relative">
-			{/* Top Bar */}
-			<div className="top-bar py-2 d-none d-lg-block">
-				<div className="container-fluid container-xl">
-					<div className="row align-items-center">
-						<div className="col-lg-6">
-							<div className="d-flex align-items-center">
-								<div className="top-bar-item me-4">
-									<i className="bi bi-telephone-fill me-2"></i>
-									<span>Customer Support: </span>
-									<a href="tel:+1234567890">
-										+1 (234) 567-890
-									</a>
-								</div>
-								<div className="top-bar-item">
-									<i className="bi bi-envelope-fill me-2"></i>
-									<a href="#">
-										<span
-											className="__cf_email__"
-											data-cfemail="3a494f4a4a55484e7a5f425b574a565f14595557"
-										>
-											[email&#160;protected]
-										</span>
-									</a>
-								</div>
-							</div>
-						</div>
-
-						<div className="col-lg-6">
-							<div className="d-flex justify-content-end">
-								<div className="top-bar-item me-4">
-									<a href="track-order.html">
-										<i className="bi bi-truck me-2"></i>
-										Track Order
-									</a>
-								</div>
-								<div className="top-bar-item dropdown me-4">
-									<a
-										href="#"
-										className="dropdown-toggle"
-										data-bs-toggle="dropdown"
-									>
-										<i className="bi bi-translate me-2"></i>
-										English
-									</a>
-									<ul className="dropdown-menu">
-										<li>
-											<a
-												className="dropdown-item"
-												href="#"
-											>
-												<i className="bi bi-check2 me-2 selected-icon"></i>
-												English
-											</a>
-										</li>
-										<li>
-											<a
-												className="dropdown-item"
-												href="#"
-											>
-												Español
-											</a>
-										</li>
-										<li>
-											<a
-												className="dropdown-item"
-												href="#"
-											>
-												Français
-											</a>
-										</li>
-										<li>
-											<a
-												className="dropdown-item"
-												href="#"
-											>
-												Deutsch
-											</a>
-										</li>
-									</ul>
-								</div>
-								<div className="top-bar-item dropdown">
-									<a
-										href="#"
-										className="dropdown-toggle"
-										data-bs-toggle="dropdown"
-									>
-										<i className="bi bi-currency-dollar me-2"></i>
-										USD
-									</a>
-									<ul className="dropdown-menu">
-										<li>
-											<a
-												className="dropdown-item"
-												href="#"
-											>
-												<i className="bi bi-check2 me-2 selected-icon"></i>
-												USD
-											</a>
-										</li>
-										<li>
-											<a
-												className="dropdown-item"
-												href="#"
-											>
-												EUR
-											</a>
-										</li>
-										<li>
-											<a
-												className="dropdown-item"
-												href="#"
-											>
-												GBP
-											</a>
-										</li>
-									</ul>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
 
 			{/*Main Header */}
 			<div className="main-header">
@@ -137,9 +15,9 @@ function Header() {
 							className="logo d-flex align-items-center"
 						>
 							{/*Uncomment the line below if you also wish to use an image logo */}
-							{/*<img src="assets/img/logo.webp" alt=""> */}
+							<img src="/logo.jpeg" alt="Dulyaana Bathik" />
 							<h1 className="sitename">
-								Fashion<span>Store</span>
+								Dulyaana <span>Bathik</span>
 							</h1>
 						</a>
 
@@ -149,7 +27,7 @@ function Header() {
 								<input
 									type="text"
 									className="form-control"
-									placeholder="Search for products..."
+									placeholder="Search for Sarees..."
 								/>
 								<button
 									className="btn search-btn"
