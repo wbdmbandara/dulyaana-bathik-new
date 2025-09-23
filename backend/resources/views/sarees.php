@@ -95,7 +95,7 @@
                     </table>
                     <!-- End sarees table -->
 
-                    <?= $sarees->links('custom-pagination') ?>
+                    <?= $sarees->appends(request()->query())->links('custom-pagination') ?>
                 </div>
             </div>
         </section>
