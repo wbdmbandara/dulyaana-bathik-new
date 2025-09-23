@@ -29,10 +29,26 @@ class ItemsController extends Controller
             return redirect('/');
         }
         
-        $response['sarees'] = $this->item
+        $query = $this->item
             ->leftJoin('item_category as category', 'items.category', '=', 'category.id')
-            ->select('items.*', 'category.cat_name as category_name')
-            ->paginate(10);
+            ->select('items.*', 'category.cat_name as category_name');
+
+        // Search functionality
+        if (request()->has('search') && !empty(request()->get('search'))) {
+            $searchTerm = request()->get('search');
+            $query->where(function($q) use ($searchTerm) {
+            $q->where('category.cat_name', 'LIKE', '%' . $searchTerm . '%')
+              ->orWhere('items.name', 'LIKE', '%' . $searchTerm . '%')
+              ->orWhere('items.description', 'LIKE', '%' . $searchTerm . '%');
+            });
+        }
+
+        // Hide zero quantity items
+        if (request()->has('hide_zero_qty')) {
+            $query->where('items.quantity', '>', 0);
+        }
+
+        $response['sarees'] = $query->paginate(10);
         return view('sarees', $response);
     }
 

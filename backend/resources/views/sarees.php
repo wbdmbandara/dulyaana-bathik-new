@@ -43,6 +43,19 @@
                         <a href="/new-saree" class="btn btn-primary">Add New Saree</a>
                     </div>
 
+                    <!-- Search Saree -->
+                    <form action="" method="GET" class="mt-3">
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" name="search" placeholder="Search by Title, Category or Description" value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
+                            <div class="input-group-text">
+                                <input class="form-check-input mt-0" type="checkbox" name="hide_zero_qty" id="hideZeroQty" value="1" <?= isset($_GET['hide_zero_qty']) && $_GET['hide_zero_qty'] == '1' ? 'checked' : '' ?>>
+                                <label class="form-check-label ms-1" for="hideZeroQty">Hide zero qty</label>
+                            </div>
+                            <button class="btn btn-primary" type="submit">Search</button>
+                            <button type="button" class="btn btn-danger" onclick="location.href='?search='">Reset</button>
+                        </div>
+                    </form>
+
                     <!-- sarees table -->
                     <table class="table table-striped table-bordered mt-3">
                         <thead>
@@ -63,10 +76,10 @@
                                 foreach ($sarees as $index => $saree): ?>
                                     <tr>
                                         <th class="text-center" scope="row"><?= $index + 1 ?></th>
-                                        <td><?= htmlspecialchars($saree['name']) ?></td>
                                         <td class="text-center">
                                             <img src="<?= htmlspecialchars($saree['main_image']) ?>" alt="" class="img-fluid" style="max-height: 150px;">
                                         </td>
+                                        <td><?= htmlspecialchars($saree['name']) ?></td>
                                         <td><?= htmlspecialchars($saree['category_name']) ?></td>
                                         <td><?= htmlspecialchars($saree['description']) ?></td>
                                         <td class="text-center"><?= htmlspecialchars($saree['quantity']) ?></td>
