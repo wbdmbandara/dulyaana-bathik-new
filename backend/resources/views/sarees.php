@@ -82,6 +82,7 @@
                     </table>
                     <!-- End sarees table -->
 
+                    <?= $sarees->links('custom-pagination') ?>
                 </div>
             </div>
         </section>

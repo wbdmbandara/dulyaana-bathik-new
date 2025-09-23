@@ -32,7 +32,7 @@ class ItemsController extends Controller
         $response['sarees'] = $this->item
             ->leftJoin('item_category as category', 'items.category', '=', 'category.id')
             ->select('items.*', 'category.cat_name as category_name')
-            ->get();
+            ->paginate(10);
         return view('sarees', $response);
     }
 
