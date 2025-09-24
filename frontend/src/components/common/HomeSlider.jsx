@@ -1,4 +1,5 @@
 import React from "react";
+import { API_URL } from "../../config";
 
 function HomeSlider() {
 	return (
@@ -33,7 +34,7 @@ function HomeSlider() {
 							<div className="swiper-slide">
 								<div className="slide-image">
 									<img
-										src="http://127.0.0.1:8000/assets/slider/slider 1.png"
+										src={`${API_URL}assets/slider/slider 1.png`}
 										alt="Hero Slide 1"
 										className="img-fluid"
 									/>
@@ -44,7 +45,7 @@ function HomeSlider() {
 							<div className="swiper-slide">
 								<div className="slide-image">
 									<img
-										src="http://127.0.0.1:8000/assets/slider/slider 2.png"
+										src={`${API_URL}assets/slider/slider 2.png`}
 										alt="Hero Slide 2"
 										className="img-fluid"
 									/>
@@ -55,7 +56,7 @@ function HomeSlider() {
 							<div className="swiper-slide">
 								<div className="slide-image">
 									<img
-										src="http://127.0.0.1:8000/assets/slider/slider 3.png"
+										src={`${API_URL}assets/slider/slider 3.png`}
 										alt="Hero Slide 3"
 										className="img-fluid"
 									/>
