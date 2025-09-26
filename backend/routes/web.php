@@ -5,6 +5,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ItemsController;
+use App\Http\Controllers\SliderController;
 
 Route::get('/', [UserController::class, 'showLogin']);
 Route::get('/login', [UserController::class, 'showLogin']);
@@ -31,3 +32,9 @@ Route::post('/categories/update/{id}', [CategoryController::class, 'update']);
 Route::post('/categories/delete/{id}', [CategoryController::class, 'delete']);
 
 Route::get('/dashboard', [DashboardController::class, 'index']);
+
+Route::get('/home-slider', [SliderController::class, 'index']);
+Route::post('/slides/new', [SliderController::class, 'store']);
+Route::get('/slides/{id}', [SliderController::class, 'show']);
+Route::post('/slides/update/{id}', [SliderController::class, 'update']);
+Route::post('/slides/delete/{id}', [SliderController::class, 'delete']);

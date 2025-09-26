@@ -40,6 +40,14 @@
           <i class="bi bi-people"></i>
           <span>Users</span>
         </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link <?php if($active != 'home-slider'){echo 'collapsed';} ?>" href="/home-slider">
+          <i class="bi bi-image"></i>
+          <span>Home Slider</span>
+        </a>
+      </li>
 
 
       <!-- <li class="nav-heading">Pages</li> -->
