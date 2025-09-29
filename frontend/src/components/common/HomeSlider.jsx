@@ -1,7 +1,27 @@
-import React from "react";
-import { API_URL } from "../../config";
+// import React from "react";
+import { API_URL, SLIDER_URL } from "../../config";
+import React, { useState, useEffect } from "react";
 
 function HomeSlider() {
+	const [sliders, setSliders] = useState([]);
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		const fetchSliders = async () => {
+			try {
+				const response = await fetch(`${API_URL}getSlider`);
+				const data = await response.json();
+				setSliders(data);
+			} catch (error) {
+				console.error("Error fetching sliders:", error);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchSliders();
+	}, []);
+
 	return (
 		<div>
 			{/* Hero Section */}
@@ -11,57 +31,32 @@ function HomeSlider() {
 						className="hero-slider swiper init-swiper"
 						data-aos="fade-up"
 					>
-						{/* 
-            Swiper configuration example:
-            {
-              "loop": true,
-              "speed": 800,
-              "autoplay": {
-                "delay": 5000
-              },
-              "effect": "fade",
-              "fadeEffect": {
-                "crossFade": true
-              },
-              "navigation": {
-                "nextEl": ".swiper-button-next",
-                "prevEl": ".swiper-button-prev"
-              }
-            }
-          */}
 						<div className="swiper-wrapper">
-							{/* Image Slide 1 */}
-							<div className="swiper-slide">
-								<div className="slide-image">
-									<img
-										src={`${API_URL}assets/slider/slider 1.png`}
-										alt="Hero Slide 1"
-										className="img-fluid"
-									/>
+							{loading ? (
+								<div className="swiper-slide">
+									<div className="slide-image">
+										<p>Loading...</p>
+									</div>
 								</div>
-							</div>
-
-							{/* Image Slide 2 */}
-							<div className="swiper-slide">
-								<div className="slide-image">
-									<img
-										src={`${API_URL}assets/slider/slider 2.png`}
-										alt="Hero Slide 2"
-										className="img-fluid"
-									/>
-								</div>
-							</div>
-
-							{/* Image Slide 3 */}
-							<div className="swiper-slide">
-								<div className="slide-image">
-									<img
-										src={`${API_URL}assets/slider/slider 3.png`}
-										alt="Hero Slide 3"
-										className="img-fluid"
-									/>
-								</div>
-							</div>
+							) : (
+								sliders.map((slider, index) => (
+									<div
+										key={slider.id || index}
+										className="swiper-slide"
+									>
+										<div className="slide-image">
+											<img
+												src={`${SLIDER_URL}${slider.image_path}`}
+												alt={
+													slider.title ||
+													`Hero Slide ${index + 1}`
+												}
+												className="img-fluid"
+											/>
+										</div>
+									</div>
+								))
+							)}
 						</div>
 
 						<div className="swiper-button-prev"></div>

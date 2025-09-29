@@ -184,4 +184,10 @@ class SliderController extends Controller
 
         return redirect()->back()->with('success', 'Slide deleted successfully.');
     }
+
+    public function displaySlides()
+    {
+        $slides = SliderImages::where('visibility', true)->orderBy('order', 'asc')->get();
+        return response()->json($slides);
+    }
 }
