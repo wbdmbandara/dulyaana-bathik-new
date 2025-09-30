@@ -5,6 +5,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ItemsController;
+use App\Http\Controllers\PromoCardsController;
 use App\Http\Controllers\SliderController;
 
 Route::get('/', [UserController::class, 'showLogin']);
@@ -38,3 +39,9 @@ Route::post('/slides/new', [SliderController::class, 'store']);
 Route::get('/slides/{id}', [SliderController::class, 'show']);
 Route::post('/slides/update/{id}', [SliderController::class, 'update']);
 Route::post('/slides/delete/{id}', [SliderController::class, 'delete']);
+
+Route::get('/promo-cards', [PromoCardsController::class, 'index']);
+Route::post('/promo-cards/new', [PromoCardsController::class, 'store']);
+Route::get('/promo-cards/{id}', [PromoCardsController::class, 'edit']);
+Route::post('/promo-cards/update/{id}', [PromoCardsController::class, 'update']);
+Route::post('/promo-cards/delete/{id}', [PromoCardsController::class, 'destroy']);

@@ -33,7 +33,7 @@ class SliderController extends Controller
         if (!Auth::check()) {
             return redirect('/');
         }
-        $latID = SliderImages::max('id');
+        $lastID = SliderImages::max('id');
         $validated = $request->validate([
             'slideImage' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'altText' => 'required|string|max:255',
@@ -48,7 +48,7 @@ class SliderController extends Controller
 
         if ($request->hasFile('slideImage')) {
             $image = $request->file('slideImage');
-            $fileName = 'slider_' . ($latID + 1) . '.' . $image->getClientOriginalExtension();
+            $fileName = 'slider_' . ($lastID + 1) . '.' . $image->getClientOriginalExtension();
             $destinationPath = public_path('assets/slider');
             $image->move($destinationPath, $fileName);
             $slide->image_path = 'assets/slider/' . $fileName;
