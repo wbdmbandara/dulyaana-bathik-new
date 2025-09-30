@@ -1,5 +1,5 @@
 // import React from "react";
-import { API_URL, SLIDER_URL } from "../../config";
+import { API_URL, BACKEND_URL } from "../../config";
 import React, { useState, useEffect } from "react";
 
 function HomeSlider() {
@@ -46,7 +46,7 @@ function HomeSlider() {
 									>
 										<div className="slide-image">
 											<img
-												src={`${SLIDER_URL}${slider.image_path}`}
+												src={`${BACKEND_URL}${slider.image_path}`}
 												alt={
 													slider.title ||
 													`Hero Slide ${index + 1}`

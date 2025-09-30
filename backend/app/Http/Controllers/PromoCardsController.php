@@ -190,4 +190,13 @@ class PromoCardsController extends Controller
             ], 404);
         }
     }
+
+    public function getPromoCards()
+    {
+        $allPromoCards = PromoCards::all();
+        return response()->json([
+            'success' => true,
+            'promoCards' => $allPromoCards
+        ]);        
+    }
 }
