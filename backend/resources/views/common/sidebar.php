@@ -43,10 +43,21 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link <?php if($active != 'home-slider'){echo 'collapsed';} ?>" href="/home-slider">
-          <i class="bi bi-image"></i>
-          <span>Home Slider</span>
+        <a class="nav-link <?php if($active != 'home-page'){echo 'collapsed';} ?>" data-bs-target="#home-page-nav" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-layout-text-window-reverse"></i><span>Home Page</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
+        <ul id="home-page-nav" class="nav-content <?php if($active != 'home-page'){echo 'collapse';} ?>" data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="/home-slider" class="<?php if($subMenu == 'home-slider'){echo 'active';} ?>">
+              <i class="bi bi-circle"></i><span>Home Slider</span>
+            </a>
+          </li>
+          <li>
+            <a href="/promo-cards" class="<?php if($subMenu == 'promo-cards'){echo 'active';} ?>">
+              <i class="bi bi-circle"></i><span>Promo Cards</span>
+            </a>
+          </li>
+        </ul>
       </li>
 
 

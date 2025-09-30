@@ -3,7 +3,7 @@
     setTitle('Home Slider');
     include_once 'common/topbar.php';
     include_once 'common/sidebar.php';
-    setActiveMenuItem('home-slider', 'home-slider');
+    setActiveMenuItem('home-page', 'home-slider');
 ?>
 
     <main id="main" class="main">
