@@ -268,7 +268,7 @@ class ItemsController extends Controller
                     $itemImages = [];
                     foreach ($additionalImagePaths as $path) {
                         $itemImages[] = [
-                            'item_id' => $item->id,
+                            'item_id' => $item->item_id,
                             'image_path' => $path,
                             'created_at' => now(),
                             'updated_at' => now()
@@ -304,7 +304,7 @@ class ItemsController extends Controller
                     $itemVideos = [];
                     foreach ($videoPaths as $path) {
                         $itemVideos[] = [
-                            'item_id' => $item->id,
+                            'item_id' => $item->item_id,
                             'video_url' => $path,
                             'created_at' => now(),
                             'updated_at' => now()
@@ -352,6 +352,305 @@ class ItemsController extends Controller
                 ], 500);
             }
             return redirect()->back()->with('error', 'Error creating item: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    public function edit($id)
+    {
+        if (!Auth::check()) {
+            return redirect('/');
+        }
+        
+        $item = $this->item->where('item_id', $id)->first();
+        if (!$item) {
+            return redirect()->back()->with('error', 'Item not found.');
+        }
+
+        $response['saree'] = $item;
+        $response['categories'] = Categories::all();
+        $response['additional_images'] = $this->itemImages->where('item_id', $id)->pluck('image_path')->toArray();
+        $response['videos'] = $this->itemVideos->where('item_id', $id)->pluck('video_url')->toArray();
+        return view('edit-saree', $response);
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            if (!Auth::check()) {
+                return redirect('/');
+            }
+
+            $item = $this->item->where('item_id', $id)->first();
+            if (!$item) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Item not found.'
+                    ], 404);
+                }
+                return redirect()->back()->with('error', 'Item not found.');
+            }
+
+            // Store the uploaded main image temporarily for redisplay if validation fails
+            if ($request->hasFile('main_image')) {
+                $mainImageFile = $request->file('main_image');
+                
+                if (session()->has('temp_image')) {
+                    $previousTempImage = session('temp_image');
+                    if (file_exists(public_path($previousTempImage))) {
+                        unlink(public_path($previousTempImage));
+                    }
+                    session()->forget('temp_image');
+                }
+                
+                $tempImageName = 'temp_main_' . time() . '.' . $mainImageFile->getClientOriginalExtension();
+                $tempPath = public_path('assets/sarees/temp');
+                
+                // Ensure directory exists
+                if (!file_exists($tempPath)) {
+                    mkdir($tempPath, 0755, true);
+                }
+                
+                $mainImageFile->move($tempPath, $tempImageName);
+                session(['temp_image' => 'assets/sarees/temp/' . $tempImageName]);
+            } else {
+                // If no new main image uploaded, keep existing main image path in session for redisplay
+                session(['temp_image' => $item->main_image]);
+            }
+
+            // Handle existing additional images from session (for validation error redisplay)
+            $existingAdditionalImages = [];
+            if ($request->has('existing_additional_images')) {
+                $existingAdditionalImages = json_decode($request->input('existing_additional_images'), true) ?: [];
+                // Filter out invalid paths
+                $existingAdditionalImages = array_filter($existingAdditionalImages, function($path) {
+                    return file_exists(public_path($path));
+                });
+            }
+
+            // Handle new additional images
+            $newAdditionalImagePaths = [];
+            if ($request->hasFile('additional_images')) {
+                $additionalImages = $request->file('additional_images');
+                
+                foreach ($additionalImages as $index => $image) {
+                    if ($image->isValid()) {
+                        $tempImageName = 'temp_additional_' . time() . '_' . $index . '.' . $image->getClientOriginalExtension();
+                        $tempPath = public_path('assets/sarees/temp');
+                        
+                        // Ensure directory exists
+                        if (!file_exists($tempPath)) {
+                            mkdir($tempPath, 0755, true);
+                        }
+                        
+                        $image->move($tempPath, $tempImageName);
+                        $newAdditionalImagePaths[] = 'assets/sarees/temp/' . $tempImageName;
+                    }
+                }
+                session(['temp_additional_images' => $newAdditionalImagePaths]);
+            }
+
+            // Handle existing videos from session (for validation error redisplay)
+            $existingVideos = [];
+            if ($request->has('existing_videos')) {
+                $existingVideos = json_decode($request->input('existing_videos'), true) ?: [];
+                // Filter out invalid paths
+                $existingVideos = array_filter($existingVideos, function($path) {
+                    return file_exists(public_path($path));
+                });
+            }
+
+            // Handle new videos
+            $newVideoPaths = [];
+            if ($request->hasFile('videos')) {
+                $videos = $request->file('videos');
+
+                foreach ($videos as $index => $video) {
+                    if ($video->isValid()) {
+                        $tempVideoName = 'temp_video_' . time() . '_' . $index . '.' . $video->getClientOriginalExtension();
+                        $tempPath = public_path('assets/sarees/temp');
+
+                        // Ensure directory exists
+                        if (!file_exists($tempPath)) {
+                            mkdir($tempPath, 0755, true);
+                        }
+
+                        $video->move($tempPath, $tempVideoName);
+                        $newVideoPaths[] = 'assets/sarees/temp/' . $tempVideoName;
+                    }
+                }
+                session(['temp_videos' => $newVideoPaths]);
+            }
+            $rules = [
+                'name' => 'required|string|max:255|unique:items,name,' . $item->item_id . ',item_id',
+                'description' => 'required|string|max:255',
+                'price' => 'required|numeric',
+                'discount_price' => 'nullable|numeric',
+                'quantity' => 'required|integer',
+                'url' => 'required|string|max:255|unique:items,url,' . $item->item_id . ',item_id',
+                'fabric' => 'nullable|string|max:255',
+                'pattern' => 'nullable|string|max:255',
+                'saree_work' => 'nullable|string|max:255',
+                'saree_length' => 'nullable|string|max:255',
+                'blouse_length' => 'nullable|string|max:255',
+                'set_contents' => 'nullable|string|max:255',
+                'weight' => 'nullable|string|max:255',
+                'occasion' => 'nullable|string|max:255',
+                'wash_care' => 'nullable|string|max:255',
+                'status' => 'required|string|max:50',
+                'category' => 'required|integer|exists:item_category,id',
+            ];
+            $messages = [
+                'name.required' => 'The Title is required.',
+                'name.unique' => 'This Title already exists.',
+                'description.required' => 'The description is required.',
+                'price.required' => 'The price is required.',
+                'price.numeric' => 'The price must be a valid number.',
+                'discount_price.numeric' => 'The discount price must be a valid number.',
+                'quantity.required' => 'The quantity is required.',
+                'quantity.integer' => 'The quantity must be a whole number.',
+                'url.required' => 'The URL is required.',
+                'url.unique' => 'This URL already exists.',
+                'status.required' => 'The status is required.',
+                'category.required' => 'Please select a category.',
+                'category.exists' => 'The selected category is invalid.',
+            ];
+            $validatedData = $request->validate($rules, $messages);
+            // Move main image from temp to permanent location
+            if (session()->has('temp_image')) {
+                $tempImagePath = session('temp_image');
+                $fullTempPath = public_path($tempImagePath);
+                if (file_exists($fullTempPath) && strpos($tempImagePath, 'assets/sarees/temp/') === 0) {
+                    // New main image uploaded, move it to permanent location
+                    $imageName = $validatedData['url'] . '.' . pathinfo($tempImagePath, PATHINFO_EXTENSION);
+                    $destinationPath = public_path('assets/sarees/' . $imageName);
+                    rename($fullTempPath, $destinationPath);
+                    $validatedData['main_image'] = 'assets/sarees/' . $imageName;
+                } else {
+                    // No new image, keep existing path
+                    $validatedData['main_image'] = $item->main_image;
+                }
+                session()->forget('temp_image');
+            } else {
+                $validatedData['main_image'] = $item->main_image;
+            }
+            $validatedData['added_by'] = Auth::id();
+            $item->where('item_id', $id)->update($validatedData);
+            // Move additional images from temp to permanent location and save to database
+            $allAdditionalImages = [];
+            if (session()->has('temp_additional_images')) {
+                $tempAdditionalImages = session('temp_additional_images');
+                $newAdditionalImagePaths = [];
+                
+                foreach ($tempAdditionalImages as $index => $tempImagePath) {
+                    $fullTempPath = public_path($tempImagePath);
+                    if (file_exists($fullTempPath) && strpos($tempImagePath, 'assets/sarees/temp/') === 0) {
+                        $imageName = $validatedData['url'] . '_' . $index . '.' . pathinfo($tempImagePath, PATHINFO_EXTENSION);
+                        $destinationPath = public_path('assets/sarees/' . $imageName);
+                        rename($fullTempPath, $destinationPath);
+                        $newAdditionalImagePaths[] = 'assets/sarees/' . $imageName;
+                    } elseif (file_exists($fullTempPath)) {
+                        // Existing image, keep its path
+                        $newAdditionalImagePaths[] = $tempImagePath;
+                    }
+                }
+                $allAdditionalImages = array_merge($existingAdditionalImages, $newAdditionalImagePaths);
+                session()->forget('temp_additional_images');
+            } else {
+                $allAdditionalImages = $existingAdditionalImages;
+            }
+            // Sync additional images in database
+            $this->itemImages->where('item_id', $item->item_id)->delete();
+            if (!empty($allAdditionalImages)) {
+                $itemImages = [];
+                foreach ($allAdditionalImages as $path) {
+                    $itemImages[] = [
+                        'item_id' => $item->item_id,
+                        'image_path' => $path,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
+                }
+                $this->itemImages->insert($itemImages);
+            }
+            // Move videos from temp to permanent location and save to database
+            $allVideos = [];
+            if (session()->has('temp_videos')) {
+                $tempVideos = session('temp_videos');
+                $newVideoPaths = [];
+                
+                // Ensure videos directory exists
+                $videosDir = public_path('assets/sarees/videos');
+                if (!file_exists($videosDir)) {
+                    mkdir($videosDir, 0755, true);
+                }
+                
+                foreach ($tempVideos as $index => $tempVideoPath) {
+                    $fullTempPath = public_path($tempVideoPath);
+                    if (file_exists($fullTempPath) && strpos($tempVideoPath, 'assets/sarees/temp/') === 0) {
+                        $videoName = $validatedData['url'] . '_video_' . time() . '_' . $index . '.' . pathinfo($tempVideoPath, PATHINFO_EXTENSION);
+                        $destinationPath = public_path('assets/sarees/videos/' . $videoName);
+                        rename($fullTempPath, $destinationPath);
+                        $newVideoPaths[] = 'assets/sarees/videos/' . $videoName;
+                    } elseif (file_exists($fullTempPath)) {
+                        // Existing video, keep its path
+                        $newVideoPaths[] = $tempVideoPath;
+                    }
+                }
+                $allVideos = array_merge($existingVideos, $newVideoPaths);
+                session()->forget('temp_videos');
+            } else {
+                $allVideos = $existingVideos;
+            }
+            // Sync videos in database
+            $this->itemVideos->where('item_id', $item->item_id)->delete();
+            if (!empty($allVideos)) {
+                $itemVideos = [];
+                foreach ($allVideos as $path) {
+                    $itemVideos[] = [
+                        'item_id' => $item->item_id,
+                        'video_url' => $path,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
+                }
+                $this->itemVideos->insert($itemVideos);
+            }
+            // Clean up temp directory
+            $tempDir = public_path('assets/sarees/temp');
+            if (is_dir($tempDir)) {
+                $files = glob($tempDir . '/*');
+                foreach ($files as $file) {
+                    if (is_file($file)) {
+                        unlink($file);
+                    }
+                }
+            }
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Item updated successfully.',
+                    'item' => $item
+                ]);
+            }
+            return redirect()->back()->with('success', 'Item updated successfully.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed.',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            return redirect()->back()->withErrors($e->validator)->withInput();
+        } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error updating item: ' . $e->getMessage()
+                ], 500);
+            }
+            return redirect()->back()->with('error', 'Error updating item: ' . $e->getMessage())->withInput();
         }
     }
 }

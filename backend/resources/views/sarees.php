@@ -86,7 +86,7 @@
                                         <td class="text-center"><?= htmlspecialchars($saree['price']) ?></td>
                                         <td class="text-center"><?= htmlspecialchars($saree['discount_price']) ?></td>
                                         <td class="text-center d-flex flex-column gap-2">
-                                            <button class="btn btn-sm btn-warning editbtn" onclick="editSaree(<?= $saree['id'] ?>)"><i class="bi bi-pencil"></i> Edit</button>
+                                            <a href="/edit-saree/<?= $saree['item_id'] ?>" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i> Edit </a>
                                             <button class="btn btn-sm btn-danger deletebtn" onclick="deleteSaree(<?= $saree['id'] . ',\'' . $saree['name'] . '\'' ?>)"><i class="bi bi-trash"></i> Delete</button>
                                         </td>
                                     </tr>
