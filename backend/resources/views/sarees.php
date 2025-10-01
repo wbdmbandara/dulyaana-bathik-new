@@ -87,7 +87,7 @@
                                         <td class="text-center"><?= htmlspecialchars($saree['discount_price']) ?></td>
                                         <td class="text-center d-flex flex-column gap-2">
                                             <a href="/edit-saree/<?= $saree['item_id'] ?>" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i> Edit </a>
-                                            <button class="btn btn-sm btn-danger deletebtn" onclick="deleteSaree(<?= $saree['id'] . ',\'' . $saree['name'] . '\'' ?>)"><i class="bi bi-trash"></i> Delete</button>
+                                            <button class="btn btn-sm btn-danger deletebtn" onclick="deleteSaree(<?= $saree['item_id'] . ',\'' . $saree['name'] . '\'' ?>)"><i class="bi bi-trash"></i> Delete</button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -106,3 +106,58 @@
 <?php
     include_once 'common/footer.php';
 ?>
+
+<script>
+    function deleteSaree(sareeId, sareeTitle) {
+        Swal.fire({
+            title: `Are you sure you want to delete this saree: ${sareeTitle}?`,
+            text: "This action cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, Delete!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Send AJAX request to delete saree
+                fetch(`/sarees/delete/${sareeId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '<?= csrf_token() ?>',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: data.message || 'Saree has been deleted.',
+                            timer: 6000,
+                            showConfirmButton: false
+                        });
+
+                        setTimeout(() => {
+                            location.reload();
+                        }, 6000);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Failed to delete saree.'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An unexpected error occurred.'
+                    });
+                });
+            }
+        });
+    }
+</script>

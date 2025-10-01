@@ -653,4 +653,60 @@ class ItemsController extends Controller
             return redirect()->back()->with('error', 'Error updating item: ' . $e->getMessage())->withInput();
         }
     }
+
+    public function delete(Request $request, $id)
+    {
+        try {
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized.'
+                ], 401);
+            }
+
+            $item = $this->item->where('item_id', $id)->first();
+            if (!$item) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Item not found.'
+                ], 404);
+            }
+
+            // Delete associated images from filesystem and database
+            $itemImages = $this->itemImages->where('item_id', $item->item_id)->get();
+            foreach ($itemImages as $image) {
+                if (file_exists(public_path($image->image_path))) {
+                    unlink(public_path($image->image_path));
+                }
+            }
+            $this->itemImages->where('item_id', $item->item_id)->delete();
+
+            // Delete associated videos from filesystem and database
+            $itemVideos = $this->itemVideos->where('item_id', $item->item_id)->get();
+            foreach ($itemVideos as $video) {
+                if (file_exists(public_path($video->video_url))) {
+                    unlink(public_path($video->video_url));
+                }
+            }
+            $this->itemVideos->where('item_id', $item->item_id)->delete();
+
+            // Delete main image from filesystem
+            if (file_exists(public_path($item->main_image))) {
+                unlink(public_path($item->main_image));
+            }
+
+            // Finally, delete the item record
+            $this->item->where('item_id', $id)->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Item deleted successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting item: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
