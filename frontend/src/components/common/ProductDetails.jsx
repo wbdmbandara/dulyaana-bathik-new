@@ -6,6 +6,7 @@ function ProductDetails({ url }) {
 	const [product, setProduct] = useState(null);
 	const [additionalImages, setAdditionalImages] = useState([]);
 	const [activeImageIndex, setActiveImageIndex] = useState(0);
+	const [quantity, setQuantity] = useState(1);
 	const [videos, setVideos] = useState([]);
 
 	useEffect(() => {
@@ -34,6 +35,26 @@ function ProductDetails({ url }) {
 
 		fetchProductDetails();
 	}, [url]);
+
+	const handleQuantityChange = (e) => {
+		const value = Math.max(
+			1,
+			Math.min(product?.quantity || 1, Number(e.target.value))
+		);
+		setQuantity(value);
+	};
+
+	const handleQuantityIncrease = () => {
+		if (quantity < (product?.quantity || 1)) {
+			setQuantity(quantity + 1);
+		}
+	};
+
+	const handleQuantityDecrease = () => {
+		if (quantity > 1) {
+			setQuantity(quantity - 1);
+		}
+	};
 
 	const changeMainImage = (index) => {
 		setActiveImageIndex(index);
@@ -111,10 +132,11 @@ function ProductDetails({ url }) {
 										<button
 											className="image-nav-btn prev-image"
 											onClick={() => {
-												setActiveImageIndex((prevIndex) =>
-													prevIndex > 0
-														? prevIndex - 1
-														: additionalImages.length
+												setActiveImageIndex(
+													(prevIndex) =>
+														prevIndex > 0
+															? prevIndex - 1
+															: additionalImages.length
 												);
 											}}
 										>
@@ -123,10 +145,12 @@ function ProductDetails({ url }) {
 										<button
 											className="image-nav-btn next-image"
 											onClick={() => {
-												setActiveImageIndex((prevIndex) =>
-													prevIndex < additionalImages.length
-														? prevIndex + 1
-														: 0
+												setActiveImageIndex(
+													(prevIndex) =>
+														prevIndex <
+														additionalImages.length
+															? prevIndex + 1
+															: 0
 												);
 											}}
 										>
@@ -232,7 +256,8 @@ function ProductDetails({ url }) {
 									{product?.discount_price > 0 && (
 										<span className="discount-badge">
 											{Math.round(
-												((product?.price - product?.discount_price) /
+												((product?.price -
+													product?.discount_price) /
 													product?.price) *
 													100
 											)}
@@ -246,13 +271,16 @@ function ProductDetails({ url }) {
 												<i className="bi bi-check-circle-fill"></i>
 												<span>In Stock</span>
 												<span className="stock-count">
-													({product?.quantity} items left)
+													({product?.quantity} items
+													left)
 												</span>
 											</>
 										) : (
 											<>
 												<i className="bi bi-x-circle-fill out-of-stock"></i>
-												<span className="out-of-stock">Out of Stock</span>
+												<span className="out-of-stock">
+													Out of Stock
+												</span>
 											</>
 										)}
 									</div>
@@ -353,17 +381,18 @@ function ProductDetails({ url }) {
 											Quantity
 										</h6>
 										<div className="quantity-selector">
-											<button className="quantity-btn decrease">
+											<button className="quantity-btn decrease" onClick={handleQuantityDecrease}>
 												<i className="bi bi-dash"></i>
 											</button>
 											<input
 												type="number"
 												className="quantity-input"
-												value="1"
+												value={quantity}
+												onChange={handleQuantityChange}
 												min="1"
-												max="24"
+												max={product.quantity}
 											/>
-											<button className="quantity-btn increase">
+											<button className="quantity-btn increase" onClick={handleQuantityIncrease}>
 												<i className="bi bi-plus"></i>
 											</button>
 										</div>
@@ -494,7 +523,9 @@ function ProductDetails({ url }) {
 													<>
 														<h4>Set Contents</h4>
 														<p>
-															{product.set_contents}
+															{
+																product.set_contents
+															}
 														</p>
 													</>
 												) : null}
@@ -532,7 +563,8 @@ function ProductDetails({ url }) {
 																		Fabric
 																	</div>
 																	<div className="specs-value">
-																		{product.fabric || "-"}
+																		{product.fabric ||
+																			"-"}
 																	</div>
 																</div>
 																<div className="specs-row">
@@ -540,7 +572,8 @@ function ProductDetails({ url }) {
 																		Pattern
 																	</div>
 																	<div className="specs-value">
-																		{product.pattern || "-"}
+																		{product.pattern ||
+																			"-"}
 																	</div>
 																</div>
 																<div className="specs-row">
@@ -548,15 +581,18 @@ function ProductDetails({ url }) {
 																		Occasion
 																	</div>
 																	<div className="specs-value">
-																		{product.occasion || "-"}
+																		{product.occasion ||
+																			"-"}
 																	</div>
 																</div>
 																<div className="specs-row">
 																	<div className="specs-label">
-																		Saree Work
+																		Saree
+																		Work
 																	</div>
 																	<div className="specs-value">
-																		{product.saree_work || "-"}
+																		{product.saree_work ||
+																			"-"}
 																	</div>
 																</div>
 															</div>
@@ -568,18 +604,22 @@ function ProductDetails({ url }) {
 															<div className="specs-table">
 																<div className="specs-row">
 																	<div className="specs-label">
-																		Saree Length
+																		Saree
+																		Length
 																	</div>
 																	<div className="specs-value">
-																		{product.saree_length || "-"}
+																		{product.saree_length ||
+																			"-"}
 																	</div>
 																</div>
 																<div className="specs-row">
 																	<div className="specs-label">
-																		Blouse Length
+																		Blouse
+																		Length
 																	</div>
 																	<div className="specs-value">
-																		{product.blouse_length || "-"}
+																		{product.blouse_length ||
+																			"-"}
 																	</div>
 																</div>
 																<div className="specs-row">
@@ -587,15 +627,18 @@ function ProductDetails({ url }) {
 																		Weight
 																	</div>
 																	<div className="specs-value">
-																		{product.weight || "-"}
+																		{product.weight ||
+																			"-"}
 																	</div>
 																</div>
 																<div className="specs-row">
 																	<div className="specs-label">
-																		Wash Care
+																		Wash
+																		Care
 																	</div>
 																	<div className="specs-value">
-																		{product.wash_care || "-"}
+																		{product.wash_care ||
+																			"-"}
 																	</div>
 																</div>
 															</div>
