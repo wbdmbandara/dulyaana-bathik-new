@@ -363,7 +363,8 @@ function Header() {
 
 			{/*Navigation */}
 			<div className="header-nav">
-				<div className="container-fluid container-xl position-relative">					<nav id="navmenu" className="navmenu">
+				<div className="container-fluid container-xl position-relative">
+					<nav id="navmenu" className="navmenu">
 						<ul>
 							<li>
 								<Link to="/" className="active">
