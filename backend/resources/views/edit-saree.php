@@ -267,7 +267,7 @@
                             </div>
                         </div>
                         <div class="text-center mt-3">
-                            <button type="reset" class="btn btn-warning">Reset</button>
+                            <a href="/sarees" class="btn btn-warning">Back to Sarees</a>
                             <button type="submit" class="btn btn-success">Update Saree</button>
                         </div>
                     </form>
