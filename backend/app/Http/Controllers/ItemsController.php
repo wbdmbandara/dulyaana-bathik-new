@@ -709,4 +709,44 @@ class ItemsController extends Controller
             ], 500);
         }
     }
+
+    public function getProductDetails(Request $request, $url)
+    {
+        try {
+            if (!$url) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product URL is required.'
+                ], 400);
+            }
+
+            $item = $this->item
+                ->leftJoin('item_category as category', 'items.category', '=', 'category.id')
+                ->select('items.*', 'category.cat_name as category_name')
+                ->where('items.url', $url)
+                ->first();
+
+            if (!$item) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product not found.'
+                ], 404);
+            }
+
+            $additionalImages = $this->itemImages->where('item_id', $item->item_id)->pluck('image_path')->toArray();
+            $videos = $this->itemVideos->where('item_id', $item->item_id)->pluck('video_url')->toArray();
+
+            return response()->json([
+                'success' => true,
+                'product' => $item,
+                'additional_images' => $additionalImages,
+                'videos' => $videos
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching product details: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
