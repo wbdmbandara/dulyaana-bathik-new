@@ -535,6 +535,48 @@ function ProductDetails({ url }) {
 									</div>
 								</div>
 
+								{/* Videos Accordion */}
+								{videos.length > 0 && (
+									<div className="accordion-item">
+										<h2 className="accordion-header">
+											<button
+												className="accordion-button collapsed"
+												type="button"
+												data-bs-toggle="collapse"
+												data-bs-target="#videos"
+												aria-expanded="false"
+												aria-controls="videos"
+											>
+												Videos
+											</button>
+										</h2>
+										<div
+											id="videos"
+											className="accordion-collapse collapse"
+										>
+											<div className="accordion-body">
+												<div className="product-videos text-center">
+													{videos.map((video, index) => (
+														<video
+															key={index}
+															controls
+															className="video-player"
+															style={{ maxWidth: "100%", marginBottom: "20px", height: "auto", maxHeight: "400px" }}
+														>
+															<source
+																src={BACKEND_URL + video}
+																type="video/mp4"
+															/>
+															Your browser does not support the
+															video tag.
+														</video>
+													))}
+												</div>
+											</div>
+										</div>
+									</div>
+								)}
+
 								{/* Specifications Accordion */}
 								<div className="accordion-item">
 									<h2 className="accordion-header">
