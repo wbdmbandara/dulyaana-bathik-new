@@ -3,7 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dulyaana Bathik</title>
+    <title id="page-title">Dulyaana Bathik</title>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+      const pageTitle = document.title; // Replace this with logic to get the display page title dynamically
+      document.getElementById("page-title").textContent = pageTitle;
+      });
+    </script>
     <meta name="description" content="">
     <meta name="keywords" content="">
 

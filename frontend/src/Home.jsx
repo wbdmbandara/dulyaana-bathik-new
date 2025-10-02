@@ -12,6 +12,7 @@ import Footer from "./components/common/Footer";
 const Home = () => {
 	return (
 		<div>
+			<title>Dulyaana Bathik - Home</title>
             <Header activeMenu="home"/>
 			<HomeSlider />
 			<PromoCards />
