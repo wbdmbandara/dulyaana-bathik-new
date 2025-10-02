@@ -466,17 +466,18 @@ function ProductDetails({ url }) {
 								</div>
 								<div className="sticky-actions">
 									<div className="quantity-selector">
-										<button className="quantity-btn decrease">
+										<button className="quantity-btn decrease" onClick={handleQuantityDecrease}>
 											<i className="bi bi-dash"></i>
 										</button>
 										<input
 											type="number"
 											className="quantity-input"
-											value="1"
+											value={quantity}
+											onChange={handleQuantityChange}
 											min="1"
-											max="24"
+											max={product.quantity}
 										/>
-										<button className="quantity-btn increase">
+										<button className="quantity-btn increase" onClick={handleQuantityIncrease}>
 											<i className="bi bi-plus"></i>
 										</button>
 									</div>
@@ -977,7 +978,7 @@ function ProductDetails({ url }) {
 																	value="5"
 																/>
 																<label
-																	for="star5"
+																	htmlFor="star5"
 																	title="5 stars"
 																>
 																	<i className="bi bi-star-fill"></i>
@@ -989,7 +990,7 @@ function ProductDetails({ url }) {
 																	value="4"
 																/>
 																<label
-																	for="star4"
+																	htmlFor="star4"
 																	title="4 stars"
 																>
 																	<i className="bi bi-star-fill"></i>
@@ -1001,7 +1002,7 @@ function ProductDetails({ url }) {
 																	value="3"
 																/>
 																<label
-																	for="star3"
+																	htmlFor="star3"
 																	title="3 stars"
 																>
 																	<i className="bi bi-star-fill"></i>
@@ -1013,7 +1014,7 @@ function ProductDetails({ url }) {
 																	value="2"
 																/>
 																<label
-																	for="star2"
+																	htmlFor="star2"
 																	title="2 stars"
 																>
 																	<i className="bi bi-star-fill"></i>
@@ -1025,7 +1026,7 @@ function ProductDetails({ url }) {
 																	value="1"
 																/>
 																<label
-																	for="star1"
+																	htmlFor="star1"
 																	title="1 star"
 																>
 																	<i className="bi bi-star-fill"></i>
@@ -1036,7 +1037,7 @@ function ProductDetails({ url }) {
 														<div className="row g-3 mb-3">
 															<div className="col-md-6">
 																<label
-																	for="review-name"
+																	htmlFor="review-name"
 																	className="form-label"
 																>
 																	Your Name
@@ -1046,13 +1047,13 @@ function ProductDetails({ url }) {
 																	className="form-control"
 																	id="review-name"
 																	required=""
-																	spellcheck="false"
+																	spellCheck="false"
 																	data-ms-editor="true"
 																/>
 															</div>
 															<div className="col-md-6">
 																<label
-																	for="review-email"
+																	htmlFor="review-email"
 																	className="form-label"
 																>
 																	Your Email
@@ -1068,7 +1069,7 @@ function ProductDetails({ url }) {
 
 														<div className="mb-3">
 															<label
-																for="review-title"
+																htmlFor="review-title"
 																className="form-label"
 															>
 																Review Title
@@ -1078,14 +1079,14 @@ function ProductDetails({ url }) {
 																className="form-control"
 																id="review-title"
 																required=""
-																spellcheck="false"
+																spellCheck="false"
 																data-ms-editor="true"
 															/>
 														</div>
 
 														<div className="mb-4">
 															<label
-																for="review-content"
+																htmlFor="review-content"
 																className="form-label"
 															>
 																Your Review
@@ -1095,7 +1096,7 @@ function ProductDetails({ url }) {
 																id="review-content"
 																rows="4"
 																required=""
-																spellcheck="false"
+																spellCheck="false"
 																data-ms-editor="true"
 															></textarea>
 															<div className="form-text">
