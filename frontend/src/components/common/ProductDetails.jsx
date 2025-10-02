@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { API_URL, BACKEND_URL, formatNumber, formatCurrency } from "../../config";
 import PageTitle from "./PageTitle";
 
-
 function ProductDetails({ url }) {
 	const [product, setProduct] = useState(null);
 	const [additionalImages, setAdditionalImages] = useState([]);
+	const [activeImageIndex, setActiveImageIndex] = useState(0);
 	const [videos, setVideos] = useState([]);
 
 	useEffect(() => {
@@ -20,11 +20,11 @@ function ProductDetails({ url }) {
 					throw new Error("Failed to fetch product details");
 				}
 				const data = await response.json();
-				if(data.success === true){
+				if (data.success === true) {
 					setProduct(data.product);
 					setAdditionalImages(data.additional_images || []);
 					setVideos(data.videos || []);
-				}else{
+				} else {
 					setProduct(null);
 				}
 			} catch (error) {
@@ -35,6 +35,10 @@ function ProductDetails({ url }) {
 		fetchProductDetails();
 	}, [url]);
 
+	const changeMainImage = (index) => {
+		setActiveImageIndex(index);
+	};
+
 	if (!product) {
 		return <div>Loading...</div>;
 	}
@@ -42,7 +46,7 @@ function ProductDetails({ url }) {
 	return (
 		<div>
 			<title>{`Dulyaana Bathik - ${product.name}`}</title>
-			<PageTitle title={ product.name} />
+			<PageTitle title={product.name} />
 			<section id="product-details" className="product-details section">
 				<div
 					className="container aos-init aos-animate"
@@ -60,21 +64,20 @@ function ProductDetails({ url }) {
 								{/* Vertical Thumbnails */}
 								<div className="thumbnails-vertical">
 									<div className="thumbnails-container">
-										<div
-											className="thumbnail-item active"
-											data-image={product.main_image ? BACKEND_URL + product.main_image : ''}
-										>
-											<img
-												src={product.main_image ? BACKEND_URL + product.main_image : ''}
-												alt={product.name}
-												className="img-fluid"
-											/>
-										</div>
-										{additionalImages.map((image, index) => (
+										{[
+											product.main_image,
+											...additionalImages,
+										].map((image, index) => (
 											<div
 												key={index}
-												className="thumbnail-item"
-												data-image={BACKEND_URL + image}
+												className={`thumbnail-item ${
+													index === activeImageIndex
+														? "active"
+														: ""
+												}`}
+												onClick={() =>
+													changeMainImage(index)
+												}
 											>
 												<img
 													src={BACKEND_URL + image}
@@ -90,21 +93,43 @@ function ProductDetails({ url }) {
 								<div className="main-image-wrapper">
 									<div className="image-zoom-container">
 										<img
-											src={product.main_image ? BACKEND_URL + product.main_image : 'assets/img/product/product-details-1.webp'}
-											alt="Product Image"
-											className="img-fluid main-image drift-zoom"
-											id="main-product-image"
-											data-zoom="assets/img/product/product-details-1.webp"
+											src={
+												BACKEND_URL +
+												[
+													product.main_image,
+													...additionalImages,
+												][activeImageIndex]
+											}
+											alt={product.name}
+											className="img-fluid main-image"
 										/>
 										<div className="zoom-overlay">
 											<i className="bi bi-zoom-in"></i>
 										</div>
 									</div>
 									<div className="image-nav">
-										<button className="image-nav-btn prev-image">
+										<button
+											className="image-nav-btn prev-image"
+											onClick={() => {
+												setActiveImageIndex((prevIndex) =>
+													prevIndex > 0
+														? prevIndex - 1
+														: additionalImages.length
+												);
+											}}
+										>
 											<i className="bi bi-chevron-left"></i>
 										</button>
-										<button className="image-nav-btn next-image">
+										<button
+											className="image-nav-btn next-image"
+											onClick={() => {
+												setActiveImageIndex((prevIndex) =>
+													prevIndex < additionalImages.length
+														? prevIndex + 1
+														: 0
+												);
+											}}
+										>
 											<i className="bi bi-chevron-right"></i>
 										</button>
 									</div>
@@ -235,9 +260,7 @@ function ProductDetails({ url }) {
 
 								{/* Product Description */}
 								<div className="product-short-description">
-									<p>
-										{product.description}
-									</p>
+									<p>{product.description}</p>
 								</div>
 
 								{/* Product Options */}
@@ -465,16 +488,14 @@ function ProductDetails({ url }) {
 										<div className="accordion-body">
 											<div className="product-description">
 												<h4>Overview</h4>
-												<p>
-													{product.description}
-												</p>
+												<p>{product.description}</p>
 
 												{product.set_contents ? (
 													<>
 														<h4>Set Contents</h4>
-														<ul>
+														<p>
 															{product.set_contents}
-														</ul>
+														</p>
 													</>
 												) : null}
 											</div>
@@ -511,7 +532,7 @@ function ProductDetails({ url }) {
 																		Fabric
 																	</div>
 																	<div className="specs-value">
-																		{product.fabric || '-'}
+																		{product.fabric || "-"}
 																	</div>
 																</div>
 																<div className="specs-row">
@@ -519,7 +540,7 @@ function ProductDetails({ url }) {
 																		Pattern
 																	</div>
 																	<div className="specs-value">
-																		{product.pattern || '-'}
+																		{product.pattern || "-"}
 																	</div>
 																</div>
 																<div className="specs-row">
@@ -527,7 +548,7 @@ function ProductDetails({ url }) {
 																		Occasion
 																	</div>
 																	<div className="specs-value">
-																		{product.occasion || '-'}
+																		{product.occasion || "-"}
 																	</div>
 																</div>
 																<div className="specs-row">
@@ -535,7 +556,7 @@ function ProductDetails({ url }) {
 																		Saree Work
 																	</div>
 																	<div className="specs-value">
-																		{product.saree_work || '-'}
+																		{product.saree_work || "-"}
 																	</div>
 																</div>
 															</div>
@@ -550,7 +571,7 @@ function ProductDetails({ url }) {
 																		Saree Length
 																	</div>
 																	<div className="specs-value">
-																		{product.saree_length || '-'}
+																		{product.saree_length || "-"}
 																	</div>
 																</div>
 																<div className="specs-row">
@@ -558,7 +579,7 @@ function ProductDetails({ url }) {
 																		Blouse Length
 																	</div>
 																	<div className="specs-value">
-																		{product.blouse_length || '-'}
+																		{product.blouse_length || "-"}
 																	</div>
 																</div>
 																<div className="specs-row">
@@ -566,7 +587,7 @@ function ProductDetails({ url }) {
 																		Weight
 																	</div>
 																	<div className="specs-value">
-																		{product.weight || '-'}
+																		{product.weight || "-"}
 																	</div>
 																</div>
 																<div className="specs-row">
@@ -574,7 +595,7 @@ function ProductDetails({ url }) {
 																		Wash Care
 																	</div>
 																	<div className="specs-value">
-																		{product.wash_care || '-'}
+																		{product.wash_care || "-"}
 																	</div>
 																</div>
 															</div>
