@@ -1,8 +1,48 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { API_URL, BACKEND_URL, formatNumber, formatCurrency } from "../../config";
+import PageTitle from "./PageTitle";
 
-function ProductDetails() {
+
+function ProductDetails({ url }) {
+	const [product, setProduct] = useState(null);
+	const [additionalImages, setAdditionalImages] = useState([]);
+	const [videos, setVideos] = useState([]);
+
+	useEffect(() => {
+		// Fetch product details using the URL
+		const fetchProductDetails = async () => {
+			try {
+				var productUrl = url.split("/")[2];
+				const response = await fetch(
+					`${API_URL}getProductDetails/${productUrl}`
+				);
+				if (!response.ok) {
+					throw new Error("Failed to fetch product details");
+				}
+				const data = await response.json();
+				if(data.success === true){
+					setProduct(data.product);
+					setAdditionalImages(data.additional_images || []);
+					setVideos(data.videos || []);
+				}else{
+					setProduct(null);
+				}
+			} catch (error) {
+				console.error(error);
+			}
+		};
+
+		fetchProductDetails();
+	}, [url]);
+
+	if (!product) {
+		return <div>Loading...</div>;
+	}
+
 	return (
 		<div>
+			<title>{`Dulyaana Bathik - ${product.name}`}</title>
+			<PageTitle title={ product.name} />
 			<section id="product-details" className="product-details section">
 				<div
 					className="container aos-init aos-animate"
@@ -22,54 +62,27 @@ function ProductDetails() {
 									<div className="thumbnails-container">
 										<div
 											className="thumbnail-item active"
-											data-image="assets/img/product/product-details-1.webp"
+											data-image={product.main_image ? BACKEND_URL + product.main_image : ''}
 										>
 											<img
-												src="assets/img/product/product-details-1.webp"
-												alt="Product Thumbnail"
+												src={product.main_image ? BACKEND_URL + product.main_image : ''}
+												alt={product.name}
 												className="img-fluid"
 											/>
 										</div>
-										<div
-											className="thumbnail-item"
-											data-image="assets/img/product/product-details-2.webp"
-										>
-											<img
-												src="assets/img/product/product-details-2.webp"
-												alt="Product Thumbnail"
-												className="img-fluid"
-											/>
-										</div>
-										<div
-											className="thumbnail-item"
-											data-image="assets/img/product/product-details-3.webp"
-										>
-											<img
-												src="assets/img/product/product-details-3.webp"
-												alt="Product Thumbnail"
-												className="img-fluid"
-											/>
-										</div>
-										<div
-											className="thumbnail-item"
-											data-image="assets/img/product/product-details-4.webp"
-										>
-											<img
-												src="assets/img/product/product-details-4.webp"
-												alt="Product Thumbnail"
-												className="img-fluid"
-											/>
-										</div>
-										<div
-											className="thumbnail-item"
-											data-image="assets/img/product/product-details-5.webp"
-										>
-											<img
-												src="assets/img/product/product-details-5.webp"
-												alt="Product Thumbnail"
-												className="img-fluid"
-											/>
-										</div>
+										{additionalImages.map((image, index) => (
+											<div
+												key={index}
+												className="thumbnail-item"
+												data-image={BACKEND_URL + image}
+											>
+												<img
+													src={BACKEND_URL + image}
+													alt={product.name}
+													className="img-fluid"
+												/>
+											</div>
+										))}
 									</div>
 								</div>
 
@@ -77,7 +90,7 @@ function ProductDetails() {
 								<div className="main-image-wrapper">
 									<div className="image-zoom-container">
 										<img
-											src="assets/img/product/product-details-1.webp"
+											src={product.main_image ? BACKEND_URL + product.main_image : 'assets/img/product/product-details-1.webp'}
 											alt="Product Image"
 											className="img-fluid main-image drift-zoom"
 											id="main-product-image"
@@ -113,7 +126,7 @@ function ProductDetails() {
 								<div className="product-meta">
 									<div className="d-flex justify-content-between align-items-center mb-3">
 										<span className="product-category">
-											Headphones
+											{product.category_name}
 										</span>
 										<div className="product-share">
 											<button
@@ -152,8 +165,7 @@ function ProductDetails() {
 									</div>
 
 									<h1 className="product-title">
-										Lorem Ipsum Wireless Noise Cancelling
-										Headphones
+										{product.name}
 									</h1>
 
 									<div className="product-rating">
@@ -180,39 +192,58 @@ function ProductDetails() {
 								<div className="product-price-container">
 									<div className="price-wrapper">
 										<span className="current-price">
-											$249.99
+											{formatCurrency(
+												product?.discount_price > 0
+													? product?.discount_price
+													: product?.price
+											)}
 										</span>
-										<span className="original-price">
-											$299.99
-										</span>
+										{product?.discount_price > 0 && (
+											<span className="original-price">
+												{formatCurrency(product?.price)}
+											</span>
+										)}
 									</div>
-									<span className="discount-badge">
-										Save 17%
-									</span>
-									<div className="stock-info">
-										<i className="bi bi-check-circle-fill"></i>
-										<span>In Stock</span>
-										<span className="stock-count">
-											(24 items left)
+									{product?.discount_price > 0 && (
+										<span className="discount-badge">
+											{Math.round(
+												((product?.price - product?.discount_price) /
+													product?.price) *
+													100
+											)}
+											% Off
 										</span>
+									)}
+
+									<div className="stock-info">
+										{product?.quantity > 0 ? (
+											<>
+												<i className="bi bi-check-circle-fill"></i>
+												<span>In Stock</span>
+												<span className="stock-count">
+													({product?.quantity} items left)
+												</span>
+											</>
+										) : (
+											<>
+												<i className="bi bi-x-circle-fill out-of-stock"></i>
+												<span className="out-of-stock">Out of Stock</span>
+											</>
+										)}
 									</div>
 								</div>
 
 								{/* Product Description */}
 								<div className="product-short-description">
 									<p>
-										Lorem ipsum dolor sit amet, consectetur
-										adipiscing elit. Vestibulum at lacus
-										congue, suscipit elit nec, tincidunt
-										orci. Phasellus egestas nisi vitae
-										lectus imperdiet venenatis.
+										{product.description}
 									</p>
 								</div>
 
 								{/* Product Options */}
 								<div className="product-options">
 									{/* Color Options */}
-									<div className="option-group">
+									<div className="option-group d-none">
 										<div className="option-header">
 											<h6 className="option-title">
 												Color
@@ -262,7 +293,7 @@ function ProductDetails() {
 									</div>
 
 									{/* Size Options */}
-									<div className="option-group">
+									<div className="option-group d-none">
 										<div className="option-header">
 											<h6 className="option-title">
 												Size
@@ -424,7 +455,7 @@ function ProductDetails() {
 											aria-expanded="true"
 											aria-controls="description"
 										>
-											Product Description
+											Description
 										</button>
 									</h2>
 									<div
@@ -433,103 +464,19 @@ function ProductDetails() {
 									>
 										<div className="accordion-body">
 											<div className="product-description">
-												<h4>Product Overview</h4>
+												<h4>Overview</h4>
 												<p>
-													Lorem ipsum dolor sit amet,
-													consectetur adipiscing elit.
-													Vestibulum at lacus congue,
-													suscipit elit nec, tincidunt
-													orci. Phasellus egestas nisi
-													vitae lectus imperdiet
-													venenatis. Suspendisse
-													vulputate quam diam, et
-													consectetur augue
-													condimentum in. Aenean
-													dapibus urna eget nisi
-													pharetra, in iaculis nulla
-													blandit. Praesent at
-													consectetur sem, sed
-													sollicitudin nibh. Ut
-													interdum risus ac nulla
-													placerat aliquet.
+													{product.description}
 												</p>
 
-												<div className="row mt-4">
-													<div className="col-md-6">
-														<h4>Key Features</h4>
-														<ul className="feature-list">
-															<li>
-																<i className="bi bi-check-circle"></i>{" "}
-																Lorem ipsum
-																dolor sit amet,
-																consectetur
-																adipiscing elit
-															</li>
-															<li>
-																<i className="bi bi-check-circle"></i>{" "}
-																Vestibulum at
-																lacus congue,
-																suscipit elit
-																nec, tincidunt
-																orci
-															</li>
-															<li>
-																<i className="bi bi-check-circle"></i>{" "}
-																Phasellus
-																egestas nisi
-																vitae lectus
-																imperdiet
-																venenatis
-															</li>
-															<li>
-																<i className="bi bi-check-circle"></i>{" "}
-																Suspendisse
-																vulputate quam
-																diam, et
-																consectetur
-																augue
-															</li>
-															<li>
-																<i className="bi bi-check-circle"></i>{" "}
-																Aenean dapibus
-																urna eget nisi
-																pharetra, in
-																iaculis nulla
-															</li>
+												{product.set_contents ? (
+													<>
+														<h4>Set Contents</h4>
+														<ul>
+															{product.set_contents}
 														</ul>
-													</div>
-													<div className="col-md-6">
-														<h4>
-															What's in the Box
-														</h4>
-														<ul className="feature-list">
-															<li>
-																<i className="bi bi-box"></i>{" "}
-																Lorem Ipsum
-																Wireless
-																Headphones
-															</li>
-															<li>
-																<i className="bi bi-box"></i>{" "}
-																Carrying Case
-															</li>
-															<li>
-																<i className="bi bi-box"></i>{" "}
-																USB-C Charging
-																Cable
-															</li>
-															<li>
-																<i className="bi bi-box"></i>{" "}
-																3.5mm Audio
-																Cable
-															</li>
-															<li>
-																<i className="bi bi-box"></i>{" "}
-																User Manual
-															</li>
-														</ul>
-													</div>
-												</div>
+													</>
+												) : null}
 											</div>
 										</div>
 									</div>
@@ -546,7 +493,7 @@ function ProductDetails() {
 											aria-expanded="false"
 											aria-controls="specifications"
 										>
-											Technical Specifications
+											Specifications
 										</button>
 									</h2>
 									<div
@@ -558,74 +505,37 @@ function ProductDetails() {
 												<div className="row">
 													<div className="col-md-6">
 														<div className="specs-group">
-															<h4>
-																Technical
-																Specifications
-															</h4>
 															<div className="specs-table">
 																<div className="specs-row">
 																	<div className="specs-label">
-																		Connectivity
+																		Fabric
 																	</div>
 																	<div className="specs-value">
-																		Bluetooth
-																		5.0,
-																		3.5mm
-																		jack
+																		{product.fabric || '-'}
 																	</div>
 																</div>
 																<div className="specs-row">
 																	<div className="specs-label">
-																		Battery
-																		Life
+																		Pattern
 																	</div>
 																	<div className="specs-value">
-																		Up to 30
-																		hours
+																		{product.pattern || '-'}
 																	</div>
 																</div>
 																<div className="specs-row">
 																	<div className="specs-label">
-																		Charging
-																		Time
+																		Occasion
 																	</div>
 																	<div className="specs-value">
-																		3 hours
+																		{product.occasion || '-'}
 																	</div>
 																</div>
 																<div className="specs-row">
 																	<div className="specs-label">
-																		Driver
-																		Size
+																		Saree Work
 																	</div>
 																	<div className="specs-value">
-																		40mm
-																	</div>
-																</div>
-																<div className="specs-row">
-																	<div className="specs-label">
-																		Frequency
-																		Response
-																	</div>
-																	<div className="specs-value">
-																		20Hz -
-																		20kHz
-																	</div>
-																</div>
-																<div className="specs-row">
-																	<div className="specs-label">
-																		Impedance
-																	</div>
-																	<div className="specs-value">
-																		32 Ohm
-																	</div>
-																</div>
-																<div className="specs-row">
-																	<div className="specs-label">
-																		Weight
-																	</div>
-																	<div className="specs-value">
-																		250g
+																		{product.saree_work || '-'}
 																	</div>
 																</div>
 															</div>
@@ -634,50 +544,37 @@ function ProductDetails() {
 
 													<div className="col-md-6">
 														<div className="specs-group">
-															<h4>Features</h4>
 															<div className="specs-table">
 																<div className="specs-row">
 																	<div className="specs-label">
-																		Noise
-																		Cancellation
+																		Saree Length
 																	</div>
 																	<div className="specs-value">
-																		Active
-																		Noise
-																		Cancellation
-																		(ANC)
+																		{product.saree_length || '-'}
 																	</div>
 																</div>
 																<div className="specs-row">
 																	<div className="specs-label">
-																		Controls
+																		Blouse Length
 																	</div>
 																	<div className="specs-value">
-																		Touch
-																		controls,
-																		Voice
-																		assistant
+																		{product.blouse_length || '-'}
 																	</div>
 																</div>
 																<div className="specs-row">
 																	<div className="specs-label">
-																		Microphone
+																		Weight
 																	</div>
 																	<div className="specs-value">
-																		Dual
-																		beamforming
-																		microphones
+																		{product.weight || '-'}
 																	</div>
 																</div>
 																<div className="specs-row">
 																	<div className="specs-label">
-																		Water
-																		Resistance
+																		Wash Care
 																	</div>
 																	<div className="specs-value">
-																		IPX4
-																		(splash
-																		resistant)
+																		{product.wash_care || '-'}
 																	</div>
 																</div>
 															</div>

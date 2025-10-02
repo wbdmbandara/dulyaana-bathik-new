@@ -3764,6 +3764,10 @@ section,
   margin-right: 0.5rem;
 }
 
+.out-of-stock{
+  color: #ef4444 !important;
+}
+
 .product-details .product-info-wrapper .product-price-container .stock-info span {
   font-weight: 500;
 }
