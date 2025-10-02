@@ -11,7 +11,7 @@ import Footer from "./components/common/Footer";
 const About = () => {
   return (
     <div>
-        <Header />
+        <Header activeMenu="about"/>
         <PageTitle title="About" />
         <AboutCompany />
         <Stats />

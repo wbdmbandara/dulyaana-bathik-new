@@ -12,7 +12,7 @@ import Footer from "./components/common/Footer";
 const Home = () => {
 	return (
 		<div>
-            <Header />
+            <Header activeMenu="home"/>
 			<HomeSlider />
 			<PromoCards />
 			<CategoryCards />

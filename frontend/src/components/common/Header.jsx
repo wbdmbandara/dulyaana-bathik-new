@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-function Header() {
+function Header({activeMenu}) {
 	// Add mobile navigation styles for React compatibility
 	React.useEffect(() => {
 		const style = document.createElement('style');
@@ -367,12 +367,14 @@ function Header() {
 					<nav id="navmenu" className="navmenu">
 						<ul>
 							<li>
-								<Link to="/" className="active">
+								<Link to="/" className={activeMenu === "home" ? "active" : ""}>
 									Home
 								</Link>
 							</li>
 							<li>
-								<Link to="/about">About</Link>
+								<Link to="/about" className={activeMenu === "about" ? "active" : ""}>
+									About
+								</Link>
 							</li>
 							<li>
 								<Link to="/category">Category</Link>
