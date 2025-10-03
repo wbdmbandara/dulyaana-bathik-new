@@ -3454,7 +3454,6 @@ section,
   width: 100%;
   height: auto;
   object-fit: contain;
-  cursor: crosshair;
 }
 
 .product-details .product-gallery .main-image-wrapper .image-zoom-container .drift-zoom-pane {

@@ -75,7 +75,7 @@ function ProductDetails({ url }) {
 					data-aos-delay="100"
 				>
 					<div className="row g-5">
-						{/* Product Images Column */}
+						{/* Product Images and Videos Column */}
 						<div
 							className="col-lg-6 mb-5 mb-lg-0 aos-init aos-animate"
 							data-aos="fade-right"
@@ -88,42 +88,68 @@ function ProductDetails({ url }) {
 										{[
 											product.main_image,
 											...additionalImages,
-										].map((image, index) => (
+											...videos.map((video) => BACKEND_URL + video),
+										].map((media, index) => (
 											<div
 												key={index}
 												className={`thumbnail-item ${
-													index === activeImageIndex
-														? "active"
-														: ""
+													index === activeImageIndex ? "active" : ""
 												}`}
-												onClick={() =>
-													changeMainImage(index)
-												}
+												onClick={() => changeMainImage(index)}
 											>
-												<img
-													src={BACKEND_URL + image}
-													alt={product.name}
-													className="img-fluid"
-												/>
+												{media.includes(".mp4") ? (
+													<video
+														src={media}
+														className="img-fluid"
+														style={{ maxHeight: "100px" }}
+														muted
+														// poster={`${media}#t=0.1`} // Use the first frame as a poster for faster display
+													/>
+												) : (
+													<img
+														src={BACKEND_URL + media}
+														alt={product.name}
+														className="img-fluid"
+													/>
+												)}
 											</div>
 										))}
 									</div>
 								</div>
 
-								{/* Main Image */}
+								{/* Main Media */}
 								<div className="main-image-wrapper">
 									<div className="image-zoom-container">
-										<img
-											src={
-												BACKEND_URL +
-												[
-													product.main_image,
-													...additionalImages,
-												][activeImageIndex]
-											}
-											alt={product.name}
-											className="img-fluid main-image"
-										/>
+										{[
+											product.main_image,
+											...additionalImages,
+											...videos.map((video) => BACKEND_URL + video),
+										][activeImageIndex].includes(".mp4") ? (
+											<video
+												src={
+													[
+														product.main_image,
+														...additionalImages,
+														...videos.map((video) => BACKEND_URL + video),
+													][activeImageIndex]
+												}
+												controls
+												className="img-fluid main-video"
+												style={{ maxHeight: "400px", width: "100%" }}
+											/>
+										) : (
+											<img
+												src={
+													BACKEND_URL +
+													[
+														product.main_image,
+														...additionalImages,
+													][activeImageIndex]
+												}
+												alt={product.name}
+												className="img-fluid main-image"
+											/>
+										)}
 										<div className="zoom-overlay">
 											<i className="bi bi-zoom-in"></i>
 										</div>
@@ -132,11 +158,10 @@ function ProductDetails({ url }) {
 										<button
 											className="image-nav-btn prev-image"
 											onClick={() => {
-												setActiveImageIndex(
-													(prevIndex) =>
-														prevIndex > 0
-															? prevIndex - 1
-															: additionalImages.length
+												setActiveImageIndex((prevIndex) =>
+													prevIndex > 0
+														? prevIndex - 1
+														: additionalImages.length + videos.length
 												);
 											}}
 										>
@@ -145,12 +170,11 @@ function ProductDetails({ url }) {
 										<button
 											className="image-nav-btn next-image"
 											onClick={() => {
-												setActiveImageIndex(
-													(prevIndex) =>
-														prevIndex <
-														additionalImages.length
-															? prevIndex + 1
-															: 0
+												setActiveImageIndex((prevIndex) =>
+													prevIndex <
+													additionalImages.length + videos.length
+														? prevIndex + 1
+														: 0
 												);
 											}}
 										>
