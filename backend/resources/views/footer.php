@@ -6,6 +6,12 @@
     setActiveMenuItem('appearance', 'footer');
 ?>
 
+<style>
+    .label-border {
+        border-bottom: 1px solid #000;
+        padding-bottom: 3px;
+    }
+</style>
     <main id="main" class="main">
 
         <div class="pagetitle">
@@ -57,7 +63,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Social Links</label>
+                                    <label class="form-label fw-bold mt-2 label-border">Social Links</label>
                                     <div id="socialLinks">
                                         <?php foreach ($socialLinks ?? [] as $link): ?>
                                             <div class="d-flex mb-2">
@@ -70,7 +76,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Menu 01 Links</label>
+                                    <label class="form-label fw-bold mt-2 label-border">Menu 01 Links</label>
                                     <div id="menu01Links">
                                         <?php foreach ($menu01Links ?? [] as $link): ?>
                                             <div class="d-flex mb-2">
@@ -83,7 +89,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Menu 02 Links</label>
+                                    <label class="form-label fw-bold mt-2 label-border">Menu 02 Links</label>
                                     <div id="menu02Links">
                                         <?php foreach ($menu02Links ?? [] as $link): ?>
                                             <div class="d-flex mb-2">
@@ -96,7 +102,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Contact Information</label>
+                                    <label class="form-label fw-bold mt-2 label-border">Contact Information</label>
                                     <!-- address input -->
                                     <div class="mb-2">
                                         <label for="address" class="form-label">Address</label>
@@ -132,7 +138,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">App Links</label>
+                                    <label class="form-label fw-bold mt-2 label-border">App Links</label>
                                     <div id="appLinks">
                                         <div class="mb-2">
                                             <label for="playStoreLink" class="form-label">Play Store Link</label>
@@ -146,7 +152,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Footer Menu</label>
+                                    <label class="form-label fw-bold mt-2 label-border">Footer Menu</label>
                                     <div id="footerMenu">
                                         <?php foreach ($footerLinks ?? [] as $link): ?>
                                             <div class="d-flex mb-2">
