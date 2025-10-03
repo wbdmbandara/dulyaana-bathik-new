@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\FooterController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\PromoCardsController;
 use App\Http\Controllers\SliderController;
@@ -48,3 +49,6 @@ Route::post('/promo-cards/new', [PromoCardsController::class, 'store']);
 Route::get('/promo-cards/{id}', [PromoCardsController::class, 'edit']);
 Route::post('/promo-cards/update/{id}', [PromoCardsController::class, 'update']);
 Route::post('/promo-cards/delete/{id}', [PromoCardsController::class, 'destroy']);
+
+Route::get('/footer', [FooterController::class, 'index']);
+Route::post('/footer/save', [FooterController::class, 'store']);

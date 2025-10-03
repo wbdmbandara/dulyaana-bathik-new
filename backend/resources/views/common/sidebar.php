@@ -60,6 +60,19 @@
         </ul>
       </li>
 
+      <li class="nav-item">
+        <a class="nav-link <?php if($active != 'appearance'){echo 'collapsed';} ?>" data-bs-target="#appearance-nav" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-layout-text-window-reverse"></i><span>Appearance</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="appearance-nav" class="nav-content <?php if($active != 'appearance'){echo 'collapse';} ?>" data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="/footer" class="<?php if($subMenu == 'footer'){echo 'active';} ?>">
+              <i class="bi bi-circle"></i><span>Footer</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+
 
       <!-- <li class="nav-heading">Pages</li> -->
 
