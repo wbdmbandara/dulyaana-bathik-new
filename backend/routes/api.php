@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FooterController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\PromoCardsController;
 use Illuminate\Http\Request;
@@ -10,4 +11,5 @@ Route::middleware('api')->group(function () {
     Route::get('/getSlider', [SliderController::class, 'displaySlides']);
     Route::get('/getPromoCards', [PromoCardsController::class, 'getPromoCards']);
     Route::get('/getProductDetails/{url}', [ItemsController::class, 'getProductDetails']);
+    Route::get('/getFooter', [FooterController::class, 'getFooterData']);
 });

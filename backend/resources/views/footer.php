@@ -64,11 +64,18 @@
 
                                 <div class="mb-3">
                                     <label class="form-label fw-bold mt-2 label-border">Social Links</label>
+                                    <button type="button" class="btn btn-info btn-sm ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Find icons at https://icons.getbootstrap.com/ and use the class name here. E.g., for Facebook use 'bi bi-facebook'">
+                                        <i class="bi bi-info-circle"></i>
+                                    </button>
+                                    <a href="http://icons.getbootstrap.com/" target="_blank" class="btn btn-info btn-sm"><i class="bi bi-box-arrow-up-right"></i> Visit Bootstrap Icons</a>
                                     <div id="socialLinks">
                                         <?php foreach ($socialLinks ?? [] as $link): ?>
                                             <div class="d-flex mb-2">
                                                 <input type="text" class="form-control me-2" name="socialLinks[<?= $link['id'] ?>][platform]" value="<?= $link['platform'] ?>" placeholder="Platform" required>
-                                                <input type="url" class="form-control" name="socialLinks[<?= $link['id'] ?>][url]" value="<?= $link['url'] ?>" placeholder="URL" required>
+                                                <input type="url" class="form-control me-2" name="socialLinks[<?= $link['id'] ?>][url]" value="<?= $link['url'] ?>" placeholder="URL" required>
+                                                <input type="text" class="form-control me-2" name="socialLinks[<?= $link['id'] ?>][icon]" value="<?= htmlspecialchars($link['icon'], ENT_QUOTES, 'UTF-8') ?>" placeholder="Bootstrap Icon Class" required>
+                                                <span class="m-1 p-1 me-2"><i class="<?= htmlspecialchars($link['icon'], ENT_QUOTES, 'UTF-8') ?>"></i></span>
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="removeSocialLink(this)"><i class="bi bi-trash"></i></button>
                                             </div>
                                         <?php endforeach; ?>
                                     </div>
@@ -81,7 +88,8 @@
                                         <?php foreach ($menu01Links ?? [] as $link): ?>
                                             <div class="d-flex mb-2">
                                                 <input type="text" class="form-control me-2" name="menu01Links[<?= $link['id'] ?>][name]" value="<?= $link['title'] ?>" placeholder="Name" required>
-                                                <input type="url" class="form-control" name="menu01Links[<?= $link['id'] ?>][url]" value="<?= $link['url'] ?>" placeholder="URL" required>
+                                                <input type="url" class="form-control me-2" name="menu01Links[<?= $link['id'] ?>][url]" value="<?= $link['url'] ?>" placeholder="URL" required>
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="removeMenu01Link(this)"><i class="bi bi-trash"></i></button>
                                             </div>
                                         <?php endforeach; ?>
                                     </div>
@@ -94,7 +102,8 @@
                                         <?php foreach ($menu02Links ?? [] as $link): ?>
                                             <div class="d-flex mb-2">
                                                 <input type="text" class="form-control me-2" name="menu02Links[<?= $link['id'] ?>][name]" value="<?= $link['title'] ?>" placeholder="Name" required>
-                                                <input type="url" class="form-control" name="menu02Links[<?= $link['id'] ?>][url]" value="<?= $link['url'] ?>" placeholder="URL" required>
+                                                <input type="url" class="form-control me-2" name="menu02Links[<?= $link['id'] ?>][url]" value="<?= $link['url'] ?>" placeholder="URL" required>
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="removeMenu02Link(this)"><i class="bi bi-trash"></i></button>
                                             </div>
                                         <?php endforeach; ?>
                                     </div>
@@ -157,7 +166,8 @@
                                         <?php foreach ($footerLinks ?? [] as $link): ?>
                                             <div class="d-flex mb-2">
                                                 <input type="text" class="form-control me-2" name="footerMenu[<?= $link['id'] ?>][name]" value="<?= $link['title'] ?>" placeholder="Menu Name" required>
-                                                <input type="url" class="form-control" name="footerMenu[<?= $link['id'] ?>][url]" value="<?= $link['url'] ?>" placeholder="Menu URL" required>
+                                                <input type="url" class="form-control me-2" name="footerMenu[<?= $link['id'] ?>][url]" value="<?= $link['url'] ?>" placeholder="Menu URL" required>
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="removeFooterMenu(this)"><i class="bi bi-trash"></i></button>
                                             </div>
                                         <?php endforeach; ?>
                                     </div>
@@ -187,9 +197,34 @@
         div.className = 'd-flex mb-2';
         div.innerHTML = `
             <input type="text" class="form-control me-2" name="socialLinks[`+id+`][platform]" placeholder="Platform" required>
-            <input type="url" class="form-control" name="socialLinks[`+id+`][url]" placeholder="URL" required>
+            <input type="url" class="form-control me-2" name="socialLinks[`+id+`][url]" placeholder="URL" required>
+            <input type="text" class="form-control me-2" name="socialLinks[`+id+`][icon]" placeholder="Bootstrap Icon Class" required>
+            <span class="m-1 p-1 me-2"><i class=""></i></span>
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeSocialLink(this)"><i class="bi bi-trash"></i></button>
         `;
         container.appendChild(div);
+    }
+
+    function removeSocialLink(button) {
+        swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, remove it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const div = button.parentElement;
+                div.remove();
+                swal.fire(
+                    'Removed!',
+                    'The link will be removed after saving these changes.',
+                    'success'
+                )
+            }
+        })
     }
 
     function addMenu01Link() {
@@ -200,9 +235,32 @@
         div.className = 'd-flex mb-2';
         div.innerHTML = `
             <input type="text" class="form-control me-2" name="menu01Links[${id}][name]" placeholder="Name" required>
-            <input type="url" class="form-control" name="menu01Links[${id}][url]" placeholder="URL" required>
+            <input type="url" class="form-control me-2" name="menu01Links[${id}][url]" placeholder="URL" required>
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeMenu01Link(this)"><i class="bi bi-trash"></i></button>
         `;
         container.appendChild(div);
+    }
+
+    function removeMenu01Link(button) {
+        swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, remove it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const div = button.parentElement;
+                div.remove();
+                swal.fire(
+                    'Removed!',
+                    'The link will be removed after saving these changes.',
+                    'success'
+                )
+            }
+        })
     }
 
     function addMenu02Link() {
@@ -213,9 +271,32 @@
         div.className = 'd-flex mb-2';
         div.innerHTML = `
             <input type="text" class="form-control me-2" name="menu02Links[${id}][name]" placeholder="Name" required>
-            <input type="url" class="form-control" name="menu02Links[${id}][url]" placeholder="URL" required>
+            <input type="url" class="form-control me-2" name="menu02Links[${id}][url]" placeholder="URL" required>
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeMenu02Link(this)"><i class="bi bi-trash"></i></button>
         `;
         container.appendChild(div);
+    }
+
+    function removeMenu02Link(button) {
+        swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, remove it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const div = button.parentElement;
+                div.remove();
+                swal.fire(
+                    'Removed!',
+                    'The link will be removed after saving these changes.',
+                    'success'
+                )
+            }
+        })
     }
 
     function addPaymentMethod() {
@@ -236,8 +317,31 @@
         div.className = 'd-flex mb-2';
         div.innerHTML = `
             <input type="text" class="form-control me-2" name="footerMenu[${id}][name]" placeholder="Name" required>
-            <input type="url" class="form-control" name="footerMenu[${id}][url]" placeholder="URL" required>
+            <input type="url" class="form-control me-2" name="footerMenu[${id}][url]" placeholder="URL" required>
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeFooterMenu(this)"><i class="bi bi-trash"></i></button>
         `;
         container.appendChild(div);
+    }
+
+    function removeFooterMenu(button) {
+        swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, remove it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const div = button.parentElement;
+                div.remove();
+                swal.fire(
+                    'Removed!',
+                    'The menu item will be removed after saving these changes.',
+                    'success'
+                )
+            }
+        })
     }
 </script>

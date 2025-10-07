@@ -54,6 +54,7 @@ class FooterController extends Controller
             'aboutText' => 'string',
             'socialLinks.*.platform' => 'string|max:255',
             'socialLinks.*.url' => 'url',
+            'socialLinks.*.icon' => 'string|max:255',
             'menu01Links.*.name' => 'required|string|max:255',
             'menu01Links.*.url' => 'required|url',
             'menu02Links.*.name' => 'required|string|max:255',
@@ -101,6 +102,7 @@ class FooterController extends Controller
                 $socialLinks->create([
                     'platform' => $link['platform'],
                     'url' => $link['url'],
+                    'icon' => $link['icon'],
                     'user_id' => Auth::id(),
                 ]);
             }
@@ -173,5 +175,21 @@ class FooterController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function getFooterData(Request $request)
+    {
+        $footerContents = FooterContents::first();
+        $socialLinks = SocialLinks::all();
+        $menu01Links = FooterMenus::where('menu_type', 'menu_01')->get();
+        $menu02Links = FooterMenus::where('menu_type', 'menu_02')->get();
+        $footerLinks = FooterMenus::where('menu_type', 'footer_menu')->get();
+        return response()->json([
+            'footerContent' => $footerContents,
+            'socialLinks' => $socialLinks,
+            'menu01Links' => $menu01Links,
+            'menu02Links' => $menu02Links,
+            'footerLinks' => $footerLinks,
+        ]);
     }
 }
