@@ -133,7 +133,7 @@ function ProductDetails({ url }) {
 														...videos.map((video) => BACKEND_URL + video),
 													][activeImageIndex]
 												}
-												controls
+												autoPlay
 												className="img-fluid main-video"
 												style={{ maxHeight: "400px", width: "100%" }}
 											/>
