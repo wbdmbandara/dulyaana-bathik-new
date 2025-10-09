@@ -6,6 +6,7 @@ import './App.css';
 import Home from './Home';
 import About from './About';
 import Product from './Product';
+import Login from './Login';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/product/:url" element={<Product url={window.location.pathname} />} />
         </Routes>
       </BrowserRouter>
