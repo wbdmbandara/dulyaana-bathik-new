@@ -83,7 +83,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold mt-2 label-border">Menu 01 Links</label>
+                                    <label class="form-label fw-bold mt-2 label-border">Shop Menu (Menu 01) Links</label>
                                     <div id="menu01Links">
                                         <?php foreach ($menu01Links ?? [] as $link): ?>
                                             <div class="d-flex mb-2">
@@ -93,11 +93,11 @@
                                             </div>
                                         <?php endforeach; ?>
                                     </div>
-                                    <button type="button" class="btn btn-secondary btn-sm" onclick="addMenu01Link()">Add Menu 01 Link</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="addMenu01Link()">Add Shop Menu (Menu 01) Link</button>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold mt-2 label-border">Menu 02 Links</label>
+                                    <label class="form-label fw-bold mt-2 label-border">Support Menu (Menu 02) Links</label>
                                     <div id="menu02Links">
                                         <?php foreach ($menu02Links ?? [] as $link): ?>
                                             <div class="d-flex mb-2">
@@ -107,7 +107,7 @@
                                             </div>
                                         <?php endforeach; ?>
                                     </div>
-                                    <button type="button" class="btn btn-secondary btn-sm" onclick="addMenu02Link()">Add Menu 02 Link</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="addMenu02Link()">Add Support Menu (Menu 02) Link</button>
                                 </div>
 
                                 <div class="mb-3">
@@ -151,11 +151,11 @@
                                     <div id="appLinks">
                                         <div class="mb-2">
                                             <label for="playStoreLink" class="form-label">Play Store Link</label>
-                                            <input type="url" class="form-control" id="playStoreLink" name="appLinks[playStore]" value="<?= $footerContent['play_store_link'] ?? '' ?>" placeholder="Play Store URL">
+                                            <input type="text" class="form-control" id="playStoreLink" name="appLinks[playStore]" value="<?= $footerContent['play_store_link'] ?? '' ?>" placeholder="Play Store URL">
                                         </div>
                                         <div class="mb-2">
                                             <label for="appStoreLink" class="form-label">App Store Link</label>
-                                            <input type="url" class="form-control" id="appStoreLink" name="appLinks[appStore]" value="<?= $footerContent['app_store_link'] ?? '' ?>" placeholder="App Store URL">
+                                            <input type="text" class="form-control" id="appStoreLink" name="appLinks[appStore]" value="<?= $footerContent['app_store_link'] ?? '' ?>" placeholder="App Store URL">
                                         </div>
                                     </div>
                                 </div>

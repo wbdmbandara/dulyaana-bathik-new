@@ -65,8 +65,8 @@ class FooterController extends Controller
             'contactInfo.phone01' => 'required|string|max:20',
             'contactInfo.phone02' => 'nullable|string|max:20',
             'contactInfo.openTime' => 'nullable|string|max:255',
-            'appLinks.playStore' => 'nullable|url|max:255',
-            'appLinks.appStore' => 'nullable|url|max:255',
+            'appLinks.playStore' => 'nullable|string|max:255',
+            'appLinks.appStore' => 'nullable|string|max:255',
             'footerMenu.*.name' => 'required|string|max:255',
             'footerMenu.*.url' => 'required|url',
         ]);
@@ -184,6 +184,7 @@ class FooterController extends Controller
         $menu01Links = FooterMenus::where('menu_type', 'menu_01')->get();
         $menu02Links = FooterMenus::where('menu_type', 'menu_02')->get();
         $footerLinks = FooterMenus::where('menu_type', 'footer_menu')->get();
+        // $footerContents['open_time'] = nl2br(e($footerContents['open_time']));
         return response()->json([
             'footerContent' => $footerContents,
             'socialLinks' => $socialLinks,

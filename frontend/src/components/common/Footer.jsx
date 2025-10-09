@@ -1,6 +1,37 @@
-import React from "react";
+import { API_URL, BACKEND_URL } from "../../config";
+import React, { useState, useEffect } from "react";
 
 function Footer() {
+	const [footerContent, setFooterContent] = useState({});
+	const [socialLinks, setSocialLinks] = useState([]);
+	const [menu01Links, setMenu01Links] = useState([]);
+	const [menu02Links, setMenu02Links] = useState([]);
+	const [footerLinks, setFooterLinks] = useState([]);
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				const response = await fetch(`${API_URL}getFooter`);
+				const data = await response.json();
+				setFooterContent(data.footerContent);
+				setSocialLinks(data.socialLinks);
+				setMenu01Links(data.menu01Links);
+				setMenu02Links(data.menu02Links);
+				setFooterLinks(data.footerLinks);
+			} catch (error) {
+				console.error("Error fetching footer data:", error);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchData();
+	}, []);
+
+	const openingHours = footerContent.open_time;
+	const hoursArray = openingHours ? openingHours.split("\n") : [];
+
 	return (
 		<div>
 			<footer id="footer" className="footer light-background">
@@ -9,40 +40,23 @@ function Footer() {
 						<div className="row gy-4">
 							<div className="col-lg-4 col-md-6">
 								<div className="footer-widget footer-about">
-									<a href="index.html" className="logo">
+									<a href="/" className="logo">
 										<span className="sitename">
-											FashionStore
+											{footerContent.site_name}
 										</span>
 									</a>
 									<p>
-										Lorem ipsum dolor sit amet, consectetur
-										adipiscing elit. Nullam in nibh
-										vehicula, facilisis magna ut,
-										consectetur lorem. Proin eget tortor
-										risus.
+										{footerContent.about_text}
 									</p>
 
 									<div className="social-links mt-4">
 										<h5>Connect With Us</h5>
 										<div className="social-icons">
-											<a href="#" aria-label="Facebook">
-												<i className="bi bi-facebook"></i>
-											</a>
-											<a href="#" aria-label="Instagram">
-												<i className="bi bi-instagram"></i>
-											</a>
-											<a href="#" aria-label="Twitter">
-												<i className="bi bi-twitter-x"></i>
-											</a>
-											<a href="#" aria-label="TikTok">
-												<i className="bi bi-tiktok"></i>
-											</a>
-											<a href="#" aria-label="Pinterest">
-												<i className="bi bi-pinterest"></i>
-											</a>
-											<a href="#" aria-label="YouTube">
-												<i className="bi bi-youtube"></i>
-											</a>
+											{socialLinks.map((link, index) => (
+												<a key={index} href={link.url} aria-label={link.name}>
+													<i className={`${link.icon}`}></i>
+												</a>
+											))}
 										</div>
 									</div>
 								</div>
@@ -52,34 +66,11 @@ function Footer() {
 								<div className="footer-widget">
 									<h4>Shop</h4>
 									<ul className="footer-links">
-										<li>
-											<a href="category.html">
-												New Arrivals
-											</a>
-										</li>
-										<li>
-											<a href="category.html">
-												Bestsellers
-											</a>
-										</li>
-										<li>
-											<a href="category.html">
-												Women's Clothing
-											</a>
-										</li>
-										<li>
-											<a href="category.html">
-												Men's Clothing
-											</a>
-										</li>
-										<li>
-											<a href="category.html">
-												Accessories
-											</a>
-										</li>
-										<li>
-											<a href="category.html">Sale</a>
-										</li>
+										{menu01Links.map((link, index) => (
+											<li key={index}>
+												<a href={link.url}>{link.title}</a>
+											</li>
+										))}
 									</ul>
 								</div>
 							</div>
@@ -88,34 +79,11 @@ function Footer() {
 								<div className="footer-widget">
 									<h4>Support</h4>
 									<ul className="footer-links">
-										<li>
-											<a href="support.html">
-												Help Center
-											</a>
-										</li>
-										<li>
-											<a href="account.html">
-												Order Status
-											</a>
-										</li>
-										<li>
-											<a href="shiping-info.html">
-												Shipping Info
-											</a>
-										</li>
-										<li>
-											<a href="return-policy.html">
-												Returns &amp; Exchanges
-											</a>
-										</li>
-										<li>
-											<a href="#">Size Guide</a>
-										</li>
-										<li>
-											<a href="contact.html">
-												Contact Us
-											</a>
-										</li>
+										{menu02Links.map((link, index) => (
+											<li key={index}>
+												<a href={link.url}>{link.title}</a>
+											</li>
+										))}
 									</ul>
 								</div>
 							</div>
@@ -127,44 +95,51 @@ function Footer() {
 										<div className="contact-item">
 											<i className="bi bi-geo-alt"></i>
 											<span>
-												123 Fashion Street, New York, NY
-												10001
+												{footerContent.address}
 											</span>
 										</div>
 										<div className="contact-item">
 											<i className="bi bi-telephone"></i>
-											<span>+1 (555) 123-4567</span>
+											<span>{footerContent.phone01}</span>
+											<br />
+											<span>{footerContent.phone02}</span>
 										</div>
 										<div className="contact-item">
 											<i className="bi bi-envelope"></i>
 											<span>
-												<a
-													href="/cdn-cgi/l/email-protection"
-													className="__cf_email__"
-													data-cfemail="0c64696060634c69746d617c6069226f6361"
+												<a href={`mailto:${footerContent.email01}`}
 												>
-													[email&#160;protected]
+													{footerContent.email01}
 												</a>
+												{footerContent.email02 && (
+													<>
+														<br />
+														<a href={`mailto:${footerContent.email02}`}>
+															{footerContent.email02}
+														</a>
+													</>
+												)}
 											</span>
 										</div>
 										<div className="contact-item">
 											<i className="bi bi-clock"></i>
 											<span>
-												Monday-Friday: 9am-6pm
-												<br />
-												Saturday: 10am-4pm
-												<br />
-												Sunday: Closed
+												{hoursArray.map((line, index) => (
+													<span key={index}>
+														{line}
+														<br />
+													</span>
+												))}
 											</span>
 										</div>
 									</div>
 
 									<div className="app-buttons mt-4">
-										<a href="#" className="app-btn">
+										<a href={footerContent.app_store_link} className="app-btn">
 											<i className="bi bi-apple"></i>
 											<span>App Store</span>
 										</a>
-										<a href="#" className="app-btn">
+										<a href={footerContent.google_play_link} className="app-btn">
 											<i className="bi bi-google-play"></i>
 											<span>Google Play</span>
 										</a>
@@ -181,24 +156,24 @@ function Footer() {
 							<div className="col-lg-6 col-md-12">
 								<div className="copyright">
 									<p>
-										© <span>Copyright</span>{" "}
+										© {new Date().getFullYear()} <span>Copyright</span>{" "}
 										<strong className="sitename">
-											MyWebsite
+											{footerContent.site_name}
 										</strong>
 										. All Rights Reserved.
 									</p>
 								</div>
 								<div className="credits mt-1">
-									Designed by{" "}
-									<a href="https://bootstrapmade.com/">
-										BootstrapMade
+									Developed by{" "}
+									<a href="https://hyperflex.lk/" target="_blank">
+										HyperFlex Innovation
 									</a>
 								</div>
 							</div>
 
 							<div className="col-lg-6 col-md-12">
 								<div className="d-flex flex-wrap justify-content-lg-end justify-content-center align-items-center gap-4">
-									<div className="payment-methods">
+									<div className="payment-methods d-none">
 										<div className="payment-icons">
 											<i
 												className="bi bi-credit-card"
@@ -228,9 +203,11 @@ function Footer() {
 									</div>
 
 									<div className="legal-links">
-										<a href="tos.html">Terms</a>
-										<a href="privacy.html">Privacy</a>
-										<a href="tos.html">Cookies</a>
+										{footerLinks.map((link, index) => (
+											<a key={index} href={link.url} className="me-3">
+												{link.title}
+											</a>
+										))}
 									</div>
 								</div>
 							</div>
