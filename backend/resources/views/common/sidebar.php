@@ -43,6 +43,13 @@
       </li>
 
       <li class="nav-item">
+        <a class="nav-link <?php if($active != 'customers'){echo 'collapsed';} ?>" href="/customers">
+          <i class="bi bi-people"></i>
+          <span>Customers</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
         <a class="nav-link <?php if($active != 'home-page'){echo 'collapsed';} ?>" data-bs-target="#home-page-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-layout-text-window-reverse"></i><span>Home Page</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>

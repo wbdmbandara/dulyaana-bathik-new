@@ -4,16 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class CustomerController extends Controller
 {
+    protected $customer;
+
+    public function __construct(Customer $customer)
+    {
+        $this->customer = $customer;
+    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        if (!Auth::check()) {
+            return redirect('/');
+        }
+        $response['customers'] = $this->customer->all();
+        return view('customers', $response);
     }
 
     /**
@@ -94,7 +105,22 @@ class CustomerController extends Controller
      */
     public function show(string $id)
     {
-        //
+        if (!Auth::check()) {
+            return redirect('/');
+        }
+        $customer = $this->customer->find($id);
+
+        if($customer) {
+            return response()->json([
+                'success' => true,
+                'customer' => $customer
+            ]);
+        }else{
+            return response()->json([
+                'success' => false,
+                'message' => 'Customer not found'
+            ], 404);
+        }
     }
 
     /**
@@ -116,8 +142,21 @@ class CustomerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function delete(string $id)
     {
-        //
+        $customer = $this->customer->find($id);
+
+        if ($customer) {
+            $customer->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Customer deleted successfully'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Customer not found'
+        ], 404);
     }
 }

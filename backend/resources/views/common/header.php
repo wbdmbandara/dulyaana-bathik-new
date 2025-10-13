@@ -34,6 +34,12 @@
 
                 <!-- Template Main CSS File -->
                 <link href="/assets/css/style.css" rel="stylesheet">
+
+                <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+                
+                <!-- Datatables CDN -->
+                <link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.css" />
+                <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
             
             </head>
 
