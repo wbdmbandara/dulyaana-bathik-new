@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class CustomerController extends Controller
 {
@@ -69,6 +70,25 @@ class CustomerController extends Controller
             'message' => 'Customer registration failed',
         ], 500);
     }
+
+    public function login(Request $request)
+    {
+        $customer = Customer::where('email', $request->input('email'))->first();
+
+        if (!$customer || !Hash::check($request->input('password'), $customer->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid email or password',
+            ], 401);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Login successful',
+            'customer' => $customer
+        ], 200);
+    }
+
     /**
      * Display the specified resource.
      */

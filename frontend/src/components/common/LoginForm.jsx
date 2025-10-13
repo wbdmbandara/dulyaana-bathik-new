@@ -1,6 +1,57 @@
-import React from "react";
+import { API_URL, BACKEND_URL } from "../../config";
+import React, { useState, useEffect } from "react";
 
 function Login() {
+	const handleSubmit = (event) => {
+		event.preventDefault();
+		const email = event.target.email.value;
+		const password = event.target.password.value;
+
+		var errors = [];
+		if (email.length < 1) {
+			errors.push("Email is required");
+		}
+		if (password.length < 1) {
+			errors.push("Password is required");
+		}
+		if (errors.length > 0) {
+			const errorList = errors.map((error) => `<li>${error}</li>`).join("");
+			document.getElementById("errors").innerHTML = `<ul>${errorList}</ul>`;
+			document.getElementById("errors").classList.remove("d-none");
+			document.getElementById("section-header").scrollIntoView({ behavior: "smooth" });
+			return;
+		} else {
+			document.getElementById("errors").classList.add("d-none");
+		}
+
+		fetch(`${API_URL}login`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ email, password }),
+		})
+			.then((response) => {
+				if(response.status === 401) {
+					throw new Error("Invalid email or password.");
+				}
+				return response.json();
+			})
+			.then((data) => {
+				if (data.status === "success") {
+					// Handle successful login
+					window.location.href = "/dashboard";
+				} else {
+					throw new Error(data.message || "Login failed. Try again.");
+				}
+			})
+			.catch((err) => {
+				document.getElementById("errors").innerHTML = `<p>${err.message}</p>`;
+				document.getElementById("errors").classList.remove("d-none");
+				document.getElementById("section-header").scrollIntoView({ behavior: "smooth" });
+			});
+	};
+
 	return (
 		<div>
 			<section id="login" className="login section">
@@ -16,14 +67,17 @@ function Login() {
 							data-aos-delay="200"
 						>
 							<div className="login-form-wrapper">
-								<div className="login-header text-center">
+								<div className="login-header text-center" id="section-header">
 									<h2>Login</h2>
-									<p>
-										Welcome back! Please enter your details
-									</p>
+									{new URLSearchParams(window.location.search).get("registered") === "success"
+										? <p className="alert alert-success">Registration successful! Please log in to continue shopping.</p>
+										: <p>Welcome back! Please enter your details</p>}
 								</div>
 
-								<form>
+								<div className="errors alert alert-danger d-none" id="errors">
+								</div>
+
+								<form onSubmit={handleSubmit}>
 									<div className="mb-4">
 										<label
 											htmlFor="email"
@@ -49,7 +103,7 @@ function Login() {
 											>
 												Password
 											</label>
-											<a href="#" className="forgot-link">
+											<a href="/forgot-password" className="forgot-link">
 												Forgot password?
 											</a>
 										</div>
@@ -63,20 +117,6 @@ function Login() {
 										/>
 									</div>
 
-									<div className="mb-4 form-check">
-										<input
-											type="checkbox"
-											className="form-check-input"
-											id="remember"
-										/>
-										<label
-											className="form-check-label"
-											htmlFor="remember"
-										>
-											Remember for 30 days
-										</label>
-									</div>
-
 									<div className="d-grid gap-2 mb-4">
 										<button
 											type="submit"
@@ -86,7 +126,7 @@ function Login() {
 										</button>
 										<button
 											type="button"
-											className="btn btn-outline"
+											className="btn btn-outline d-none"
 										>
 											<i className="bi bi-google me-2"></i>
 											Sign in with Google
@@ -95,7 +135,7 @@ function Login() {
 
 									<div className="signup-link text-center">
 										<span>Don't have an account?</span>
-										<a href="#">Sign up for free</a>
+										<a href="/register">Sign up for free</a>
 									</div>
 								</form>
 							</div>

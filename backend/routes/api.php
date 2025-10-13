@@ -15,4 +15,5 @@ Route::middleware('api')->group(function () {
     Route::get('/getFooter', [FooterController::class, 'getFooterData']);
 
     Route::post('/registerCustomer', [CustomerController::class, 'register']);
+    Route::post('/login', [CustomerController::class, 'login']);
 });
