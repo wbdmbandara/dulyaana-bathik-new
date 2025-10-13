@@ -1,4 +1,98 @@
-import React from "react";
+import { API_URL, BACKEND_URL } from "../../config";
+import React, { useState, useEffect } from "react";
+
+const handleSubmit = (event) => {
+	event.preventDefault();
+
+	// prepare data for send to api
+	const data = {
+		name: event.target.name.value,
+		email: event.target.email.value,
+		password: event.target.password.value,
+		password_confirmation: event.target.confirmPassword.value,
+		newsletter: event.target.newsletter.checked,
+		terms: event.target.terms.checked,
+	};
+
+	var errors = [];
+	if (data.name.length < 3) {
+		errors.push("Name must be at least 3 characters long");
+	}
+	if (data.email.length < 1) {
+		errors.push("Email is required");
+	} else {
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(data.email)) {
+			errors.push("Invalid email format");
+		}
+	}
+	if (data.password.length < 1) {
+		errors.push("Password is required");
+	} else {
+		if (data.password.length < 8) {
+			errors.push("Password must be at least 8 characters long");
+		}
+		if (data.password_confirmation !== data.password) {
+			errors.push("Password and Confirm Password do not match");
+		}
+	}
+	if (data.terms !== true) {
+		errors.push("You must accept the terms and conditions");
+	}
+	if (errors.length > 0) {
+		const errorList = errors.map((error) => `<li>${error}</li>`).join("");
+		document.getElementById("errors").innerHTML = `<ul>${errorList}</ul>`;
+		document.getElementById("errors").classList.remove("d-none");
+		document.getElementById("section-header").scrollIntoView({ behavior: "smooth" });
+		return;
+	}else{
+		document.getElementById("errors").classList.add("d-none");
+	}
+	// send data to api
+	fetch(`${API_URL}registerCustomer`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify(data),
+	})
+		.then((response) => {
+			if(response.status === 409){
+				throw new Error("Email already exists");
+			}
+			if(response.status === 500){
+				throw new Error("There was a problem with the server. Please try again later.");
+			}
+			if (!response.ok) {
+				throw new Error("There was a problem with the fetch operation");
+			}
+			return response.json();
+		})
+		.then((data) => {
+			if (data.status === 'success') {
+				window.location.href = "/login?registered=success";
+			} else {
+				document.getElementById("errors").innerHTML = `<ul><li>${data.message}</li></ul>`;
+				document.getElementById("errors").classList.remove("d-none");
+				document.getElementById("section-header").scrollIntoView({ behavior: "smooth" });
+			}
+		})
+		.catch((err) => {
+			document.getElementById("errors").innerHTML = `<ul><li>${err.message}</li></ul>`;
+			document.getElementById("errors").classList.remove("d-none");
+			document.getElementById("section-header").scrollIntoView({ behavior: "smooth" });
+		});
+};
+
+const showPassword = (event) => {
+	const passwordInput = event.target.previousSibling;
+	passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+};
+
+const showConfirmPassword = (event) => {
+	const confirmPasswordInput = event.target.previousSibling;
+	confirmPasswordInput.type = confirmPasswordInput.type === "password" ? "text" : "password";
+};
 
 function RegisterForm() {
 	return (
@@ -16,7 +110,7 @@ function RegisterForm() {
 								data-aos="zoom-in"
 								data-aos-delay="200"
 							>
-								<div className="section-header mb-4 text-center">
+								<div className="section-header mb-4 text-center" id="section-header">
 									<h2>Create Your Account</h2>
 									<p>
 										Sign up to start shopping and enjoy
@@ -24,41 +118,22 @@ function RegisterForm() {
 									</p>
 								</div>
 
-								<form action="#" method="POST">
-									<div className="row">
-										<div className="col-md-6 mb-3">
-											<div className="form-group">
-												<label htmlFor="firstName">
-													First Name
-												</label>
-												<input
-													type="text"
-													className="form-control"
-													name="firstName"
-													id="firstName"
-													required=""
-													minLength="2"
-													placeholder="John"
-												/>
-											</div>
-										</div>
+								<div className="errors alert alert-danger d-none" id="errors">
+								</div>
 
-										<div className="col-md-6 mb-3">
-											<div className="form-group">
-												<label htmlFor="lastName">
-													Last Name
-												</label>
-												<input
-													type="text"
-													className="form-control"
-													name="lastName"
-													id="lastName"
-													required=""
-													minLength="2"
-													placeholder="Doe"
-												/>
-											</div>
-										</div>
+								<form onSubmit={handleSubmit} action="#">
+									<div className="form-group mb-3">
+										<label htmlFor="name">
+											Name
+										</label>
+										<input
+											type="text"
+											className="form-control"
+											name="name"
+											id="name"
+											required=""
+											placeholder="John Doe"
+										/>
 									</div>
 
 									<div className="form-group mb-3">
@@ -89,7 +164,7 @@ function RegisterForm() {
 												minLength="8"
 												placeholder="At least 8 characters"
 											/>
-											<i className="bi bi-eye toggle-password"></i>
+											<i className="bi bi-eye toggle-password" onClick={showPassword}></i>
 										</div>
 										<small className="password-requirements">
 											Must be at least 8 characters long
@@ -112,7 +187,7 @@ function RegisterForm() {
 												minLength="8"
 												placeholder="Repeat your password"
 											/>
-											<i className="bi bi-eye toggle-password"></i>
+											<i className="bi bi-eye toggle-password" onClick={showConfirmPassword}></i>
 										</div>
 									</div>
 
@@ -166,7 +241,7 @@ function RegisterForm() {
 									<div className="text-center">
 										<p className="mb-0">
 											Already have an account?{" "}
-											<a href="#">Sign in</a>
+											<a href="/login">Sign in</a>
 										</p>
 									</div>
 								</form>

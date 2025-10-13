@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\FooterController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\PromoCardsController;
@@ -12,4 +13,6 @@ Route::middleware('api')->group(function () {
     Route::get('/getPromoCards', [PromoCardsController::class, 'getPromoCards']);
     Route::get('/getProductDetails/{url}', [ItemsController::class, 'getProductDetails']);
     Route::get('/getFooter', [FooterController::class, 'getFooterData']);
+
+    Route::post('/registerCustomer', [CustomerController::class, 'register']);
 });
