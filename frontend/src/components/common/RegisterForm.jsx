@@ -48,6 +48,12 @@ const handleSubmit = (event) => {
 	}else{
 		document.getElementById("errors").classList.add("d-none");
 	}
+
+	// Show loading indicator
+	const submitButton = event.target.querySelector("button[type='submit']");
+	submitButton.disabled = true;
+	submitButton.textContent = "Loading...";
+
 	// send data to api
 	fetch(`${API_URL}registerCustomer`, {
 		method: "POST",
@@ -81,6 +87,11 @@ const handleSubmit = (event) => {
 			document.getElementById("errors").innerHTML = `<ul><li>${err.message}</li></ul>`;
 			document.getElementById("errors").classList.remove("d-none");
 			document.getElementById("section-header").scrollIntoView({ behavior: "smooth" });
+		})
+		.finally(() => {
+			// Hide loading indicator
+			submitButton.disabled = false;
+			submitButton.textContent = "Create Account";
 		});
 };
 
