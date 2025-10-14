@@ -749,4 +749,40 @@ class ItemsController extends Controller
             ], 500);
         }
     }
+
+    public function getRecentProducts(Request $request)
+    {
+        try {
+            $limit = $request->input('limit', 12);
+            $items = $this->item
+                ->leftJoin('item_category as category', 'items.category', '=', 'category.id')
+                ->select('items.*', 'category.cat_name as category_name')
+                ->where('items.quantity', '>', 0)
+                ->orderBy('items.created_at', 'desc')
+                ->limit($limit)
+                ->get();
+
+            $response = [];
+            foreach ($items as $item) {
+                $additionalImages = $this->itemImages->where('item_id', $item->item_id)->pluck('image_path')->toArray();
+                $videos = $this->itemVideos->where('item_id', $item->item_id)->pluck('video_url')->toArray();
+
+                $response[] = [
+                    'product' => $item,
+                    'additional_images' => $additionalImages,
+                    'videos' => $videos
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'products' => $response
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching recent products: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
