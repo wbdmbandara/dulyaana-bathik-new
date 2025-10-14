@@ -80,6 +80,19 @@
         </ul>
       </li>
 
+      <li class="nav-item d-none">
+        <a class="nav-link <?php if($active != 'settings'){echo 'collapsed';} ?>" data-bs-target="#settings-nav" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-gear"></i><span>Settings</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="settings-nav" class="nav-content <?php if($active != 'settings'){echo 'collapse';} ?>" data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="/email-settings" class="<?php if($subMenu == 'email-settings'){echo 'active';} ?>">
+              <i class="bi bi-circle"></i><span>Email Settings</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+
 
       <!-- <li class="nav-heading">Pages</li> -->
 

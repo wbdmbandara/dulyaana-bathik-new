@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\WelcomeMail;
 use App\Models\Customer;
+use App\Services\MailConfigService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class CustomerController extends Controller
 {
@@ -70,6 +73,9 @@ class CustomerController extends Controller
         ]);
 
         if($customer) {
+            MailConfigService::applyMailSettings();
+            $customerData = Customer::where('email', $request->json('email'))->first();
+            Mail::to($customerData['email'])->send(new WelcomeMail($customerData));
             return response()->json([
                 'status' => 'success',
                 'message' => 'Customer registered successfully',
