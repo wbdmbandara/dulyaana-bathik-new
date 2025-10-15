@@ -372,16 +372,13 @@ function Header({activeMenu}) {
 								</Link>
 							</li>
 							<li>
-								<Link to="/about" className={activeMenu === "about" ? "active" : ""}>
-									About
+								<Link to="/shop" className={activeMenu === "shop" ? "active" : ""}>
+									Shop
 								</Link>
 							</li>
 							<li>
-								<Link to="/category">Category</Link>
-							</li>
-							<li>
-								<Link to="/product-details">
-									Product Details
+								<Link to="/about" className={activeMenu === "about" ? "active" : ""}>
+									About
 								</Link>
 							</li>
 							<li>
@@ -390,7 +387,7 @@ function Header({activeMenu}) {
 							<li>
 								<Link to="/checkout">Checkout</Link>
 							</li>
-							<li className="dropdown">
+							<li className="dropdown d-none">
 								<a href="#">
 									<span>Dropdown</span>{" "}
 									<i className="bi bi-chevron-down toggle-dropdown"></i>
@@ -435,7 +432,7 @@ function Header({activeMenu}) {
 							</li>
 
 							{/*Products Mega Menu 1 */}
-							<li className="products-megamenu-1">
+							<li className="products-megamenu-1 d-none">
 								<a href="#">
 									<span>Megamenu 1</span>{" "}
 									<i className="bi bi-chevron-down toggle-dropdown"></i>
@@ -1100,7 +1097,7 @@ function Header({activeMenu}) {
 							</li>
 							{/*End Products Mega Menu 1 */}
 							{/*Products Mega Menu 2 */}
-							<li className="products-megamenu-2">
+							<li className="products-megamenu-2 d-none">
 								<a href="#">
 									<span>Megamenu 2</span>{" "}
 									<i className="bi bi-chevron-down toggle-dropdown"></i>

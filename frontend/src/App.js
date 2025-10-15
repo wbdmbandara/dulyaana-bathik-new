@@ -5,6 +5,7 @@ import './App.css';
 
 import Home from './Home';
 import About from './About';
+import Shop from './Shop';
 import Product from './Product';
 import Login from './Login';
 import Register from './Register';
@@ -18,6 +19,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/shop" element={<Shop />} />
           <Route path="/product/:url" element={<Product url={window.location.pathname} />} />
         </Routes>
       </BrowserRouter>
