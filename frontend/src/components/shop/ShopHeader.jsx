@@ -1,6 +1,22 @@
-import React from 'react'
+import { API_URL, BACKEND_URL } from "../../config";
+import React, { useState, useEffect } from "react";
 
 function ShopHeader() {
+  const [activeFilters, setActiveFilters] = useState([])
+  const [searchQuery, setSearchQuery] = useState("")
+  const [sortOption, setSortOption] = useState("")
+  const [itemsPerPage, setItemsPerPage] = useState(12)
+  
+  // set active filters based on url parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const filters = {
+      category: urlParams.get("category")?.replace("-", " ") || "",
+      fabrics: urlParams.get("fabrics") ? urlParams.get("fabrics").split(",") : []
+    };
+    setActiveFilters(filters);
+  }, []);
+
   return (
     <section id="category-header" className="category-header section">
 
@@ -70,12 +86,21 @@ function ShopHeader() {
                     <div className="active-filters">
                       <span className="active-filter-label">Active Filters:</span>
                       <div className="filter-tags">
-                        <span className="filter-tag">
-                          Electronics <button className="filter-remove"><i className="bi bi-x"></i></button>
-                        </span>
-                        <span className="filter-tag">
-                          $50 to $100 <button className="filter-remove"><i className="bi bi-x"></i></button>
-                        </span>
+                        {!activeFilters.category && activeFilters.fabrics?.length === 0 && (
+                          <span className="filter-tag">No filters applied</span>
+                        )}
+                        {activeFilters.category && (
+                          <span className="filter-tag text-capitalize">
+                            {activeFilters.category}
+                          </span>
+                        )}
+                        {activeFilters.fabrics && (
+                          activeFilters.fabrics.map((fabric) => (
+                            <span key={fabric} className="filter-tag text-capitalize">
+                              {fabric}
+                            </span>
+                          ))
+                        )}
                         <a className="clear-all-btn" href="/shop">Clear All</a>
                       </div>
                     </div>
