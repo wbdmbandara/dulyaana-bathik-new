@@ -9,7 +9,7 @@ function ShopHeader() {
               {/* Filter and Sort Options */}
               <div className="filter-container mb-4 aos-init aos-animate" data-aos="fade-up" data-aos-delay="100">
                 <div className="row g-3">
-                  <div className="col-12 col-md-6 col-lg-6">
+                  <div className="col-12 col-md-7 col-lg-8">
                     <div className="filter-item search-form">
                       <label htmlFor="productSearch" className="form-label">Search Products</label>
                       <div className="input-group">
@@ -21,7 +21,7 @@ function ShopHeader() {
                     </div>
                   </div>
 
-                  <div className="col-12 col-md-6 col-lg-2">
+                  <div className="col-12 col-md-6 col-lg-2 d-none">
                     <div className="filter-item">
                       <label htmlFor="priceRange" className="form-label">Price Range</label>
                       <select className="form-select" id="priceRange">
@@ -35,7 +35,7 @@ function ShopHeader() {
                     </div>
                   </div>
 
-                  <div className="col-12 col-md-6 col-lg-2">
+                  <div className="col-6 col-md-3 col-lg-2">
                     <div className="filter-item">
                       <label htmlFor="sortBy" className="form-label">Sort By</label>
                       <select className="form-select" id="sortBy">
@@ -48,9 +48,9 @@ function ShopHeader() {
                     </div>
                   </div>
 
-                  <div className="col-12 col-md-6 col-lg-2">
+                  <div className="col-6 col-md-2 col-lg-2">
                     <div className="filter-item">
-                      <label htmlFor="itemsPerPage" className="form-label">Items per Page</label>
+                      <label htmlFor="itemsPerPage" className="form-label">Sarees/Page</label>
                       <div className="d-flex align-items-center">
                         <div className="items-per-page">
                           <select className="form-select" id="itemsPerPage" aria-label="Items per page">
@@ -76,7 +76,7 @@ function ShopHeader() {
                         <span className="filter-tag">
                           $50 to $100 <button className="filter-remove"><i className="bi bi-x"></i></button>
                         </span>
-                        <button className="clear-all-btn">Clear All</button>
+                        <a className="clear-all-btn" href="/shop">Clear All</a>
                       </div>
                     </div>
                   </div>
