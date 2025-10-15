@@ -664,6 +664,18 @@ function FilterProduct() {
 								placeholder="Search fabrics..."
 								spellCheck="false"
 								data-ms-editor="true"
+                onChange={(e) => {
+                  const searchTerm = e.target.value.toLowerCase();
+                  const fabricItems = document.querySelectorAll('.brand-item');
+                  fabricItems.forEach(item => {
+                    const label = item.querySelector('label').innerText.toLowerCase();
+                    if (label.includes(searchTerm)) {
+                      item.style.display = '';
+                    } else {
+                      item.style.display = 'none';
+                    }
+                  });
+                }}
 							/>
 							<i className="bi bi-search"></i>
 						</div>
