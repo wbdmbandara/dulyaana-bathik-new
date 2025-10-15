@@ -13035,3 +13035,16 @@ section,
   color: color-mix(in srgb, var(--default-color), transparent 60%);
   font-size: 14px;
 }
+
+.sticky-sidebar {
+  position: -webkit-sticky;
+  position: sticky;
+  align-self: flex-start;
+  top: 0px;
+}
+
+@media (max-width: 991.98px) {
+  .sticky-sidebar {
+    position: static;
+  }
+}

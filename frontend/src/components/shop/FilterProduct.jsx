@@ -189,7 +189,7 @@ function FilterProduct() {
   }, []);
 
 	return (
-		<div className="col-lg-4 sidebar">
+		<div className="col-lg-4 sidebar sticky-sidebar">
 			{/* Mobile-only filter toggle: visible on small screens, toggles the filter panel */}
 			<div className="mobile-filter-toggle d-lg-none mt-3">
 				<button

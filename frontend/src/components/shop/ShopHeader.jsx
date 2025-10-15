@@ -76,11 +76,11 @@ function ShopHeader() {
                     <div className="filter-item">
                       <label htmlFor="sortBy" className="form-label">Sort By</label>
                       <select className="form-select" id="sortBy">
-                        <option defaultValue={""}>Featured</option>
-                        <option>Price: Low to High</option>
-                        <option>Price: High to Low</option>
-                        <option>Customer Rating</option>
-                        <option>Newest Arrivals</option>
+                        <option value="featured" defaultValue={""}>Featured</option>
+                        <option value="price_low_high">Price: Low to High</option>
+                        <option value="price_high_low">Price: High to Low</option>
+                        <option value="customer_rating">Customer Rating</option>
+                        <option value="newest_arrivals">Newest Arrivals</option>
                       </select>
                     </div>
                   </div>
