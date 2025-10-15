@@ -6,9 +6,13 @@ function ShopHeader() {
   const [searchQuery, setSearchQuery] = useState(
     new URLSearchParams(window.location.search).get("search") || ""
   )
-  const [sortOption, setSortOption] = useState("")
-  const [itemsPerPage, setItemsPerPage] = useState(12)
-  
+  const [sortOption, setSortOption] = useState(
+    new URLSearchParams(window.location.search).get("sort") || "featured"
+  )
+  const [itemsPerPage, setItemsPerPage] = useState(
+    new URLSearchParams(window.location.search).get("limit") || 12
+  )
+
   // set active filters based on url parameters
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -34,6 +38,30 @@ function ShopHeader() {
       urlParams.set("search", searchQuery);
     } else {
       urlParams.delete("search");
+    }
+    window.location.href = `${currentURL.pathname}?${urlParams.toString()}`;
+  };
+
+  const applySort = (event) => {
+    setSortOption(event.target.value);
+    const currentURL = new URL(window.location.href);
+    const urlParams = new URLSearchParams(currentURL.search);
+    if (event.target.value) {
+      urlParams.set("sort", event.target.value);
+    } else {
+      urlParams.delete("sort");
+    }
+    window.location.href = `${currentURL.pathname}?${urlParams.toString()}`;
+  };
+
+  const applyLimit = (event) => {
+    setItemsPerPage(event.target.value);
+    const currentURL = new URL(window.location.href);
+    const urlParams = new URLSearchParams(currentURL.search);
+    if (event.target.value) {
+      urlParams.set("limit", event.target.value);
+    } else {
+      urlParams.delete("limit");
     }
     window.location.href = `${currentURL.pathname}?${urlParams.toString()}`;
   };
@@ -75,7 +103,7 @@ function ShopHeader() {
                   <div className="col-6 col-md-3 col-lg-2">
                     <div className="filter-item">
                       <label htmlFor="sortBy" className="form-label">Sort By</label>
-                      <select className="form-select" id="sortBy">
+                      <select className="form-select" id="sortBy" onChange={applySort} value={sortOption}>
                         <option value="featured" defaultValue={""}>Featured</option>
                         <option value="price_low_high">Price: Low to High</option>
                         <option value="price_high_low">Price: High to Low</option>
@@ -90,7 +118,7 @@ function ShopHeader() {
                       <label htmlFor="itemsPerPage" className="form-label">Sarees/Page</label>
                       <div className="d-flex align-items-center">
                         <div className="items-per-page">
-                          <select className="form-select" id="itemsPerPage" aria-label="Items per page">
+                          <select className="form-select" id="itemsPerPage" aria-label="Items per page" onChange={applyLimit} value={itemsPerPage}>
                             <option value="12">12</option>
                             <option value="24">24</option>
                             <option value="48">48</option>
