@@ -3,7 +3,9 @@ import React, { useState, useEffect } from "react";
 
 function ShopHeader() {
   const [activeFilters, setActiveFilters] = useState([])
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState(
+    new URLSearchParams(window.location.search).get("search") || ""
+  )
   const [sortOption, setSortOption] = useState("")
   const [itemsPerPage, setItemsPerPage] = useState(12)
   
@@ -17,6 +19,25 @@ function ShopHeader() {
     setActiveFilters(filters);
   }, []);
 
+  const searchOnKeyUp = (event) => {
+    if (event.key === "Enter") {
+      applySearch();
+    } else {
+      setSearchQuery(event.target.value);
+    }
+  };
+
+  const applySearch = () => {
+    const currentURL = new URL(window.location.href);
+    const urlParams = new URLSearchParams(currentURL.search);
+    if (searchQuery) {
+      urlParams.set("search", searchQuery);
+    } else {
+      urlParams.delete("search");
+    }
+    window.location.href = `${currentURL.pathname}?${urlParams.toString()}`;
+  };
+
   return (
     <section id="category-header" className="category-header section">
 
@@ -29,8 +50,8 @@ function ShopHeader() {
                     <div className="filter-item search-form">
                       <label htmlFor="productSearch" className="form-label">Search Products</label>
                       <div className="input-group">
-                        <input type="text" className="form-control" id="productSearch" placeholder="Search for products..." aria-label="Search for products" spellCheck="false" data-ms-editor="true" />
-                        <button className="btn search-btn" type="button">
+                        <input type="text" className="form-control" id="productSearch" placeholder="Search for products..." aria-label="Search for products" spellCheck="false" data-ms-editor="true" onChange={(e) => setSearchQuery(e.target.value)} onKeyUp={searchOnKeyUp} value={searchQuery}/>
+                        <button className="btn search-btn" type="button" onClick={applySearch}>
                           <i className="bi bi-search"></i>
                         </button>
                       </div>
