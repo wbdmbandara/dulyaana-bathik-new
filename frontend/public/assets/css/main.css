@@ -1945,6 +1945,14 @@ section,
   }
 }
 
+@media (max-width: 768px) {
+
+  section,
+  .section {
+    padding: 30px 0;
+  }
+}
+
 /*--------------------------------------------------------------
 # Global Section Titles
 --------------------------------------------------------------*/
@@ -3959,6 +3967,16 @@ section,
   background-color: var(--accent-color);
   border-color: var(--accent-color);
   color: var(--contrast-color);
+}
+
+.filter-collapse-btn {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: var(--contrast-color);
+  max-width: 250px;
+  width: 100%;
+  margin: 0 auto 1rem auto;
+  display: flex;
 }
 
 .product-details .product-info-wrapper .product-actions .add-to-cart-btn:hover {
