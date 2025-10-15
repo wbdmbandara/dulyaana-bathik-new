@@ -785,4 +785,23 @@ class ItemsController extends Controller
             ], 500);
         }
     }
+
+    public function getMinAndMaxPrices()
+    {
+        try {
+            $minPrice = $this->item->min('price');
+            $maxPrice = $this->item->max('price');
+
+            return response()->json([
+                'success' => true,
+                'min_price' => $minPrice,
+                'max_price' => $maxPrice
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching price range: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

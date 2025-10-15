@@ -22,7 +22,13 @@ import React, { useState, useEffect } from "react";
 
 function FilterProduct() {
 	// get categories from api getParentCategories
+  const currentURL = new URL(window.location.href);
 	const [categories, setCategories] = useState([]);
+	const [minPrice, setMinPrice] = useState(0);
+	const [defaultMinPrice, setDefaultMinPrice] = useState(0);
+	const [maxPrice, setMaxPrice] = useState(1000);
+  const [defaultMaxPrice, setDefaultMaxPrice] = useState(1000);
+
 	useEffect(() => {
 		const fetchCategories = async () => {
 			try {
@@ -45,6 +51,32 @@ function FilterProduct() {
 		fetchCategories();
 	}, []);
 
+	// get min and max price from api getMinAndMaxPrices
+  useEffect(() => {
+    const fetchMinAndMaxPrices = async () => {
+      try {
+        const response = await fetch(`${API_URL}getMinAndMaxPrices`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await response.json();
+        if (data.success) {
+          setMinPrice(Math.floor(data.min_price));
+          setDefaultMinPrice(Math.floor(data.min_price));
+          setMaxPrice(Math.ceil(data.max_price));
+          setDefaultMaxPrice(Math.ceil(data.max_price));
+        } else {
+          console.error("Error fetching min and max prices:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching min and max prices:", error);
+      }
+    };
+    fetchMinAndMaxPrices();
+  }, []);
+
 	return (
 		<div className="col-lg-4 sidebar">
 			{/* Mobile-only filter toggle: visible on small screens, toggles the filter panel */}
@@ -66,114 +98,131 @@ function FilterProduct() {
 				id="filterSidebarContent"
 				className="collapse d-lg-block widgets-container"
 			>
-        { /* Product Categories Widget */}
-          <div className="product-categories-widget widget-item">
-            <h3 className="widget-title">Categories</h3>
+				{/* Product Categories Widget */}
+				<div className="product-categories-widget widget-item">
+					<h3 className="widget-title">Categories</h3>
 
-            <ul className="category-tree list-unstyled mb-0">
-              {categories.map((category) => {
-                const currentCategory = new URLSearchParams(window.location.search).get('category');
-                return (
-            <li className="category-item" key={category.id}>
-              <div className="d-flex justify-content-between align-items-center category-header">
-                <a
-                  href={`${window.location.pathname}?${new URLSearchParams({
-              ...Object.fromEntries(new URLSearchParams(window.location.search)),
-              category: category.cat_slug,
-                  }).toString()}`}
-                  className={`category-link ${currentCategory === category.cat_slug ? 'active' : ''}`}
-                >
-                  {category.cat_name}
-                </a>
-              </div>
-            </li>
-                );
-              })}
-            </ul>
-          </div>
-
-          {/* Pricing Range Widget */}
-				<div className="pricing-range-widget widget-item">
-					<h3 className="widget-title">Price Range</h3>
-
-					<div className="price-range-container">
-						<div className="current-range mb-3 d-none">
-							<span className="min-price">$0</span>
-							<span className="max-price float-end">$500</span>
-						</div>
-
-						<div className="range-slider d-none">
-							<div className="slider-track"></div>
-							<div
-								className="slider-progress"
-								style={{ left: "0%", width: "50%" }}
-							></div>
-							<input
-								type="range"
-								className="min-range"
-								min="0"
-								max="1000"
-								value={0}
-								step="10"
-							/>
-							<input
-								type="range"
-								className="max-range"
-								min="0"
-								max="1000"
-								value={500}
-								step="10"
-							/>
-						</div>
-
-						<div className="price-inputs mt-3">
-							<div className="row g-2">
-								<div className="col-6">
-									<div className="input-group input-group-sm">
-										<span className="input-group-text">
-											$
-										</span>
-										<input
-											type="number"
-											className="form-control min-price-input"
-											placeholder="Min"
-											min="0"
-											max="1000"
-											value={0}
-											step="10"
-										/>
+					<ul className="category-tree list-unstyled mb-0">
+						{categories.map((category) => {
+							const currentCategory = new URLSearchParams(
+								window.location.search
+							).get("category");
+							return (
+								<li className="category-item" key={category.id}>
+									<div className="d-flex justify-content-between align-items-center category-header">
+										<a
+											href={`${
+												window.location.pathname
+											}?${new URLSearchParams({
+												...Object.fromEntries(
+													new URLSearchParams(
+														window.location.search
+													)
+												),
+												category: category.cat_slug,
+											}).toString()}`}
+											className={`category-link ${
+												currentCategory ===
+												category.cat_slug
+													? "active"
+													: ""
+											}`}
+										>
+											{category.cat_name}
+										</a>
 									</div>
-								</div>
-								<div className="col-6">
-									<div className="input-group input-group-sm">
-										<span className="input-group-text">
-											$
-										</span>
-										<input
-											type="number"
-											className="form-control max-price-input"
-											placeholder="Max"
-											min="0"
-											max="1000"
-											value={500}
-											step="10"
-										/>
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<div className="filter-actions mt-3">
-							<button
-								type="button"
-								className="btn btn-sm btn-primary w-100"
-							>
-								Apply Filter
-							</button>
-						</div>
-					</div>
+								</li>
+							);
+						})}
+					</ul>
 				</div>
-				{/*/Pricing Range Widget */}
+
+        { /* Pricing Range Widget */}
+        <div className="pricing-range-widget widget-item">
+          <h3 className="widget-title">Price Range</h3>
+
+          <div className="price-range-container">
+            <div className="current-range mb-3 d-none">
+              <span className="min-price">$0</span>
+              <span className="max-price float-end">$500</span>
+            </div>
+
+            <div className="range-slider d-none">
+              <div className="slider-track"></div>
+              <div
+                className="slider-progress"
+                style={{ left: "0%", width: "50%" }}
+              ></div>
+              <input
+                type="range"
+                className="min-range"
+                min="0"
+                max="1000"
+                value={minPrice}
+                step="10"
+                onChange={(e) => setMinPrice(Number(e.target.value))}
+              />
+              <input
+                type="range"
+                className="max-range"
+                min="0"
+                max="1000"
+                value={maxPrice}
+                step="10"
+                onChange={(e) => setMaxPrice(Number(e.target.value))}
+              />
+            </div>
+
+            <div className="price-inputs mt-3">
+              <div className="row g-2">
+                <div className="col-6">
+                  <div className="input-group input-group-sm">
+                    <span className="input-group-text">Rs.</span>
+                    <input
+                      type="number"
+                      className="form-control min-price-input"
+                      placeholder="Min"
+                      min={defaultMinPrice}
+                      max={defaultMaxPrice}
+                      value={minPrice}
+                      step="100"
+                      onChange={(e) => setMinPrice(Number(e.target.value))}
+                    />
+                  </div>
+                </div>
+                <div className="col-6">
+                  <div className="input-group input-group-sm">
+                    <span className="input-group-text">Rs.</span>
+                    <input
+                      type="number"
+                      className="form-control max-price-input"
+                      placeholder="Max"
+                      min={defaultMinPrice}
+                      max={defaultMaxPrice}
+                      value={maxPrice}
+                      step="100"
+                      onChange={(e) => setMaxPrice(Number(e.target.value))}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="filter-actions mt-3">
+              <a
+                href={`${currentURL.pathname}?${new URLSearchParams({
+                  ...Object.fromEntries(new URLSearchParams(currentURL.search)),
+                  min_price: minPrice,
+                  max_price: maxPrice,
+                }).toString()}`}
+                className="btn btn-sm btn-primary w-100"
+              >
+                Apply Filter
+              </a>
+            </div>
+          </div>
+        </div>
+        {/*/Pricing Range Widget */}
 
 				{/* Brand Filter Widget */}
 				<h3 className="brand-filter-widget widget-item">
