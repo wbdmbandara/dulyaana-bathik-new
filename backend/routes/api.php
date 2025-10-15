@@ -16,6 +16,7 @@ Route::middleware('api')->group(function () {
     Route::get('/getProductDetails/{url}', [ItemsController::class, 'getProductDetails']);
     Route::get('/getParentCategories', [CategoryController::class, 'getParentCategories']);
     Route::get('/getMinAndMaxPrices', [ItemsController::class, 'getMinAndMaxPrices']);
+    Route::get('/getFabricList', [ItemsController::class, 'getFabricList']);
     Route::get('/getFooter', [FooterController::class, 'getFooterData']);
 
     Route::post('/registerCustomer', [CustomerController::class, 'register']);

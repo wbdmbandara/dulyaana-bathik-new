@@ -28,6 +28,8 @@ function FilterProduct() {
 	const [defaultMinPrice, setDefaultMinPrice] = useState(0);
 	const [maxPrice, setMaxPrice] = useState(1000);
   const [defaultMaxPrice, setDefaultMaxPrice] = useState(1000);
+  const [fabrics, setFabrics] = useState([]);
+  const [selectedFabrics, setSelectedFabrics] = useState([]);
 
 	useEffect(() => {
 		const fetchCategories = async () => {
@@ -123,6 +125,68 @@ function FilterProduct() {
 		};
 		fetchMinAndMaxPrices();
 	}, []);
+
+  // get fabrics from api getFabricList
+  useEffect(() => {
+    const fetchFabrics = async () => {
+      try {
+        const response = await fetch(`${API_URL}getFabricList`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
+        const data = await response.json();
+        if (data.success) {
+          setFabrics(data.fabrics);
+        } else {
+          console.error("Error fetching fabrics:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching fabrics:", error);
+      }
+    };
+    fetchFabrics();
+  }, []);
+
+  const clearFabricFilters = () => {
+    const fabricCheckboxes = document.querySelectorAll(
+      ".fabric-filter input[type='checkbox']"
+    );
+    fabricCheckboxes.forEach((checkbox) => {
+      checkbox.checked = false;
+    });
+    applyFabricFilters();
+  };
+
+  const applyFabricFilters = () => {
+    const selectedFabrics = [];
+    const fabricCheckboxes = document.querySelectorAll(
+      ".fabric-filter input[type='checkbox']:checked"
+    );
+    fabricCheckboxes.forEach((checkbox) => {
+      selectedFabrics.push(checkbox.value);
+    });
+    setSelectedFabrics(selectedFabrics);
+    const currentURL = new URL(window.location.href);
+    const urlParams = new URLSearchParams(currentURL.search);
+    if (selectedFabrics.length > 0) {
+      urlParams.set("fabrics", selectedFabrics.join(","));
+    } else {
+      urlParams.delete("fabrics");
+    }
+    window.location.href = `${currentURL.pathname}?${urlParams.toString()}`;
+  };
+
+  // set selectedFabrics using URL params on initial load
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const fabricsParam = urlParams.get("fabrics");
+    if (fabricsParam) {
+      const fabricsFromURL = fabricsParam.split(",");
+      setSelectedFabrics(fabricsFromURL);
+    }
+  }, []);
 
 	return (
 		<div className="col-lg-4 sidebar">
@@ -292,13 +356,13 @@ function FilterProduct() {
 				{/*/Pricing Range Widget */}
 
 				{/* Brand Filter Widget */}
-				<h3 className="brand-filter-widget widget-item">
+				<h3 className="brand-filter-widget widget-item d-none">
 					Filter by Brand
 				</h3>
 				{/*/Brand Filter Widget */}
 
 				{/* Color Filter Widget */}
-				<div className="color-filter-widget widget-item">
+				<div className="color-filter-widget widget-item d-none">
 					<h3 className="widget-title">Filter by Color</h3>
 
 					<div className="color-filter-content">
@@ -588,16 +652,16 @@ function FilterProduct() {
 				</div>
 				{/*/Color Filter Widget */}
 
-				{/* Brand Filter Widget */}
+				{/* Fabric Filter Widget */}
 				<div className="brand-filter-widget widget-item">
-					<h3 className="widget-title">Filter by Brand</h3>
+					<h3 className="widget-title">Filter by Fabric</h3>
 
 					<div className="brand-filter-content">
 						<div className="brand-search">
 							<input
 								type="text"
 								className="form-control"
-								placeholder="Search brands..."
+								placeholder="Search fabrics..."
 								spellCheck="false"
 								data-ms-editor="true"
 							/>
@@ -605,154 +669,38 @@ function FilterProduct() {
 						</div>
 
 						<div className="brand-list">
-							<div className="brand-item">
-								<div className="form-check">
-									<input
-										className="form-check-input"
-										type="checkbox"
-										id="brand1"
-									/>
-									<label
-										className="form-check-label"
-										htmlFor="brand1"
-									>
-										Nike
-										<span className="brand-count">
-											(24)
-										</span>
-									</label>
+							{fabrics.map((fabric, index) => (
+								<div className="brand-item" key={index}>
+									<div className="form-check fabric-filter">
+										<input
+											className="form-check-input"
+											type="checkbox"
+											id={`fabric-${index}`}
+                      value={fabric.fabric}
+                      defaultChecked={selectedFabrics.includes(fabric.fabric)}
+										/>
+										<label
+											className="form-check-label"
+											htmlFor={`fabric-${index}`}
+										>
+											{fabric.fabric}
+											<span className="brand-count">
+												({fabric.item_count})
+											</span>
+										</label>
+									</div>
 								</div>
-							</div>
-
-							<div className="brand-item">
-								<div className="form-check">
-									<input
-										className="form-check-input"
-										type="checkbox"
-										id="brand2"
-									/>
-									<label
-										className="form-check-label"
-										htmlFor="brand2"
-									>
-										Adidas
-										<span className="brand-count">
-											(18)
-										</span>
-									</label>
-								</div>
-							</div>
-
-							<div className="brand-item">
-								<div className="form-check">
-									<input
-										className="form-check-input"
-										type="checkbox"
-										id="brand3"
-									/>
-									<label
-										className="form-check-label"
-										htmlFor="brand3"
-									>
-										Puma
-										<span className="brand-count">
-											(12)
-										</span>
-									</label>
-								</div>
-							</div>
-
-							<div className="brand-item">
-								<div className="form-check">
-									<input
-										className="form-check-input"
-										type="checkbox"
-										id="brand4"
-									/>
-									<label
-										className="form-check-label"
-										htmlFor="brand4"
-									>
-										Reebok
-										<span className="brand-count">(9)</span>
-									</label>
-								</div>
-							</div>
-
-							<div className="brand-item">
-								<div className="form-check">
-									<input
-										className="form-check-input"
-										type="checkbox"
-										id="brand5"
-									/>
-									<label
-										className="form-check-label"
-										htmlFor="brand5"
-									>
-										Under Armour
-										<span className="brand-count">(7)</span>
-									</label>
-								</div>
-							</div>
-
-							<div className="brand-item">
-								<div className="form-check">
-									<input
-										className="form-check-input"
-										type="checkbox"
-										id="brand6"
-									/>
-									<label
-										className="form-check-label"
-										htmlFor="brand6"
-									>
-										New Balance
-										<span className="brand-count">(6)</span>
-									</label>
-								</div>
-							</div>
-
-							<div className="brand-item">
-								<div className="form-check">
-									<input
-										className="form-check-input"
-										type="checkbox"
-										id="brand7"
-									/>
-									<label
-										className="form-check-label"
-										htmlFor="brand7"
-									>
-										Converse
-										<span className="brand-count">(5)</span>
-									</label>
-								</div>
-							</div>
-
-							<div className="brand-item">
-								<div className="form-check">
-									<input
-										className="form-check-input"
-										type="checkbox"
-										id="brand8"
-									/>
-									<label
-										className="form-check-label"
-										htmlFor="brand8"
-									>
-										Vans
-										<span className="brand-count">(4)</span>
-									</label>
-								</div>
-							</div>
+							))}
 						</div>
 
 						<div className="brand-actions">
-							<button className="btn btn-sm btn-outline-primary">
+							<button className="btn btn-sm btn-outline-primary" onClick={applyFabricFilters}>
 								Apply Filter
 							</button>
-							<button className="btn btn-sm btn-link">
+							<button
+								className="btn btn-sm btn-link"
+								onClick={clearFabricFilters}
+							>
 								Clear All
 							</button>
 						</div>

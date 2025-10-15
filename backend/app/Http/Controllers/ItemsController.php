@@ -9,6 +9,7 @@ use App\Models\ItemImages;
 use App\Models\ItemVideos;
 use App\Models\Categories;
 use Illuminate\Contracts\Support\ValidatedData;
+use Illuminate\Support\Facades\DB;
 
 class ItemsController extends Controller
 {
@@ -801,6 +802,32 @@ class ItemsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error fetching price range: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getFabricList()
+    {
+        try {
+            // get fabrics and count of items for each fabric
+            $fabrics = $this->item->select('fabric', DB::raw('count(*) as item_count'))
+                ->groupBy('fabric')
+                ->orderBy('item_count', 'desc')
+                ->get();
+            $fabrics = $fabrics->map(function ($item) {
+                return [
+                    'fabric' => $item->fabric ?? 'Not Specified',
+                    'item_count' => $item->item_count
+                ];
+            });
+            return response()->json([
+                'success' => true,
+                'fabrics' => $fabrics
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching fabric list: ' . $e->getMessage()
             ], 500);
         }
     }
