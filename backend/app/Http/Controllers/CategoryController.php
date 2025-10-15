@@ -160,4 +160,24 @@ class CategoryController extends Controller
         }
     }
 
+    public function getParentCategories()
+    {
+        try{
+            $categories = $this->category->where('parent_id', 0)->get();
+            return response()->json(
+                [
+                    'success' => true,
+                    'categories' => $categories
+                ]
+            );
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Error fetching parent categories: ' . $e->getMessage()
+                ],
+                500
+            );
+        }
+    }
 }

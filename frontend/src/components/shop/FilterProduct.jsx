@@ -1,4 +1,5 @@
-import React from "react";
+import { API_URL, BACKEND_URL } from "../../config";
+import React, { useState, useEffect } from "react";
 
 // setPriceRange
 // const setPriceRange = (min, max) => {
@@ -20,6 +21,30 @@ import React from "react";
 // };
 
 function FilterProduct() {
+	// get categories from api getParentCategories
+	const [categories, setCategories] = useState([]);
+	useEffect(() => {
+		const fetchCategories = async () => {
+			try {
+				const response = await fetch(`${API_URL}getParentCategories`, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				});
+				const data = await response.json();
+				if (data.success) {
+					setCategories(data.categories);
+				} else {
+					console.error("Error fetching categories:", data.message);
+				}
+			} catch (error) {
+				console.error("Error fetching categories:", error);
+			}
+		};
+		fetchCategories();
+	}, []);
+
 	return (
 		<div className="col-lg-4 sidebar">
 			{/* Mobile-only filter toggle: visible on small screens, toggles the filter panel */}
@@ -41,305 +66,33 @@ function FilterProduct() {
 				id="filterSidebarContent"
 				className="collapse d-lg-block widgets-container"
 			>
-				{/* Product Categories Widget */}
-				<div className="product-categories-widget widget-item">
-					<h3 className="widget-title">Categories</h3>
+        { /* Product Categories Widget */}
+          <div className="product-categories-widget widget-item">
+            <h3 className="widget-title">Categories</h3>
 
-					<ul className="category-tree list-unstyled mb-0">
-						{/* Clothing Category */}
-						<li className="category-item">
-							<div
-								className="d-flex justify-content-between align-items-center category-header collapsed"
-								data-bs-toggle="collapse"
-								data-bs-target="#categories-1-clothing-subcategories"
-								aria-expanded="false"
-								aria-controls="categories-1-clothing-subcategories"
-							>
-								<a
-									href="javascript:void(0)"
-									className="category-link"
-								>
-									Clothing
-								</a>
-								<span className="category-toggle">
-									<i className="bi bi-chevron-down"></i>
-									<i className="bi bi-chevron-up"></i>
-								</span>
-							</div>
-							<ul
-								id="categories-1-clothing-subcategories"
-								className="subcategory-list list-unstyled collapse ps-3 mt-2"
-							>
-								<li>
-									<a href="#" className="subcategory-link">
-										Men's Wear
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Women's Wear
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Kids' Clothing
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Accessories
-									</a>
-								</li>
-							</ul>
-						</li>
+            <ul className="category-tree list-unstyled mb-0">
+              {categories.map((category) => {
+                const currentCategory = new URLSearchParams(window.location.search).get('category');
+                return (
+            <li className="category-item" key={category.id}>
+              <div className="d-flex justify-content-between align-items-center category-header">
+                <a
+                  href={`${window.location.pathname}?${new URLSearchParams({
+              ...Object.fromEntries(new URLSearchParams(window.location.search)),
+              category: category.cat_slug,
+                  }).toString()}`}
+                  className={`category-link ${currentCategory === category.cat_slug ? 'active' : ''}`}
+                >
+                  {category.cat_name}
+                </a>
+              </div>
+            </li>
+                );
+              })}
+            </ul>
+          </div>
 
-						{/* Electronics Category */}
-						<li className="category-item">
-							<div
-								className="d-flex justify-content-between align-items-center category-header collapsed"
-								data-bs-toggle="collapse"
-								data-bs-target="#categories-1-electronics-subcategories"
-								aria-expanded="false"
-								aria-controls="categories-1-electronics-subcategories"
-							>
-								<a
-									href="javascript:void(0)"
-									className="category-link"
-								>
-									Electronics
-								</a>
-								<span className="category-toggle">
-									<i className="bi bi-chevron-down"></i>
-									<i className="bi bi-chevron-up"></i>
-								</span>
-							</div>
-							<ul
-								id="categories-1-electronics-subcategories"
-								className="subcategory-list list-unstyled collapse ps-3 mt-2"
-							>
-								<li>
-									<a href="#" className="subcategory-link">
-										Smartphones
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Laptops
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Tablets
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Accessories
-									</a>
-								</li>
-							</ul>
-						</li>
-
-						{/* Home & Kitchen Category */}
-						<li className="category-item">
-							<div
-								className="d-flex justify-content-between align-items-center category-header collapsed"
-								data-bs-toggle="collapse"
-								data-bs-target="#categories-1-home-subcategories"
-								aria-expanded="false"
-								aria-controls="categories-1-home-subcategories"
-							>
-								<a
-									href="javascript:void(0)"
-									className="category-link"
-								>
-									Home &amp; Kitchen
-								</a>
-								<span className="category-toggle">
-									<i className="bi bi-chevron-down"></i>
-									<i className="bi bi-chevron-up"></i>
-								</span>
-							</div>
-							<ul
-								id="categories-1-home-subcategories"
-								className="subcategory-list list-unstyled collapse ps-3 mt-2"
-							>
-								<li>
-									<a href="#" className="subcategory-link">
-										Furniture
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Kitchen Appliances
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Home Decor
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Bedding
-									</a>
-								</li>
-							</ul>
-						</li>
-
-						{/* Beauty & Personal Care Category */}
-						<li className="category-item">
-							<div
-								className="d-flex justify-content-between align-items-center category-header collapsed"
-								data-bs-toggle="collapse"
-								data-bs-target="#categories-1-beauty-subcategories"
-								aria-expanded="false"
-								aria-controls="categories-1-beauty-subcategories"
-							>
-								<a
-									href="javascript:void(0)"
-									className="category-link"
-								>
-									Beauty &amp; Personal Care
-								</a>
-								<span className="category-toggle">
-									<i className="bi bi-chevron-down"></i>
-									<i className="bi bi-chevron-up"></i>
-								</span>
-							</div>
-							<ul
-								id="categories-1-beauty-subcategories"
-								className="subcategory-list list-unstyled collapse ps-3 mt-2"
-							>
-								<li>
-									<a href="#" className="subcategory-link">
-										Skincare
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Makeup
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Hair Care
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Fragrances
-									</a>
-								</li>
-							</ul>
-						</li>
-
-						{/* Sports & Outdoors Category */}
-						<li className="category-item">
-							<div
-								className="d-flex justify-content-between align-items-center category-header collapsed"
-								data-bs-toggle="collapse"
-								data-bs-target="#categories-1-sports-subcategories"
-								aria-expanded="false"
-								aria-controls="categories-1-sports-subcategories"
-							>
-								<a
-									href="javascript:void(0)"
-									className="category-link"
-								>
-									Sports &amp; Outdoors
-								</a>
-								<span className="category-toggle">
-									<i className="bi bi-chevron-down"></i>
-									<i className="bi bi-chevron-up"></i>
-								</span>
-							</div>
-							<ul
-								id="categories-1-sports-subcategories"
-								className="subcategory-list list-unstyled collapse ps-3 mt-2"
-							>
-								<li>
-									<a href="#" className="subcategory-link">
-										Fitness Equipment
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Outdoor Gear
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Sports Apparel
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Team Sports
-									</a>
-								</li>
-							</ul>
-						</li>
-
-						{/* Books Category (no subcategories) */}
-						<li className="category-item">
-							<div className="d-flex justify-content-between align-items-center category-header">
-								<a href="#" className="category-link">
-									Books
-								</a>
-							</div>
-						</li>
-
-						{/* Toys & Games Category */}
-						<li className="category-item">
-							<div
-								className="d-flex justify-content-between align-items-center category-header collapsed"
-								data-bs-toggle="collapse"
-								data-bs-target="#categories-1-toys-subcategories"
-								aria-expanded="false"
-								aria-controls="categories-1-toys-subcategories"
-							>
-								<a
-									href="javascript:void(0)"
-									className="category-link"
-								>
-									Toys &amp; Games
-								</a>
-								<span className="category-toggle">
-									<i className="bi bi-chevron-down"></i>
-									<i className="bi bi-chevron-up"></i>
-								</span>
-							</div>
-							<ul
-								id="categories-1-toys-subcategories"
-								className="subcategory-list list-unstyled collapse ps-3 mt-2"
-							>
-								<li>
-									<a href="#" className="subcategory-link">
-										Board Games
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Puzzles
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Action Figures
-									</a>
-								</li>
-								<li>
-									<a href="#" className="subcategory-link">
-										Educational Toys
-									</a>
-								</li>
-							</ul>
-						</li>
-					</ul>
-				</div>
-
-				{/* Pricing Range Widget */}
+          {/* Pricing Range Widget */}
 				<div className="pricing-range-widget widget-item">
 					<h3 className="widget-title">Price Range</h3>
 

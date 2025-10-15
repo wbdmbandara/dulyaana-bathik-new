@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\FooterController;
 use App\Http\Controllers\ItemsController;
@@ -13,6 +14,7 @@ Route::middleware('api')->group(function () {
     Route::get('/getPromoCards', [PromoCardsController::class, 'getPromoCards']);
     Route::get('/getRecentProducts', [ItemsController::class, 'getRecentProducts']);
     Route::get('/getProductDetails/{url}', [ItemsController::class, 'getProductDetails']);
+    Route::get('/getParentCategories', [CategoryController::class, 'getParentCategories']);
     Route::get('/getFooter', [FooterController::class, 'getFooterData']);
 
     Route::post('/registerCustomer', [CustomerController::class, 'register']);

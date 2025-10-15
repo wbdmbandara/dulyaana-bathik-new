@@ -12431,6 +12431,9 @@ section,
   text-decoration: none;
   transition: color 0.3s;
 }
+.product-categories-widget .category-tree .category-item .active {
+  color: var(--accent-color);
+}
 
 .product-categories-widget .category-tree .category-item .category-toggle {
   display: flex;
