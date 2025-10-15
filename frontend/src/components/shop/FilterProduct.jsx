@@ -52,30 +52,77 @@ function FilterProduct() {
 	}, []);
 
 	// get min and max price from api getMinAndMaxPrices
-  useEffect(() => {
-    const fetchMinAndMaxPrices = async () => {
-      try {
-        const response = await fetch(`${API_URL}getMinAndMaxPrices`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await response.json();
-        if (data.success) {
-          setMinPrice(Math.floor(data.min_price));
-          setDefaultMinPrice(Math.floor(data.min_price));
-          setMaxPrice(Math.ceil(data.max_price));
-          setDefaultMaxPrice(Math.ceil(data.max_price));
-        } else {
-          console.error("Error fetching min and max prices:", data.message);
-        }
-      } catch (error) {
-        console.error("Error fetching min and max prices:", error);
-      }
-    };
-    fetchMinAndMaxPrices();
-  }, []);
+	useEffect(() => {
+		const fetchMinAndMaxPrices = async () => {
+			try {
+				const response = await fetch(`${API_URL}getMinAndMaxPrices`, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				});
+				const data = await response.json();
+				if (data.success) {
+					const apiMin = Math.floor(data.min_price);
+					const apiMax = Math.ceil(data.max_price);
+
+					setDefaultMinPrice(apiMin);
+					setDefaultMaxPrice(apiMax);
+
+					// Read values from URL params (if provided)
+					const urlParams = new URLSearchParams(
+						window.location.search
+					);
+					const urlMinRaw = urlParams.get("min_price");
+					const urlMaxRaw = urlParams.get("max_price");
+
+					const urlMin =
+						urlMinRaw !== null && !isNaN(Number(urlMinRaw))
+							? Number(urlMinRaw)
+							: null;
+					const urlMax =
+						urlMaxRaw !== null && !isNaN(Number(urlMaxRaw))
+							? Number(urlMaxRaw)
+							: null;
+
+					// If URL params provided, clamp them to API bounds
+					let initialMin = apiMin;
+					let initialMax = apiMax;
+
+					if (urlMin !== null) {
+						initialMin = Math.max(
+							apiMin,
+							Math.min(apiMax, Math.floor(urlMin))
+						);
+					}
+
+					if (urlMax !== null) {
+						initialMax = Math.max(
+							apiMin,
+							Math.min(apiMax, Math.ceil(urlMax))
+						);
+					}
+
+					// Ensure min is not greater than max
+					if (initialMin > initialMax) {
+						// If both came from URL, prioritize sensible ordering: set min = max
+						initialMin = initialMax;
+					}
+
+					setMinPrice(initialMin);
+					setMaxPrice(initialMax);
+				} else {
+					console.error(
+						"Error fetching min and max prices:",
+						data.message
+					);
+				}
+			} catch (error) {
+				console.error("Error fetching min and max prices:", error);
+			}
+		};
+		fetchMinAndMaxPrices();
+	}, []);
 
 	return (
 		<div className="col-lg-4 sidebar">
@@ -137,92 +184,112 @@ function FilterProduct() {
 					</ul>
 				</div>
 
-        { /* Pricing Range Widget */}
-        <div className="pricing-range-widget widget-item">
-          <h3 className="widget-title">Price Range</h3>
+				{/* Pricing Range Widget */}
+				<div className="pricing-range-widget widget-item">
+					<h3 className="widget-title">Price Range</h3>
 
-          <div className="price-range-container">
-            <div className="current-range mb-3 d-none">
-              <span className="min-price">$0</span>
-              <span className="max-price float-end">$500</span>
-            </div>
+					<div className="price-range-container">
+						<div className="current-range mb-3 d-none">
+							<span className="min-price">$0</span>
+							<span className="max-price float-end">$500</span>
+						</div>
 
-            <div className="range-slider d-none">
-              <div className="slider-track"></div>
-              <div
-                className="slider-progress"
-                style={{ left: "0%", width: "50%" }}
-              ></div>
-              <input
-                type="range"
-                className="min-range"
-                min="0"
-                max="1000"
-                value={minPrice}
-                step="10"
-                onChange={(e) => setMinPrice(Number(e.target.value))}
-              />
-              <input
-                type="range"
-                className="max-range"
-                min="0"
-                max="1000"
-                value={maxPrice}
-                step="10"
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
-              />
-            </div>
+						<div className="range-slider d-none">
+							<div className="slider-track"></div>
+							<div
+								className="slider-progress"
+								style={{ left: "0%", width: "50%" }}
+							></div>
+							<input
+								type="range"
+								className="min-range"
+								min="0"
+								max="1000"
+								value={minPrice}
+								step="10"
+								onChange={(e) =>
+									setMinPrice(Number(e.target.value))
+								}
+							/>
+							<input
+								type="range"
+								className="max-range"
+								min="0"
+								max="1000"
+								value={maxPrice}
+								step="10"
+								onChange={(e) =>
+									setMaxPrice(Number(e.target.value))
+								}
+							/>
+						</div>
 
-            <div className="price-inputs mt-3">
-              <div className="row g-2">
-                <div className="col-6">
-                  <div className="input-group input-group-sm">
-                    <span className="input-group-text">Rs.</span>
-                    <input
-                      type="number"
-                      className="form-control min-price-input"
-                      placeholder="Min"
-                      min={defaultMinPrice}
-                      max={defaultMaxPrice}
-                      value={minPrice}
-                      step="100"
-                      onChange={(e) => setMinPrice(Number(e.target.value))}
-                    />
-                  </div>
-                </div>
-                <div className="col-6">
-                  <div className="input-group input-group-sm">
-                    <span className="input-group-text">Rs.</span>
-                    <input
-                      type="number"
-                      className="form-control max-price-input"
-                      placeholder="Max"
-                      min={defaultMinPrice}
-                      max={defaultMaxPrice}
-                      value={maxPrice}
-                      step="100"
-                      onChange={(e) => setMaxPrice(Number(e.target.value))}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+						<div className="price-inputs mt-3">
+							<div className="row g-2">
+								<div className="col-6">
+									<div className="input-group input-group-sm">
+										<span className="input-group-text">
+											Rs.
+										</span>
+										<input
+											type="number"
+											className="form-control min-price-input"
+											placeholder="Min"
+											min={defaultMinPrice}
+											max={defaultMaxPrice}
+											value={minPrice}
+											step="100"
+											onChange={(e) =>
+												setMinPrice(
+													Number(e.target.value)
+												)
+											}
+										/>
+									</div>
+								</div>
+								<div className="col-6">
+									<div className="input-group input-group-sm">
+										<span className="input-group-text">
+											Rs.
+										</span>
+										<input
+											type="number"
+											className="form-control max-price-input"
+											placeholder="Max"
+											min={defaultMinPrice}
+											max={defaultMaxPrice}
+											value={maxPrice}
+											step="100"
+											onChange={(e) =>
+												setMaxPrice(
+													Number(e.target.value)
+												)
+											}
+										/>
+									</div>
+								</div>
+							</div>
+						</div>
 
-            <div className="filter-actions mt-3">
-              <a
-                href={`${currentURL.pathname}?${new URLSearchParams({
-                  ...Object.fromEntries(new URLSearchParams(currentURL.search)),
-                  min_price: minPrice,
-                  max_price: maxPrice,
-                }).toString()}`}
-                className="btn btn-sm btn-primary w-100"
-              >
-                Apply Filter
-              </a>
-            </div>
-          </div>
-        </div>
-        {/*/Pricing Range Widget */}
+						<div className="filter-actions mt-3">
+							<a
+								href={`${
+									currentURL.pathname
+								}?${new URLSearchParams({
+									...Object.fromEntries(
+										new URLSearchParams(currentURL.search)
+									),
+									min_price: minPrice,
+									max_price: maxPrice,
+								}).toString()}`}
+								className="btn btn-sm btn-primary w-100"
+							>
+								Apply Filter
+							</a>
+						</div>
+					</div>
+				</div>
+				{/*/Pricing Range Widget */}
 
 				{/* Brand Filter Widget */}
 				<h3 className="brand-filter-widget widget-item">
