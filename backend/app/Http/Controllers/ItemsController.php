@@ -831,4 +831,120 @@ class ItemsController extends Controller
             ], 500);
         }
     }
+
+    public function showItems(Request $request)
+    {
+        return $this->filterItems($request, null);
+    }
+
+    public function filterItems(Request $request)
+    {
+        if (empty($request)) {
+            $query = $this->item->leftJoin('item_category as category', 'items.category', '=', 'category.id')
+                ->select('items.*', 'category.cat_name as category_name')
+                ->where('items.quantity', '>', 0)
+                ->where('items.status', 'active')
+                ->orderBy('items.item_id', 'desc')
+                ->paginate(12);
+            $items = $query->appends($request->except('page'));
+            return response()->json([
+                'success' => true,
+                'message' => 'No category specified, displaying all items.',
+                'data' => $items
+            ], 200);
+        }
+
+        // Base query with join to category
+        $query = $this->item->leftJoin('item_category as category', 'items.category', '=', 'category.id')
+            ->select('items.*', 'category.cat_name as category_name');
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('items.name', 'like', '%' . $search . '%')
+                    ->orWhere('items.description', 'like', '%' . $search . '%')
+                    ->orWhere('items.url', 'like', '%' . $search . '%')
+                    ->orWhere('category.cat_name', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply category filter
+        if ($request->filled('category')) {
+            $category = $request->input('category');
+            $query->where('items.category', $category);
+        }
+
+        // Apply price range filter
+        if ($request->filled('min_price') && is_numeric($request->input('min_price'))) {
+            $minPrice = $request->input('min_price');
+            $query->where('items.price', '>=', $minPrice);
+        }
+
+        if ($request->filled('max_price') && is_numeric($request->input('max_price'))) {
+            $maxPrice = $request->input('max_price');
+            $query->where('items.price', '<=', $maxPrice);
+        }
+
+        // Apply fabric filter (supports multiple fabrics via comma-separated values)
+        if ($request->filled('fabrics')) {
+            $fabrics = explode(',', $request->input('fabrics'));
+            $query->whereIn('items.fabric', $fabrics);
+        }
+
+        // Apply default filter to show only items with quantity > 0 and status = active
+        $query->where('items.quantity', '>', 0)->where('items.status', 'active');
+
+        // Apply sorting
+        if ($request->filled('sort')) {
+            $sortBy = $request->input('sort');
+            switch ($sortBy) {
+                case 'featured':
+                    $query->orderBy('items.created_at', 'desc'); // Placeholder, as no featured field exists
+                    break;
+                case 'price_low_high':
+                    $query->orderBy('items.price', 'asc');
+                    break;
+                case 'price_high_low':
+                    $query->orderBy('items.price', 'desc');
+                    break;
+                case 'customer_rating':
+                    $query->orderBy('items.item_id', 'desc'); // Placeholder, as no rating field exists
+                    break;
+                case 'newest_arrivals':
+                    $query->orderBy('items.created_at', 'desc');
+                    break;
+                default:
+                    $query->orderBy('items.item_id', 'desc');
+                    break;
+            }
+        } else {
+            $query->orderBy('items.item_id', 'desc');
+        }
+
+        // Pagination
+        $perPage = $request->input('limit', 12); // Default to 12 items per page
+        $items = $query->paginate($perPage)->appends($request->except('page'));
+
+        $response = $items->map(function ($item) {
+            $additionalImages = $this->itemImages->where('item_id', $item->item_id)->pluck('image_path')->toArray();
+
+            return [
+                'product' => $item,
+                'additional_images' => $additionalImages,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $response,
+            'pagination' => [
+                'total' => $items->total(),
+                'current_page' => $items->currentPage(),
+                'last_page' => $items->lastPage(),
+                'per_page' => $items->perPage()
+            ]
+        ]);
+    }
+
 }

@@ -18,6 +18,8 @@ Route::middleware('api')->group(function () {
     Route::get('/getMinAndMaxPrices', [ItemsController::class, 'getMinAndMaxPrices']);
     Route::get('/getFabricList', [ItemsController::class, 'getFabricList']);
     Route::get('/getFooter', [FooterController::class, 'getFooterData']);
+    Route::get('/getItems', [ItemsController::class, 'filterItems']);
+    Route::get('/getItems/{}', [ItemsController::class, 'filterItems']);
 
     Route::post('/registerCustomer', [CustomerController::class, 'register']);
     Route::post('/login', [CustomerController::class, 'login']);
