@@ -16,12 +16,14 @@ class ItemsController extends Controller
     protected $item;
     protected $itemImages;
     protected $itemVideos;
+    protected $categories;
 
-    public function __construct(Items $item, ItemImages $itemImages, ItemVideos $itemVideos)
+    public function __construct(Items $item, ItemImages $itemImages, ItemVideos $itemVideos, Categories $categories)
     {
         $this->item = $item;
         $this->itemImages = $itemImages;
         $this->itemVideos = $itemVideos;
+        $this->categories = $categories;
     }
 
     public function index()
@@ -759,6 +761,7 @@ class ItemsController extends Controller
                 ->leftJoin('item_category as category', 'items.category', '=', 'category.id')
                 ->select('items.*', 'category.cat_name as category_name')
                 ->where('items.quantity', '>', 0)
+                ->where('items.status', 'active')
                 ->orderBy('items.created_at', 'desc')
                 ->limit($limit)
                 ->get();
@@ -811,6 +814,8 @@ class ItemsController extends Controller
         try {
             // get fabrics and count of items for each fabric
             $fabrics = $this->item->select('fabric', DB::raw('count(*) as item_count'))
+                ->where('quantity', '>', 0)
+                ->where('status', 'active')
                 ->groupBy('fabric')
                 ->orderBy('item_count', 'desc')
                 ->get();
@@ -872,7 +877,8 @@ class ItemsController extends Controller
         // Apply category filter
         if ($request->filled('category')) {
             $category = $request->input('category');
-            $query->where('items.category', $category);
+            $categoryID = $this->categories->where('cat_slug', $category)->value('id');
+            $query->where('items.category', $categoryID);
         }
 
         // Apply price range filter

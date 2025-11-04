@@ -22,14 +22,14 @@ import React, { useState, useEffect } from "react";
 
 function FilterProduct() {
 	// get categories from api getParentCategories
-  const currentURL = new URL(window.location.href);
+	const currentURL = new URL(window.location.href);
 	const [categories, setCategories] = useState([]);
 	const [minPrice, setMinPrice] = useState(0);
 	const [defaultMinPrice, setDefaultMinPrice] = useState(0);
 	const [maxPrice, setMaxPrice] = useState(1000);
-  const [defaultMaxPrice, setDefaultMaxPrice] = useState(1000);
-  const [fabrics, setFabrics] = useState([]);
-  const [selectedFabrics, setSelectedFabrics] = useState([]);
+	const [defaultMaxPrice, setDefaultMaxPrice] = useState(1000);
+	const [fabrics, setFabrics] = useState([]);
+	const [selectedFabrics, setSelectedFabrics] = useState([]);
 
 	useEffect(() => {
 		const fetchCategories = async () => {

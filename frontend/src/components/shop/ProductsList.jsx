@@ -1,7 +1,45 @@
-import React from 'react'
+import { API_URL, BACKEND_URL } from "../../config";
+import React, { useState, useEffect } from "react";
 
 function ProductsList() {
-  return (
+	const [products, setProducts] = useState([]);
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		const fetchProducts = async () => {
+			try {
+				const currentUrl = window.location.href;
+				const urlParams = new URLSearchParams(currentUrl.split("?")[1]);
+
+				const category = urlParams.get("category") || "";
+				const search = urlParams.get("search") || "";
+				const min_price = urlParams.get("min_price") || "";
+				const max_price = urlParams.get("max_price") || "";
+				const sort = urlParams.get("sort") || "featured";
+				const fabrics = urlParams.get("fabrics") || "";
+				const limit = urlParams.get("limit") || "12";
+				urlParams.set("category", category);
+				urlParams.set("search", search);
+				urlParams.set("min_price", min_price);
+				urlParams.set("max_price", max_price);
+				urlParams.set("sort", sort);
+				urlParams.set("fabrics", fabrics);
+				urlParams.set("limit", limit);
+
+				const response = await fetch(`${API_URL}getItems?${urlParams.toString()}`);
+				const data = await response.json();
+				setProducts(data);
+			} catch (error) {
+				console.error("Error fetching products:", error);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchProducts();
+	}, []);
+
+	return (
 		<div>
 			<section
 				id="category-product-list"
@@ -76,20 +114,28 @@ function ProductsList() {
 											<i className="bi bi-star-fill"></i>
 											<i className="bi bi-star"></i>
 										</div>
-										<span className="rating-number">4.0</span>
+										<span className="rating-number">
+											4.0
+										</span>
 									</div>
 									<div className="product-color-options">
 										<span
 											className="color-option"
-											style={{ backgroundColor: '#3b82f6' }}
+											style={{
+												backgroundColor: "#3b82f6",
+											}}
 										></span>
 										<span
 											className="color-option"
-											style={{ backgroundColor: '#22c55e' }}
+											style={{
+												backgroundColor: "#22c55e",
+											}}
 										></span>
 										<span
 											className="color-option active"
-											style={{ backgroundColor: '#f97316' }}
+											style={{
+												backgroundColor: "#f97316",
+											}}
 										></span>
 									</div>
 								</div>
@@ -153,7 +199,9 @@ function ProductsList() {
 											<span className="original">
 												$199.99
 											</span>
-											<span className="sale">$139.99</span>
+											<span className="sale">
+												$139.99
+											</span>
 										</div>
 									</div>
 									<div className="product-rating-container">
@@ -164,20 +212,28 @@ function ProductsList() {
 											<i className="bi bi-star-fill"></i>
 											<i className="bi bi-star-half"></i>
 										</div>
-										<span className="rating-number">4.5</span>
+										<span className="rating-number">
+											4.5
+										</span>
 									</div>
 									<div className="product-color-options">
 										<span
 											className="color-option"
-											style={{ backgroundColor: '#0ea5e9' }}
+											style={{
+												backgroundColor: "#0ea5e9",
+											}}
 										></span>
 										<span
 											className="color-option active"
-											style={{ backgroundColor: '#111827' }}
+											style={{
+												backgroundColor: "#111827",
+											}}
 										></span>
 										<span
 											className="color-option"
-											style={{ backgroundColor: '#a855f7' }}
+											style={{
+												backgroundColor: "#a855f7",
+											}}
 										></span>
 									</div>
 								</div>
@@ -245,20 +301,28 @@ function ProductsList() {
 											<i className="bi bi-star"></i>
 											<i className="bi bi-star"></i>
 										</div>
-										<span className="rating-number">3.0</span>
+										<span className="rating-number">
+											3.0
+										</span>
 									</div>
 									<div className="product-color-options">
 										<span
 											className="color-option active"
-											style={{ backgroundColor: '#ef4444' }}
+											style={{
+												backgroundColor: "#ef4444",
+											}}
 										></span>
 										<span
 											className="color-option"
-											style={{ backgroundColor: '#64748b' }}
+											style={{
+												backgroundColor: "#64748b",
+											}}
 										></span>
 										<span
 											className="color-option"
-											style={{ backgroundColor: '#eab308' }}
+											style={{
+												backgroundColor: "#eab308",
+											}}
 										></span>
 									</div>
 								</div>
@@ -326,20 +390,28 @@ function ProductsList() {
 											<i className="bi bi-star-fill"></i>
 											<i className="bi bi-star-fill"></i>
 										</div>
-										<span className="rating-number">5.0</span>
+										<span className="rating-number">
+											5.0
+										</span>
 									</div>
 									<div className="product-color-options">
 										<span
 											className="color-option"
-											style={{ backgroundColor: '#10b981' }}
+											style={{
+												backgroundColor: "#10b981",
+											}}
 										></span>
 										<span
 											className="color-option active"
-											style={{ backgroundColor: '#8b5cf6' }}
+											style={{
+												backgroundColor: "#8b5cf6",
+											}}
 										></span>
 										<span
 											className="color-option"
-											style={{ backgroundColor: '#ec4899' }}
+											style={{
+												backgroundColor: "#ec4899",
+											}}
 										></span>
 									</div>
 								</div>
@@ -410,20 +482,28 @@ function ProductsList() {
 											<i className="bi bi-star-fill"></i>
 											<i className="bi bi-star-half"></i>
 										</div>
-										<span className="rating-number">4.7</span>
+										<span className="rating-number">
+											4.7
+										</span>
 									</div>
 									<div className="product-color-options">
 										<span
 											className="color-option active"
-											style={{ backgroundColor: '#4b5563' }}
+											style={{
+												backgroundColor: "#4b5563",
+											}}
 										></span>
 										<span
 											className="color-option"
-											style={{ backgroundColor: '#e11d48' }}
+											style={{
+												backgroundColor: "#e11d48",
+											}}
 										></span>
 										<span
 											className="color-option"
-											style={{ backgroundColor: '#4f46e5' }}
+											style={{
+												backgroundColor: "#4f46e5",
+											}}
 										></span>
 									</div>
 								</div>
@@ -495,20 +575,28 @@ function ProductsList() {
 											<i className="bi bi-star-half"></i>
 											<i className="bi bi-star"></i>
 										</div>
-										<span className="rating-number">3.6</span>
+										<span className="rating-number">
+											3.6
+										</span>
 									</div>
 									<div className="product-color-options">
 										<span
 											className="color-option"
-											style={{ backgroundColor: '#eab308' }}
+											style={{
+												backgroundColor: "#eab308",
+											}}
 										></span>
 										<span
 											className="color-option"
-											style={{ backgroundColor: '#14b8a6' }}
+											style={{
+												backgroundColor: "#14b8a6",
+											}}
 										></span>
 										<span
 											className="color-option active"
-											style={{ backgroundColor: '#facc15' }}
+											style={{
+												backgroundColor: "#facc15",
+											}}
 										></span>
 									</div>
 								</div>
@@ -562,7 +650,9 @@ function ProductsList() {
 
 							<li>
 								<a href="#" aria-label="Next page">
-									<span className="d-none d-sm-inline">Next</span>
+									<span className="d-none d-sm-inline">
+										Next
+									</span>
 									<i className="bi bi-arrow-right"></i>
 								</a>
 							</li>
@@ -571,7 +661,7 @@ function ProductsList() {
 				</div>
 			</section>
 		</div>
-  );
+	);
 }
 
-export default ProductsList
+export default ProductsList;
