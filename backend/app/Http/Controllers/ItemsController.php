@@ -861,7 +861,7 @@ class ItemsController extends Controller
 
         // Base query with join to category
         $query = $this->item->leftJoin('item_category as category', 'items.category', '=', 'category.id')
-            ->select('items.*', 'category.cat_name as category_name');
+            ->select('items.*', 'category.cat_name as category_name', 'category.cat_slug as category_slug');
 
         // Apply search filter
         if ($request->filled('search')) {

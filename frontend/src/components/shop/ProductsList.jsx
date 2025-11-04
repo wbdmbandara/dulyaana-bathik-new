@@ -1,4 +1,9 @@
-import { API_URL, BACKEND_URL } from "../../config";
+import {
+	API_URL,
+	BACKEND_URL,
+	formatNumber,
+	formatCurrency,
+} from "../../config";
 import React, { useState, useEffect } from "react";
 
 function ProductsList() {
@@ -26,9 +31,11 @@ function ProductsList() {
 				urlParams.set("fabrics", fabrics);
 				urlParams.set("limit", limit);
 
-				const response = await fetch(`${API_URL}getItems?${urlParams.toString()}`);
+				const response = await fetch(
+					`${API_URL}getItems?${urlParams.toString()}`
+				);
 				const data = await response.json();
-				setProducts(data);
+				setProducts(data.data);
 			} catch (error) {
 				console.error("Error fetching products:", error);
 			} finally {
@@ -51,558 +58,148 @@ function ProductsList() {
 					data-aos-delay="100"
 				>
 					<div className="row gy-4">
-						{/* Product 1 */}
-						<div className="col-lg-6">
-							<div className="product-box">
-								<div className="product-thumb">
-									<span className="product-label">
-										New Season
-									</span>
-									<img
-										src="assets/img/product/product-3.webp"
-										alt="Product Image"
-										className="main-img"
-										loading="lazy"
-									/>
-									<div className="product-overlay">
-										<div className="product-quick-actions">
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-heart"></i>
-											</button>
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-arrow-repeat"></i>
-											</button>
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-eye"></i>
-											</button>
+						{/* display products */}
+						{loading ? (
+							<p>Loading products...</p>
+						) : products.length > 0 ? (
+							products.map((product, index) => (
+								<div
+									key={
+										product.product.id || `product-${index}`
+									}
+									className="col-lg-6 col-md-4 col-6"
+								>
+									<div className="product-box">
+										<div className="product-thumb">
+											{product.product?.discount_price >
+												0 && (
+												<span className="product-label product-label-sale">
+													{Math.round(
+														((product.product
+															?.price -
+															product.product
+																?.discount_price) /
+															product.product
+																?.price) *
+															100
+													)}
+													% Off
+												</span>
+											)}
+											<img
+												src={
+													BACKEND_URL +
+													product.product.main_image
+												}
+												alt={product.product.name}
+												className="main-img"
+												loading="lazy"
+											/>
+											<div className="product-overlay">
+												<div className="product-quick-actions">
+													<button
+														type="button"
+														className="quick-action-btn"
+													>
+														<i className="bi bi-heart"></i>
+													</button>
+													<button
+														type="button"
+														className="quick-action-btn"
+													>
+														<i className="bi bi-arrow-repeat"></i>
+													</button>
+													<a
+														href={
+															"/product/" +
+																product.product
+																	?.url || "#"
+														}
+														className="quick-action-btn"
+													>
+														<i className="bi bi-eye"></i>
+													</a>
+												</div>
+												<div className="add-to-cart-container">
+													<button
+														type="button"
+														className="add-to-cart-btn"
+													>
+														Add to Cart
+													</button>
+												</div>
+											</div>
 										</div>
-										<div className="add-to-cart-container">
-											<button
-												type="button"
-												className="add-to-cart-btn"
-											>
-												Add to Cart
-											</button>
-										</div>
-									</div>
-								</div>
-								<div className="product-content">
-									<div className="product-details">
-										<h3 className="product-title">
-											<a href="product-details.html">
-												Vestibulum ante ipsum primis
-											</a>
-										</h3>
-										<div className="product-price">
-											<span>$149.99</span>
-										</div>
-									</div>
-									<div className="product-rating-container">
-										<div className="rating-stars">
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star"></i>
-										</div>
-										<span className="rating-number">
-											4.0
-										</span>
-									</div>
-									<div className="product-color-options">
-										<span
-											className="color-option"
-											style={{
-												backgroundColor: "#3b82f6",
-											}}
-										></span>
-										<span
-											className="color-option"
-											style={{
-												backgroundColor: "#22c55e",
-											}}
-										></span>
-										<span
-											className="color-option active"
-											style={{
-												backgroundColor: "#f97316",
-											}}
-										></span>
-									</div>
-								</div>
-							</div>
-						</div>
-						{/* End Product 1 */}
+										<div className="product-content">
+											<div className="row">
+												<div className="col-6">
+													<a href={`/shop?category=${product.product?.category_slug}`} className="prod-category">{product.product?.category_name || "Uncategorized"}</a>
+												</div>
+												<div className="col-6">
+													<div className="product-rating-container">
+														<div className="rating-stars">
+															<i className="bi bi-star-fill"></i>
+															<i className="bi bi-star-fill"></i>
+															<i className="bi bi-star-fill"></i>
+															<i className="bi bi-star-fill"></i>
+															<i className="bi bi-star"></i>
+														</div>
+														<span className="rating-number">
+															4.0
+														</span>
+													</div>
+												</div>
+											</div>
+											<div className="product-details">
+												<h3 className="product-title">
+													<a
+														href={
+															"/product/" +
+																product.product
+																	?.url || "#"
+														}
+													>
+														{product.product.name}
+													</a>
+												</h3>
+												{product.product
+													?.discount_price > 0 && (
+													<div className="product-price">
+														<span className="original">
+															{formatCurrency(
+																product.product
+																	?.price
+															)}
+														</span>
 
-						{/* Product 2 */}
-						<div className="col-lg-6">
-							<div className="product-box">
-								<div className="product-thumb">
-									<span className="product-label product-label-sale">
-										-30%
-									</span>
-									<img
-										src="assets/img/product/product-6.webp"
-										alt="Product Image"
-										className="main-img"
-										loading="lazy"
-									/>
-									<div className="product-overlay">
-										<div className="product-quick-actions">
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-heart"></i>
-											</button>
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-arrow-repeat"></i>
-											</button>
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-eye"></i>
-											</button>
-										</div>
-										<div className="add-to-cart-container">
-											<button
-												type="button"
-												className="add-to-cart-btn"
-											>
-												Add to Cart
-											</button>
+														<span className="sale">
+															{formatCurrency(
+																product.product
+																	?.discount_price
+															)}
+														</span>
+													</div>
+												)}
+												{product.product
+													?.discount_price ===
+													null && (
+													<div className="product-price">
+														<span>
+															{formatCurrency(
+																product.product
+																	?.price
+															)}
+														</span>
+													</div>
+												)}
+											</div>
 										</div>
 									</div>
 								</div>
-								<div className="product-content">
-									<div className="product-details">
-										<h3 className="product-title">
-											<a href="product-details.html">
-												Aliquam tincidunt mauris eu
-												risus
-											</a>
-										</h3>
-										<div className="product-price">
-											<span className="original">
-												$199.99
-											</span>
-											<span className="sale">
-												$139.99
-											</span>
-										</div>
-									</div>
-									<div className="product-rating-container">
-										<div className="rating-stars">
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-half"></i>
-										</div>
-										<span className="rating-number">
-											4.5
-										</span>
-									</div>
-									<div className="product-color-options">
-										<span
-											className="color-option"
-											style={{
-												backgroundColor: "#0ea5e9",
-											}}
-										></span>
-										<span
-											className="color-option active"
-											style={{
-												backgroundColor: "#111827",
-											}}
-										></span>
-										<span
-											className="color-option"
-											style={{
-												backgroundColor: "#a855f7",
-											}}
-										></span>
-									</div>
-								</div>
-							</div>
-						</div>
-						{/* End Product 2 */}
-
-						{/* Product 3 */}
-						<div className="col-lg-6">
-							<div className="product-box">
-								<div className="product-thumb">
-									<img
-										src="assets/img/product/product-9.webp"
-										alt="Product Image"
-										className="main-img"
-										loading="lazy"
-									/>
-									<div className="product-overlay">
-										<div className="product-quick-actions">
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-heart"></i>
-											</button>
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-arrow-repeat"></i>
-											</button>
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-eye"></i>
-											</button>
-										</div>
-										<div className="add-to-cart-container">
-											<button
-												type="button"
-												className="add-to-cart-btn"
-											>
-												Add to Cart
-											</button>
-										</div>
-									</div>
-								</div>
-								<div className="product-content">
-									<div className="product-details">
-										<h3 className="product-title">
-											<a href="product-details.html">
-												Cras ornare tristique elit
-											</a>
-										</h3>
-										<div className="product-price">
-											<span>$89.50</span>
-										</div>
-									</div>
-									<div className="product-rating-container">
-										<div className="rating-stars">
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star"></i>
-											<i className="bi bi-star"></i>
-										</div>
-										<span className="rating-number">
-											3.0
-										</span>
-									</div>
-									<div className="product-color-options">
-										<span
-											className="color-option active"
-											style={{
-												backgroundColor: "#ef4444",
-											}}
-										></span>
-										<span
-											className="color-option"
-											style={{
-												backgroundColor: "#64748b",
-											}}
-										></span>
-										<span
-											className="color-option"
-											style={{
-												backgroundColor: "#eab308",
-											}}
-										></span>
-									</div>
-								</div>
-							</div>
-						</div>
-						{/* End Product 3 */}
-
-						{/* Product 4 */}
-						<div className="col-lg-6">
-							<div className="product-box">
-								<div className="product-thumb">
-									<img
-										src="assets/img/product/product-11.webp"
-										alt="Product Image"
-										className="main-img"
-										loading="lazy"
-									/>
-									<div className="product-overlay">
-										<div className="product-quick-actions">
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-heart"></i>
-											</button>
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-arrow-repeat"></i>
-											</button>
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-eye"></i>
-											</button>
-										</div>
-										<div className="add-to-cart-container">
-											<button
-												type="button"
-												className="add-to-cart-btn"
-											>
-												Add to Cart
-											</button>
-										</div>
-									</div>
-								</div>
-								<div className="product-content">
-									<div className="product-details">
-										<h3 className="product-title">
-											<a href="product-details.html">
-												Integer vitae libero ac risus
-											</a>
-										</h3>
-										<div className="product-price">
-											<span>$119.00</span>
-										</div>
-									</div>
-									<div className="product-rating-container">
-										<div className="rating-stars">
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-fill"></i>
-										</div>
-										<span className="rating-number">
-											5.0
-										</span>
-									</div>
-									<div className="product-color-options">
-										<span
-											className="color-option"
-											style={{
-												backgroundColor: "#10b981",
-											}}
-										></span>
-										<span
-											className="color-option active"
-											style={{
-												backgroundColor: "#8b5cf6",
-											}}
-										></span>
-										<span
-											className="color-option"
-											style={{
-												backgroundColor: "#ec4899",
-											}}
-										></span>
-									</div>
-								</div>
-							</div>
-						</div>
-						{/* End Product 4 */}
-
-						{/* Product 5 */}
-						<div className="col-lg-6">
-							<div className="product-box">
-								<div className="product-thumb">
-									<span className="product-label product-label-sold">
-										Sold Out
-									</span>
-									<img
-										src="assets/img/product/product-2.webp"
-										alt="Product Image"
-										className="main-img"
-										loading="lazy"
-									/>
-									<div className="product-overlay">
-										<div className="product-quick-actions">
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-heart"></i>
-											</button>
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-arrow-repeat"></i>
-											</button>
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-eye"></i>
-											</button>
-										</div>
-										<div className="add-to-cart-container">
-											<button
-												type="button"
-												className="add-to-cart-btn disabled"
-											>
-												Sold Out
-											</button>
-										</div>
-									</div>
-								</div>
-								<div className="product-content">
-									<div className="product-details">
-										<h3 className="product-title">
-											<a href="product-details.html">
-												Donec eu libero sit amet quam
-											</a>
-										</h3>
-										<div className="product-price">
-											<span>$75.00</span>
-										</div>
-									</div>
-									<div className="product-rating-container">
-										<div className="rating-stars">
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-half"></i>
-										</div>
-										<span className="rating-number">
-											4.7
-										</span>
-									</div>
-									<div className="product-color-options">
-										<span
-											className="color-option active"
-											style={{
-												backgroundColor: "#4b5563",
-											}}
-										></span>
-										<span
-											className="color-option"
-											style={{
-												backgroundColor: "#e11d48",
-											}}
-										></span>
-										<span
-											className="color-option"
-											style={{
-												backgroundColor: "#4f46e5",
-											}}
-										></span>
-									</div>
-								</div>
-							</div>
-						</div>
-						{/* End Product 5 */}
-
-						{/* Product 6 */}
-						<div className="col-lg-6">
-							<div className="product-box">
-								<div className="product-thumb">
-									<span className="product-label product-label-hot">
-										Hot
-									</span>
-									<img
-										src="assets/img/product/product-12.webp"
-										alt="Product Image"
-										className="main-img"
-										loading="lazy"
-									/>
-									<div className="product-overlay">
-										<div className="product-quick-actions">
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-heart"></i>
-											</button>
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-arrow-repeat"></i>
-											</button>
-											<button
-												type="button"
-												className="quick-action-btn"
-											>
-												<i className="bi bi-eye"></i>
-											</button>
-										</div>
-										<div className="add-to-cart-container">
-											<button
-												type="button"
-												className="add-to-cart-btn"
-											>
-												Add to Cart
-											</button>
-										</div>
-									</div>
-								</div>
-								<div className="product-content">
-									<div className="product-details">
-										<h3 className="product-title">
-											<a href="product-details.html">
-												Pellentesque habitant morbi
-												tristique
-											</a>
-										</h3>
-										<div className="product-price">
-											<span>$64.95</span>
-										</div>
-									</div>
-									<div className="product-rating-container">
-										<div className="rating-stars">
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-fill"></i>
-											<i className="bi bi-star-half"></i>
-											<i className="bi bi-star"></i>
-										</div>
-										<span className="rating-number">
-											3.6
-										</span>
-									</div>
-									<div className="product-color-options">
-										<span
-											className="color-option"
-											style={{
-												backgroundColor: "#eab308",
-											}}
-										></span>
-										<span
-											className="color-option"
-											style={{
-												backgroundColor: "#14b8a6",
-											}}
-										></span>
-										<span
-											className="color-option active"
-											style={{
-												backgroundColor: "#facc15",
-											}}
-										></span>
-									</div>
-								</div>
-							</div>
-						</div>
-						{/* End Product 6 */}
+							))
+						) : (
+							<p>No products found.</p>
+						)}
 					</div>
 				</div>
 			</section>

@@ -13048,3 +13048,16 @@ section,
     position: static;
   }
 }
+
+div .prod-category{
+  z-index: 3;
+  width: fit-content;
+  background-color: #8c0d4f;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.35em 1em;
+  border-radius: 30px;
+  letter-spacing: 0.03em;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
