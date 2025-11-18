@@ -141,7 +141,14 @@ function ProductsList() {
 										<div className="product-content">
 											<div className="row">
 												<div className="col-6">
-													<a href={`/shop?category=${product.product?.category_slug}`} className="prod-category">{product.product?.category_name || "Uncategorized"}</a>
+													<a
+														href={`/shop?category=${product.product?.category_slug}`}
+														className="prod-category"
+													>
+														{product.product
+															?.category_name ||
+															"Uncategorized"}
+													</a>
 												</div>
 												<div className="col-6">
 													<div className="product-rating-container">
@@ -231,165 +238,200 @@ function ProductsList() {
 											aria-label="Previous page"
 											onClick={(e) => {
 												e.preventDefault();
-												if (pagination.current_page > 1) {
-													const urlParams = new URLSearchParams(window.location.search);
-													urlParams.set("page", pagination.current_page - 1);
-													window.location.search = urlParams.toString();
-												}}
-											}
-											>
-												<i className="bi bi-arrow-left"></i>
-												<span className="d-none d-sm-inline">Previous</span>
-											</a>
-										</li>
-										{pagination.total >= 6 ? (
-											<>
-												<li>
-													<a
-														href="#"
-														onClick={(e) => {
-															e.preventDefault();
-															const urlParams =
-																new URLSearchParams(
-																	window.location
-																		.search
-																);
-															urlParams.set("page", 1);
-															window.location.search =
-																urlParams.toString();
-														}}
-														className={`page-item ${
-															pagination.current_page === 1
-																? "active"
-																: ""
-														}`}
-													>
-														1
-													</a>
-												</li>
-												{pagination.current_page > 3 && (
-													<li className="ellipsis">...</li>
-												)}
-												{Array.from(
-													{ length: 3 },
-													(_, index) => {
-														const page =
-															Math.max(
-																2,
-																pagination.current_page - 1
-															) + index;
-														return (
-															page < pagination.last_page && (
-																<li key={page}>
-																	<a
-																		href="#"
-																		onClick={(e) => {
-																			e.preventDefault();
-																			const urlParams =
-																				new URLSearchParams(
-																					window.location
-																						.search
-																				);
-																			urlParams.set(
-																				"page",
-																				page
-																			);
-																			window.location.search =
-																				urlParams.toString();
-																		}}
-																		className={`page-item ${
-																			pagination.current_page ===
-																			page
-																				? "active"
-																				: ""
-																		}`}
-																	>
-																		{page}
-																	</a>
-																</li>
-															)
+												if (
+													pagination.current_page > 1
+												) {
+													const urlParams =
+														new URLSearchParams(
+															window.location.search
 														);
-													}
-												)}
-												{pagination.current_page < pagination.last_page - 2 && (
-													<li className="ellipsis">...</li>
-												)}
-												<li>
+													urlParams.set(
+														"page",
+														pagination.current_page -
+															1
+													);
+													window.location.search =
+														urlParams.toString();
+												}
+											}}
+										>
+											<i className="bi bi-arrow-left"></i>
+											<span className="d-none d-sm-inline">
+												Previous
+											</span>
+										</a>
+									</li>
+									{pagination.total >= 6 &&
+									pagination.last_page > 1 ? (
+										<>
+											<li>
+												<a
+													href="#"
+													onClick={(e) => {
+														e.preventDefault();
+														const urlParams =
+															new URLSearchParams(
+																window.location.search
+															);
+														urlParams.set(
+															"page",
+															1
+														);
+														window.location.search =
+															urlParams.toString();
+													}}
+													className={`page-item ${
+														pagination.current_page ===
+														1
+															? "active"
+															: ""
+													}`}
+												>
+													1
+												</a>
+											</li>
+											{pagination.current_page > 3 && (
+												<li className="ellipsis">
+													...
+												</li>
+											)}
+											{Array.from(
+												{ length: 3 },
+												(_, index) => {
+													const page =
+														Math.max(
+															2,
+															pagination.current_page -
+																1
+														) + index;
+													return (
+														page <
+															pagination.last_page && (
+															<li key={page}>
+																<a
+																	href="#"
+																	onClick={(
+																		e
+																	) => {
+																		e.preventDefault();
+																		const urlParams =
+																			new URLSearchParams(
+																				window.location.search
+																			);
+																		urlParams.set(
+																			"page",
+																			page
+																		);
+																		window.location.search =
+																			urlParams.toString();
+																	}}
+																	className={`page-item ${
+																		pagination.current_page ===
+																		page
+																			? "active"
+																			: ""
+																	}`}
+																>
+																	{page}
+																</a>
+															</li>
+														)
+													);
+												}
+											)}
+											{pagination.current_page <
+												pagination.last_page - 2 && (
+												<li className="ellipsis">
+													...
+												</li>
+											)}
+											<li>
+												<a
+													href="#"
+													onClick={(e) => {
+														e.preventDefault();
+														const urlParams =
+															new URLSearchParams(
+																window.location.search
+															);
+														urlParams.set(
+															"page",
+															pagination.last_page
+														);
+														window.location.search =
+															urlParams.toString();
+													}}
+													className={`page-item ${
+														pagination.current_page ===
+														pagination.last_page
+															? "active"
+															: ""
+													}`}
+												>
+													{pagination.last_page}
+												</a>
+											</li>
+										</>
+									) : (
+										Array.from(
+											{ length: pagination.last_page },
+											(_, index) => (
+												<li key={index + 1}>
 													<a
 														href="#"
 														onClick={(e) => {
 															e.preventDefault();
 															const urlParams =
 																new URLSearchParams(
-																	window.location
-																		.search
+																	window.location.search
 																);
 															urlParams.set(
 																"page",
-																pagination.last_page
+																index + 1
 															);
 															window.location.search =
 																urlParams.toString();
 														}}
 														className={`page-item ${
 															pagination.current_page ===
-															pagination.last_page
+															index + 1
 																? "active"
 																: ""
 														}`}
 													>
-														{pagination.last_page}
+														{index + 1}
 													</a>
 												</li>
-											</>
-										) : (
-											Array.from(
-												{ length: pagination.last_page },
-												(_, index) => (
-													<li key={index + 1}>
-														<a
-															href="#"
-															onClick={(e) => {
-																e.preventDefault();
-																const urlParams =
-																	new URLSearchParams(
-																		window.location
-																			.search
-																	);
-																urlParams.set(
-																	"page",
-																	index + 1
-																);
-																window.location.search =
-																	urlParams.toString();
-															}}
-															className={`page-item ${
-																pagination.current_page ===
-																index + 1
-																	? "active"
-																	: ""
-															}`}
-														>
-															{index + 1}
-														</a>
-													</li>
-												)
 											)
-										)}
-										<li>
-											<a
-												href="#"
-												aria-label="Next page"
-												onClick={(e) => {
+										)
+									)}
+									<li>
+										<a
+											href="#"
+											aria-label="Next page"
+											onClick={(e) => {
 												e.preventDefault();
-												if (pagination.current_page < pagination.last_page) {
-													const urlParams = new URLSearchParams(window.location.search);
-													urlParams.set("page", pagination.current_page + 1);
-													window.location.search = urlParams.toString();
+												if (
+													pagination.current_page <
+													pagination.last_page
+												) {
+													const urlParams =
+														new URLSearchParams(
+															window.location.search
+														);
+													urlParams.set(
+														"page",
+														pagination.current_page +
+															1
+													);
+													window.location.search =
+														urlParams.toString();
 												}
 											}}
 										>
-											<span className="d-none d-sm-inline">Next</span>
+											<span className="d-none d-sm-inline">
+												Next
+											</span>
 											<i className="bi bi-arrow-right"></i>
 										</a>
 									</li>

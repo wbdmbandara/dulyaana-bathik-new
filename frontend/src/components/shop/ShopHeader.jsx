@@ -60,8 +60,10 @@ function ShopHeader() {
     const urlParams = new URLSearchParams(currentURL.search);
     if (event.target.value) {
       urlParams.set("limit", event.target.value);
+      urlParams.set("page", 1); // Reset to first page when limit changes
     } else {
       urlParams.delete("limit");
+      urlParams.set("page", 1); // Reset to first page when limit changes
     }
     window.location.href = `${currentURL.pathname}?${urlParams.toString()}`;
   };
