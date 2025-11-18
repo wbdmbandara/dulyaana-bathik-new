@@ -5,8 +5,10 @@ import {
 	formatCurrency,
 } from "../../config";
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 function ProductsList() {
+	const location = useLocation();
 	const [products, setProducts] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [pagination, setPagination] = useState({
@@ -14,12 +16,11 @@ function ProductsList() {
 		last_page: 1,
 		current_page: 1,
 	});
-
 	useEffect(() => {
 		const fetchProducts = async () => {
+			setLoading(true);
 			try {
-				const currentUrl = window.location.href;
-				const urlParams = new URLSearchParams(currentUrl.split("?")[1]);
+				const urlParams = new URLSearchParams(location.search);
 
 				const category = urlParams.get("category") || "";
 				const search = urlParams.get("search") || "";
@@ -29,17 +30,19 @@ function ProductsList() {
 				const fabrics = urlParams.get("fabrics") || "";
 				const limit = urlParams.get("limit") || "12";
 				const page = urlParams.get("page") || "1";
-				urlParams.set("category", category);
-				urlParams.set("search", search);
-				urlParams.set("min_price", min_price);
-				urlParams.set("max_price", max_price);
-				urlParams.set("sort", sort);
-				urlParams.set("fabrics", fabrics);
-				urlParams.set("limit", limit);
-				urlParams.set("page", page);
+
+				const params = new URLSearchParams();
+				params.set("category", category);
+				params.set("search", search);
+				params.set("min_price", min_price);
+				params.set("max_price", max_price);
+				params.set("sort", sort);
+				params.set("fabrics", fabrics);
+				params.set("limit", limit);
+				params.set("page", page);
 
 				const response = await fetch(
-					`${API_URL}getItems?${urlParams.toString()}`
+					`${API_URL}getItems?${params.toString()}`
 				);
 				const data = await response.json();
 				setProducts(data.data);
@@ -52,7 +55,7 @@ function ProductsList() {
 		};
 
 		fetchProducts();
-	}, []);
+	}, [location.search]);
 
 	return (
 		<div>

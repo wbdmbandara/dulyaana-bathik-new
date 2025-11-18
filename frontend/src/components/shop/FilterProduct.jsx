@@ -1,5 +1,6 @@
 import { API_URL, BACKEND_URL } from "../../config";
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 // setPriceRange
 // const setPriceRange = (min, max) => {
@@ -21,6 +22,7 @@ import React, { useState, useEffect } from "react";
 // };
 
 function FilterProduct() {
+	const location = useLocation();
 	// get categories from api getParentCategories
 	const currentURL = new URL(window.location.href);
 	const [categories, setCategories] = useState([]);
@@ -72,9 +74,7 @@ function FilterProduct() {
 					setDefaultMaxPrice(apiMax);
 
 					// Read values from URL params (if provided)
-					const urlParams = new URLSearchParams(
-						window.location.search
-					);
+					const urlParams = new URLSearchParams(location.search);
 					const urlMinRaw = urlParams.get("min_price");
 					const urlMaxRaw = urlParams.get("max_price");
 
@@ -124,69 +124,70 @@ function FilterProduct() {
 			}
 		};
 		fetchMinAndMaxPrices();
+	}, [location.search]);
+
+	// get fabrics from api getFabricList
+	useEffect(() => {
+		const fetchFabrics = async () => {
+			try {
+				const response = await fetch(`${API_URL}getFabricList`, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				});
+				const data = await response.json();
+				if (data.success) {
+					setFabrics(data.fabrics);
+				} else {
+					console.error("Error fetching fabrics:", data.message);
+				}
+			} catch (error) {
+				console.error("Error fetching fabrics:", error);
+			}
+		};
+		fetchFabrics();
 	}, []);
 
-  // get fabrics from api getFabricList
-  useEffect(() => {
-    const fetchFabrics = async () => {
-      try {
-        const response = await fetch(`${API_URL}getFabricList`, {
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
-			},
+	const clearFabricFilters = () => {
+		const fabricCheckboxes = document.querySelectorAll(
+			".fabric-filter input[type='checkbox']"
+		);
+		fabricCheckboxes.forEach((checkbox) => {
+			checkbox.checked = false;
 		});
-        const data = await response.json();
-        if (data.success) {
-          setFabrics(data.fabrics);
-        } else {
-          console.error("Error fetching fabrics:", data.message);
-        }
-      } catch (error) {
-        console.error("Error fetching fabrics:", error);
-      }
-    };
-    fetchFabrics();
-  }, []);
+		applyFabricFilters();
+	};
 
-  const clearFabricFilters = () => {
-    const fabricCheckboxes = document.querySelectorAll(
-      ".fabric-filter input[type='checkbox']"
-    );
-    fabricCheckboxes.forEach((checkbox) => {
-      checkbox.checked = false;
-    });
-    applyFabricFilters();
-  };
-
-  const applyFabricFilters = () => {
-    const selectedFabrics = [];
-    const fabricCheckboxes = document.querySelectorAll(
-      ".fabric-filter input[type='checkbox']:checked"
-    );
-    fabricCheckboxes.forEach((checkbox) => {
-      selectedFabrics.push(checkbox.value);
-    });
-    setSelectedFabrics(selectedFabrics);
-    const currentURL = new URL(window.location.href);
-    const urlParams = new URLSearchParams(currentURL.search);
-    if (selectedFabrics.length > 0) {
-      urlParams.set("fabrics", selectedFabrics.join(","));
-    } else {
-      urlParams.delete("fabrics");
-    }
-    window.location.href = `${currentURL.pathname}?${urlParams.toString()}`;
-  };
-
-  // set selectedFabrics using URL params on initial load
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const fabricsParam = urlParams.get("fabrics");
-    if (fabricsParam) {
-      const fabricsFromURL = fabricsParam.split(",");
-      setSelectedFabrics(fabricsFromURL);
-    }
-  }, []);
+	const applyFabricFilters = () => {
+		const selectedFabrics = [];
+		const fabricCheckboxes = document.querySelectorAll(
+			".fabric-filter input[type='checkbox']:checked"
+		);
+		fabricCheckboxes.forEach((checkbox) => {
+			selectedFabrics.push(checkbox.value);
+		});
+		setSelectedFabrics(selectedFabrics);
+		const currentURL = new URL(window.location.href);
+		const urlParams = new URLSearchParams(currentURL.search);
+		if (selectedFabrics.length > 0) {
+			urlParams.set("fabrics", selectedFabrics.join(","));
+		} else {
+			urlParams.delete("fabrics");
+		}
+		window.location.href = `${currentURL.pathname}?${urlParams.toString()}`;
+	};
+	// set selectedFabrics using URL params on initial load
+	useEffect(() => {
+		const urlParams = new URLSearchParams(location.search);
+		const fabricsParam = urlParams.get("fabrics");
+		if (fabricsParam) {
+			const fabricsFromURL = fabricsParam.split(",");
+			setSelectedFabrics(fabricsFromURL);
+		} else {
+			setSelectedFabrics([]);
+		}
+	}, [location.search]);
 
 	return (
 		<div className="col-lg-4 sidebar sticky-sidebar">
@@ -212,22 +213,21 @@ function FilterProduct() {
 				{/* Product Categories Widget */}
 				<div className="product-categories-widget widget-item">
 					<h3 className="widget-title">Categories</h3>
-
 					<ul className="category-tree list-unstyled mb-0">
 						{categories.map((category) => {
 							const currentCategory = new URLSearchParams(
-								window.location.search
+								location.search
 							).get("category");
 							return (
 								<li className="category-item" key={category.id}>
 									<div className="d-flex justify-content-between align-items-center category-header">
 										<a
 											href={`${
-												window.location.pathname
+												location.pathname
 											}?${new URLSearchParams({
 												...Object.fromEntries(
 													new URLSearchParams(
-														window.location.search
+														location.search
 													)
 												),
 												category: category.cat_slug,
@@ -664,18 +664,24 @@ function FilterProduct() {
 								placeholder="Search fabrics..."
 								spellCheck="false"
 								data-ms-editor="true"
-                onChange={(e) => {
-                  const searchTerm = e.target.value.toLowerCase();
-                  const fabricItems = document.querySelectorAll('.brand-item');
-                  fabricItems.forEach(item => {
-                    const label = item.querySelector('label').innerText.toLowerCase();
-                    if (label.includes(searchTerm)) {
-                      item.style.display = '';
-                    } else {
-                      item.style.display = 'none';
-                    }
-                  });
-                }}
+								onChange={(e) => {
+									const searchTerm =
+										e.target.value.toLowerCase();
+									const fabricItems =
+										document.querySelectorAll(
+											".brand-item"
+										);
+									fabricItems.forEach((item) => {
+										const label = item
+											.querySelector("label")
+											.innerText.toLowerCase();
+										if (label.includes(searchTerm)) {
+											item.style.display = "";
+										} else {
+											item.style.display = "none";
+										}
+									});
+								}}
 							/>
 							<i className="bi bi-search"></i>
 						</div>
@@ -688,8 +694,10 @@ function FilterProduct() {
 											className="form-check-input"
 											type="checkbox"
 											id={`fabric-${index}`}
-                      value={fabric.fabric}
-                      defaultChecked={selectedFabrics.includes(fabric.fabric)}
+											value={fabric.fabric}
+											defaultChecked={selectedFabrics.includes(
+												fabric.fabric
+											)}
 										/>
 										<label
 											className="form-check-label"
@@ -706,7 +714,10 @@ function FilterProduct() {
 						</div>
 
 						<div className="brand-actions">
-							<button className="btn btn-sm btn-outline-primary" onClick={applyFabricFilters}>
+							<button
+								className="btn btn-sm btn-outline-primary"
+								onClick={applyFabricFilters}
+							>
 								Apply Filter
 							</button>
 							<button
