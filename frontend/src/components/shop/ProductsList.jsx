@@ -9,6 +9,11 @@ import React, { useState, useEffect } from "react";
 function ProductsList() {
 	const [products, setProducts] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [pagination, setPagination] = useState({
+		total: 0,
+		last_page: 1,
+		current_page: 1,
+	});
 
 	useEffect(() => {
 		const fetchProducts = async () => {
@@ -23,6 +28,7 @@ function ProductsList() {
 				const sort = urlParams.get("sort") || "featured";
 				const fabrics = urlParams.get("fabrics") || "";
 				const limit = urlParams.get("limit") || "12";
+				const page = urlParams.get("page") || "1";
 				urlParams.set("category", category);
 				urlParams.set("search", search);
 				urlParams.set("min_price", min_price);
@@ -30,12 +36,14 @@ function ProductsList() {
 				urlParams.set("sort", sort);
 				urlParams.set("fabrics", fabrics);
 				urlParams.set("limit", limit);
+				urlParams.set("page", page);
 
 				const response = await fetch(
 					`${API_URL}getItems?${urlParams.toString()}`
 				);
 				const data = await response.json();
 				setProducts(data.data);
+				setPagination(data.pagination);
 			} catch (error) {
 				console.error("Error fetching products:", error);
 			} finally {
@@ -214,45 +222,179 @@ function ProductsList() {
 						aria-label="Page navigation"
 					>
 						<ul>
-							<li>
-								<a href="#" aria-label="Previous page">
-									<i className="bi bi-arrow-left"></i>
-									<span className="d-none d-sm-inline">
-										Previous
-									</span>
-								</a>
-							</li>
-
-							<li>
-								<a href="#" className="active">
-									1
-								</a>
-							</li>
-							<li>
-								<a href="#">2</a>
-							</li>
-							<li>
-								<a href="#">3</a>
-							</li>
-							<li className="ellipsis">...</li>
-							<li>
-								<a href="#">8</a>
-							</li>
-							<li>
-								<a href="#">9</a>
-							</li>
-							<li>
-								<a href="#">10</a>
-							</li>
-
-							<li>
-								<a href="#" aria-label="Next page">
-									<span className="d-none d-sm-inline">
-										Next
-									</span>
-									<i className="bi bi-arrow-right"></i>
-								</a>
-							</li>
+							{/* pagination */}
+							{pagination.total >= 1 && (
+								<>
+									<li>
+										<a
+											href="#"
+											aria-label="Previous page"
+											onClick={(e) => {
+												e.preventDefault();
+												if (pagination.current_page > 1) {
+													const urlParams = new URLSearchParams(window.location.search);
+													urlParams.set("page", pagination.current_page - 1);
+													window.location.search = urlParams.toString();
+												}}
+											}
+											>
+												<i className="bi bi-arrow-left"></i>
+												<span className="d-none d-sm-inline">Previous</span>
+											</a>
+										</li>
+										{pagination.total >= 6 ? (
+											<>
+												<li>
+													<a
+														href="#"
+														onClick={(e) => {
+															e.preventDefault();
+															const urlParams =
+																new URLSearchParams(
+																	window.location
+																		.search
+																);
+															urlParams.set("page", 1);
+															window.location.search =
+																urlParams.toString();
+														}}
+														className={`page-item ${
+															pagination.current_page === 1
+																? "active"
+																: ""
+														}`}
+													>
+														1
+													</a>
+												</li>
+												{pagination.current_page > 3 && (
+													<li className="ellipsis">...</li>
+												)}
+												{Array.from(
+													{ length: 3 },
+													(_, index) => {
+														const page =
+															Math.max(
+																2,
+																pagination.current_page - 1
+															) + index;
+														return (
+															page < pagination.last_page && (
+																<li key={page}>
+																	<a
+																		href="#"
+																		onClick={(e) => {
+																			e.preventDefault();
+																			const urlParams =
+																				new URLSearchParams(
+																					window.location
+																						.search
+																				);
+																			urlParams.set(
+																				"page",
+																				page
+																			);
+																			window.location.search =
+																				urlParams.toString();
+																		}}
+																		className={`page-item ${
+																			pagination.current_page ===
+																			page
+																				? "active"
+																				: ""
+																		}`}
+																	>
+																		{page}
+																	</a>
+																</li>
+															)
+														);
+													}
+												)}
+												{pagination.current_page < pagination.last_page - 2 && (
+													<li className="ellipsis">...</li>
+												)}
+												<li>
+													<a
+														href="#"
+														onClick={(e) => {
+															e.preventDefault();
+															const urlParams =
+																new URLSearchParams(
+																	window.location
+																		.search
+																);
+															urlParams.set(
+																"page",
+																pagination.last_page
+															);
+															window.location.search =
+																urlParams.toString();
+														}}
+														className={`page-item ${
+															pagination.current_page ===
+															pagination.last_page
+																? "active"
+																: ""
+														}`}
+													>
+														{pagination.last_page}
+													</a>
+												</li>
+											</>
+										) : (
+											Array.from(
+												{ length: pagination.last_page },
+												(_, index) => (
+													<li key={index + 1}>
+														<a
+															href="#"
+															onClick={(e) => {
+																e.preventDefault();
+																const urlParams =
+																	new URLSearchParams(
+																		window.location
+																			.search
+																	);
+																urlParams.set(
+																	"page",
+																	index + 1
+																);
+																window.location.search =
+																	urlParams.toString();
+															}}
+															className={`page-item ${
+																pagination.current_page ===
+																index + 1
+																	? "active"
+																	: ""
+															}`}
+														>
+															{index + 1}
+														</a>
+													</li>
+												)
+											)
+										)}
+										<li>
+											<a
+												href="#"
+												aria-label="Next page"
+												onClick={(e) => {
+												e.preventDefault();
+												if (pagination.current_page < pagination.last_page) {
+													const urlParams = new URLSearchParams(window.location.search);
+													urlParams.set("page", pagination.current_page + 1);
+													window.location.search = urlParams.toString();
+												}
+											}}
+										>
+											<span className="d-none d-sm-inline">Next</span>
+											<i className="bi bi-arrow-right"></i>
+										</a>
+									</li>
+								</>
+							)}
 						</ul>
 					</nav>
 				</div>
