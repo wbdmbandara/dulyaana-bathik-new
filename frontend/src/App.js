@@ -8,6 +8,7 @@ import About from './About';
 import Shop from './Shop';
 import Product from './Product';
 import Login from './Login';
+import Cart from './Cart';
 import Register from './Register';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/shop" element={<Shop />} />
+          <Route path="/cart" element={<Cart />} />
           <Route path="/product/:url" element={<Product url={window.location.pathname} />} />
         </Routes>
       </BrowserRouter>

@@ -382,7 +382,7 @@ function Header({activeMenu}) {
 								</Link>
 							</li>
 							<li>
-								<Link to="/cart">Cart</Link>
+								<Link to="/cart" className={activeMenu === "cart" ? "active" : ""}>Cart</Link>
 							</li>
 							<li>
 								<Link to="/checkout">Checkout</Link>
