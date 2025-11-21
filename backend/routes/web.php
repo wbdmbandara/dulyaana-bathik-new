@@ -12,10 +12,10 @@ use App\Http\Controllers\PromoCardsController;
 use App\Http\Controllers\SliderController;
 
 Route::get('/', [UserController::class, 'showLogin']);
-Route::get('/login', [UserController::class, 'showLogin']);
+Route::get('/login', [UserController::class, 'showLogin'])->name('login');
 
 Route::post('/login', [UserController::class, 'login']);
-Route::get('/logout', [UserController::class, 'logout']);
+Route::get('/logout', [UserController::class, 'logout'])->name('logout');
 
 // Route::resource('/users', UserController::class);
 

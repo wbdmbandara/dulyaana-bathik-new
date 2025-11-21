@@ -57,22 +57,42 @@
                     <p class="text-center small">Enter your email & password to login</p>
                   </div>
 
-                  <form class="row g-3 needs-validation" novalidate method="POST" action="/login">
-                    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
+                  {{-- Display validation errors --}}
+                  @if ($errors->any())
+                    <div class="alert alert-danger">
+                      <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                          <li>{{ $error }}</li>
+                        @endforeach
+                      </ul>
+                    </div>
+                  @endif
+
+                  <form class="row g-3 needs-validation" novalidate method="POST" action="{{ route('login') }}">
+                    @csrf
 
                   <div class="col-12">
                       <label for="yourEmail" class="form-label">Email</label>
                       <div class="input-group has-validation">
-                        <!-- <span class="input-group-text" id="inputGroupPrepend">@</span> -->
-                        <input type="email" name="email" class="form-control" id="yourEmail" required>
-                        <div class="invalid-feedback">Please enter your email.</div>
+                        <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
+                               id="yourEmail" value="{{ old('email') }}" required>
+                        @error('email')
+                          <div class="invalid-feedback">{{ $message }}</div>
+                        @else
+                          <div class="invalid-feedback">Please enter your email.</div>
+                        @enderror
                       </div>
                     </div>
 
                     <div class="col-12">
                       <label for="yourPassword" class="form-label">Password</label>
-                      <input type="password" name="password" class="form-control" id="yourPassword" required>
-                      <div class="invalid-feedback">Please enter your password!</div>
+                      <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" 
+                             id="yourPassword" required>
+                      @error('password')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                      @else
+                        <div class="invalid-feedback">Please enter your password!</div>
+                      @enderror
                     </div>
 
                     <div class="col-12">
