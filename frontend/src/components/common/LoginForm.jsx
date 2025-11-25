@@ -12,14 +12,14 @@ function Login() {
 	const handleSubmit = (event) => {
 		event.preventDefault();
 
-        console.log({ email, password })
+        // console.log({ email, password })
         login({
             email,
             password
         })
             .then((response) => {
                 if (response.status === 200) {
-                    console.log("Login successful:", response.data);
+                    // console.log("Login successful:", response.data);
                     setErrors([]);
                     localStorage.setItem('user', JSON.stringify(response.data.user));
                     localStorage.setItem('isLoggedIn', 'true');
@@ -30,7 +30,7 @@ function Login() {
                 }
             })
             .catch((error) => {
-                console.error("Login failed:", error);
+                // console.error("Login failed:", error);
                 setErrors(error.errors || []);
             });
 	};

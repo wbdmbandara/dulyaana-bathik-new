@@ -3,8 +3,8 @@ import { API_URL } from "../config";
 
 export const login = async (data) => {
 	try {
-		console.log("Making login request to:", `${API_URL}login`);
-		console.log("Login data:", data);
+		// console.log("Making login request to:", `${API_URL}login`);
+		// console.log("Login data:", data);
 
 		const response = await axios.post(`${API_URL}login`, data, {
 			headers: {
@@ -13,7 +13,7 @@ export const login = async (data) => {
 			},
 		});
 
-		console.log("Login response:", response);
+		// console.log("Login response:", response);
 
 		// Handle successful login
 		if (response.data.status === "success") {
@@ -29,11 +29,11 @@ export const login = async (data) => {
 
 		return { status: response.status, data: response.data };
 	} catch (error) {
-		console.error("Login error details:", {
-			message: error.message,
-			response: error.response?.data,
-			status: error.response?.status,
-		});
+		// console.error("Login error details:", {
+		// 	message: error.message,
+		// 	response: error.response?.data,
+		// 	status: error.response?.status,
+		// });
 
 		if (error.response?.status === 401) {
 			return {
