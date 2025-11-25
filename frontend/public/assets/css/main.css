@@ -7368,7 +7368,7 @@ section,
   align-items: center;
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.4);
 }
 
 .account .profile-sidebar .profile-header .profile-avatar {

@@ -113,6 +113,10 @@ class CustomerController extends Controller
                     'id' => $customer->id,
                     'name' => $customer->name,
                     'email' => $customer->email,
+                    'email_confirmed' => $customer->email_confirmed,
+                    'phone' => $customer->phone,
+                    'birthday' => $customer->birthday,
+                    'gender' => $customer->gender,
                     'role' => $customer->role ?? 'customer'
                 ]
             ], 200);

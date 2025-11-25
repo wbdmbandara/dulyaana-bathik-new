@@ -10,6 +10,8 @@ import Product from './Product';
 import Login from './Login';
 import Cart from './Cart';
 import Register from './Register';
+import Profile from './user/Profile';
+import Logout from './Logout';
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
           <Route path="/shop" element={<Shop />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/product/:url" element={<Product url={window.location.pathname} />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/logout" element={<Logout />} />
         </Routes>
       </BrowserRouter>
     </>

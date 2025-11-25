@@ -101,6 +101,12 @@ function Header({activeMenu}) {
 		};
 	}, []);
 
+	const [userLoggedIn, setUserLoggedIn] = React.useState(false);
+	React.useEffect(() => {
+		const isLoggedIn = localStorage.getItem("isLoggedIn");
+		setUserLoggedIn(isLoggedIn === "true");
+	}, []);
+
 	return (
 		<header id="header" className="header position-relative">
 
@@ -167,7 +173,7 @@ function Header({activeMenu}) {
 										<h6>
 											Welcome to{" "}
 											<span className="sitename">
-												FashionStore
+												Dulyaana Bathik
 											</span>
 										</h6>
 										<p className="mb-0">
@@ -177,21 +183,21 @@ function Header({activeMenu}) {
 									<div className="dropdown-body">
 										<a
 											className="dropdown-item d-flex align-items-center"
-											href="account.html"
+											href="/profile"
 										>
 											<i className="bi bi-person-circle me-2"></i>
 											<span>My Profile</span>
 										</a>
 										<a
 											className="dropdown-item d-flex align-items-center"
-											href="orders.html"
+											href="/profile?orders"
 										>
 											<i className="bi bi-bag-check me-2"></i>
 											<span>My Orders</span>
 										</a>
 										<a
 											className="dropdown-item d-flex align-items-center"
-											href="wishlist.html"
+											href="/profile?wishlist"
 										>
 											<i className="bi bi-heart me-2"></i>
 											<span>My Wishlist</span>
@@ -212,25 +218,33 @@ function Header({activeMenu}) {
 										</a>
 									</div>
 									<div className="dropdown-footer">
-										<a
-											href="login.html"
-											className="btn btn-primary w-100 mb-2"
-										>
-											Sign In
-										</a>
-										<a
-											href="register.html"
-											className="btn btn-outline-primary w-100"
-										>
-											Register
-										</a>
+										{userLoggedIn ? (
+											<a href="/logout" className="btn btn-primary w-100 mb-2">
+												Logout
+											</a>
+										) : (
+											<>
+												<a
+													href="/login"
+													className="btn btn-primary w-100 mb-2"
+												>
+													Sign In
+												</a>
+												<a
+													href="/register"
+													className="btn btn-outline-primary w-100"
+												>
+													Register
+												</a>
+											</>
+										)}
 									</div>
 								</div>
 							</div>
 
 							{/*Wishlist */}
 							<a
-								href="wishlist.html"
+								href="/profile?wishlist"
 								className="header-action-btn d-none d-md-flex"
 							>
 								<i className="bi bi-heart"></i>
