@@ -5,6 +5,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\FooterController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\PromoCardsController;
+use App\Http\Controllers\UserController; // Add this import
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SliderController;

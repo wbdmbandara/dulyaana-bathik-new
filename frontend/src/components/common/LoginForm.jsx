@@ -1,55 +1,38 @@
+import { useNavigate } from "react-router-dom";
 import { API_URL, BACKEND_URL } from "../../config";
+import { login } from "../../services/AuthService";
 import React, { useState, useEffect } from "react";
 
 function Login() {
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [errors, setErrors] = useState([]);
+	const navigate = useNavigate();
+
 	const handleSubmit = (event) => {
 		event.preventDefault();
-		const email = event.target.email.value;
-		const password = event.target.password.value;
 
-		var errors = [];
-		if (email.length < 1) {
-			errors.push("Email is required");
-		}
-		if (password.length < 1) {
-			errors.push("Password is required");
-		}
-		if (errors.length > 0) {
-			const errorList = errors.map((error) => `<li>${error}</li>`).join("");
-			document.getElementById("errors").innerHTML = `<ul>${errorList}</ul>`;
-			document.getElementById("errors").classList.remove("d-none");
-			document.getElementById("section-header").scrollIntoView({ behavior: "smooth" });
-			return;
-		} else {
-			document.getElementById("errors").classList.add("d-none");
-		}
-
-		fetch(`${API_URL}login`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ email, password }),
-		})
-			.then((response) => {
-				if(response.status === 401) {
-					throw new Error("Invalid email or password.");
-				}
-				return response.json();
-			})
-			.then((data) => {
-				if (data.status === "success") {
-					// Handle successful login
-					window.location.href = "/dashboard";
-				} else {
-					throw new Error(data.message || "Login failed. Try again.");
-				}
-			})
-			.catch((err) => {
-				document.getElementById("errors").innerHTML = `<p>${err.message}</p>`;
-				document.getElementById("errors").classList.remove("d-none");
-				document.getElementById("section-header").scrollIntoView({ behavior: "smooth" });
-			});
+        console.log({ email, password })
+        login({
+            email,
+            password
+        })
+            .then((response) => {
+                if (response.status === 200) {
+                    console.log("Login successful:", response.data);
+                    setErrors([]);
+                    localStorage.setItem('user', JSON.stringify(response.data.user));
+                    localStorage.setItem('isLoggedIn', 'true');
+                    navigate('/profile');
+                } else {
+                    console.error("Unexpected response status:", response.status);
+                    setErrors(response.errors || []);
+                }
+            })
+            .catch((error) => {
+                console.error("Login failed:", error);
+                setErrors(error.errors || []);
+            });
 	};
 
 	return (
@@ -74,8 +57,15 @@ function Login() {
 										: <p>Welcome back! Please enter your details</p>}
 								</div>
 
-								<div className="errors alert alert-danger d-none" id="errors">
-								</div>
+								{errors.length > 0 && (
+									<div className="errors alert alert-danger" id="errors">
+										<ul>
+											{errors.map((error, index) => (
+												<li key={index}>{error}</li>
+											))}
+										</ul>
+									</div>
+								)}
 
 								<form onSubmit={handleSubmit}>
 									<div className="mb-4">
@@ -92,6 +82,7 @@ function Login() {
 											placeholder="Enter your email"
 											required=""
 											autoComplete="email"
+											onChange={(e) => setEmail(e.target.value)}
 										/>
 									</div>
 
@@ -114,6 +105,7 @@ function Login() {
 											placeholder="Enter your password"
 											required=""
 											autoComplete="current-password"
+											onChange={(e) => setPassword(e.target.value)}
 										/>
 									</div>
 

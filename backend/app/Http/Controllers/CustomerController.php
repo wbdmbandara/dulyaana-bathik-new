@@ -9,9 +9,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 class CustomerController extends Controller
 {
+    use HasApiTokens;
     protected $customer;
 
     public function __construct(Customer $customer)
@@ -90,20 +93,50 @@ class CustomerController extends Controller
 
     public function login(Request $request)
     {
-        $customer = Customer::where('email', $request->input('email'))->first();
+        // Validate the request
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-        if (!$customer || !Hash::check($request->input('password'), $customer->password)) {
+        $credentials = $request->only('email', 'password');
+        
+        // First try to find the customer by email
+        $customer = Customer::where('email', $credentials['email'])->first();
+        
+        if ($customer && Hash::check($credentials['password'], $customer->password)) {
+            // Authentication successful
             return response()->json([
-                'status' => 'error',
-                'message' => 'Invalid email or password',
-            ], 401);
+                'status' => 'success',
+                'message' => 'Login successful', 
+                'user' => [
+                    'id' => $customer->id,
+                    'name' => $customer->name,
+                    'email' => $customer->email,
+                    'role' => $customer->role ?? 'customer'
+                ]
+            ], 200);
+        }
+        
+        // If customer authentication fails, try the users table as fallback
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Login successful', 
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role ?? 'admin'
+                ]
+            ], 200);
         }
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'Login successful',
-            'customer' => $customer
-        ], 200);
+            'status' => 'error',
+            'message' => 'Invalid login details'
+        ], 401);
     }
 
     /**
