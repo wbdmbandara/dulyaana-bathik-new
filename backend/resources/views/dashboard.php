@@ -19,7 +19,7 @@
     </div><!-- End Page Title -->
 
     <section class="section dashboard">
-      <div class="row">
+      <div class="row d-none">
 
         <!-- Left side columns -->
         <div class="col-lg-8">
@@ -650,6 +650,17 @@
         </div><!-- End Right side columns -->
 
       </div>
+
+      <!-- under construction -->
+      <div class="row">
+        <div class="col-12">
+          <div class="alert alert-warning d-flex align-items-center" role="alert">
+            <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2"></i>
+            <div>
+              <strong>Under Construction!</strong> This section is currently under development. Please check back later for updates.
+            </div>
+          </div>
+        </div>
     </section>
 
   </main><!-- End #main -->

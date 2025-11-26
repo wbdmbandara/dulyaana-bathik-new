@@ -112,7 +112,7 @@
                                     <input type="text" class="form-control" id="pattern" name="pattern" value="<?= old('pattern', $saree['pattern']) ?>">
                                 </div>
                             </div>
-                            <div class="mb-2">
+                            <div class="mb-2 d-none">
                                 <label for="saree_work" class="form-label">Saree Work</label>
                                 <input type="text" class="form-control" id="saree_work" name="saree_work" value="<?= old('saree_work', $saree['saree_work']) ?>">
                             </div>
@@ -130,11 +130,11 @@
                                     <input type="text" class="form-control" id="weight" name="weight" value="<?= old('weight', $saree['weight']) ?>">
                                 </div>
                             </div>
-                            <div class="mb-2">
+                            <div class="mb-2 d-none">
                                 <label for="set_contents" class="form-label">Set Contents</label>
                                 <input type="text" class="form-control" id="set_contents" name="set_contents" value="<?= old('set_contents', $saree['set_contents']) ?>">
                             </div>
-                            <div class="mb-2">
+                            <div class="mb-2 d-none">
                                 <label for="occasion" class="form-label">Occasion</label>
                                 <input type="text" class="form-control" id="occasion" name="occasion" value="<?= old('occasion', $saree['occasion']) ?>">
                             </div>
