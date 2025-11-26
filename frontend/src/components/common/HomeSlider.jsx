@@ -25,16 +25,34 @@ function HomeSlider() {
 	return (
 		<div>
 			{/* Hero Section */}
-			<section className="ecommerce-hero-2 hero section" id="hero">
-				<div className="container">
+			<section
+				className="ecommerce-hero-2 hero section"
+				id="hero"
+				style={{
+					scrollSnapAlign: "start",
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+				}}
+			>
+				<div className="container-fluid p-0">
 					<div
 						className="hero-slider swiper init-swiper"
 						data-aos="fade-up"
+						style={{ height: "100%" }}
 					>
-						<div className="swiper-wrapper">
+						<div className="swiper-wrapper" style={{ height: "100%" }}>
 							{loading ? (
-								<div className="swiper-slide">
-									<div className="slide-image">
+								<div className="swiper-slide" style={{ height: "100%" }}>
+									<div
+										className="slide-image"
+										style={{
+											display: "flex",
+											alignItems: "center",
+											justifyContent: "center",
+											height: "100%",
+										}}
+									>
 										<p>Loading...</p>
 									</div>
 								</div>
@@ -43,15 +61,16 @@ function HomeSlider() {
 									<div
 										key={slider.id || index}
 										className="swiper-slide"
+										style={{ height: "100%" }}
 									>
-										<div className="slide-image">
+										<div className="slide-image" style={{ height: "100%" }}>
 											<img
 												src={`${BACKEND_URL}${slider.image_path}`}
 												alt={
-													slider.title ||
-													`Hero Slide ${index + 1}`
+													slider.title || `Hero Slide ${index + 1}`
 												}
-												className="img-fluid"
+												className="img-fluid w-100"
+												style={{ height: "100%", objectFit: "cover" }}
 											/>
 										</div>
 									</div>

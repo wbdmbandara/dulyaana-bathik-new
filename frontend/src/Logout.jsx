@@ -23,14 +23,7 @@ function Logout() {
 
 	if (isLoggingOut) {
 		return (
-			<div
-				style={{
-					display: "flex",
-					justifyContent: "center",
-					alignItems: "center",
-					height: "100vh",
-				}}
-			>
+			<div>
 				<Header />
 				<div>Logging out...</div>
 				<Footer />

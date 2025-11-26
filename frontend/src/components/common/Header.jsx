@@ -120,8 +120,8 @@ function Header({activeMenu}) {
 							className="logo d-flex align-items-center"
 						>
 							{/*Uncomment the line below if you also wish to use an image logo */}
-							<img src="/logo.jpeg" alt="Dulyaana Bathik" />
-							<h1 className="sitename">
+							<img src="/logo.png" alt="Dulyaana Bathik" />
+							<h1 className="sitename d-none">
 								Dulyaana <span>Bathik</span>
 							</h1>
 						</a>

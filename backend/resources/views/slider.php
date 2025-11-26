@@ -104,7 +104,7 @@
                                 <img id="previewImg" src="#" alt="Image Preview" class="img-fluid" style="max-width: 100%;">
                             </div>
                             <input type="file" class="form-control" id="slideImage" name="slideImage" accept="image/*" required>
-                            <div class="form-text">Recommended size: 1200x600px</div>
+                            <div class="form-text">Recommended size: 1400x480px</div>
                         </div>
 
                         <div class="mb-3">

@@ -220,6 +220,12 @@ h6 {
   margin-right: 8px;
 }
 
+@media (max-width: 320px) {
+  .header .main-header .logo img {
+    max-height: 55px;
+  }
+}
+
 .header .main-header .logo h1 {
   font-size: 26px;
   margin: 0;
@@ -1990,11 +1996,11 @@ section,
 }
 
 .hero .hero-slider .swiper-slide {
-  padding: 2rem 0;
+  padding: 0;
 }
 
 .hero .hero-slider .swiper-slide .row {
-  min-height: 500px;
+  min-height: 400px;
 }
 
 .hero .hero-slider .swiper-pagination {
@@ -2397,13 +2403,12 @@ section,
 .hero .slide-image img {
   max-width: 100%;
   height: auto;
-  border-radius: 0.5rem;
 }
 
 @media (max-width: 991.98px) {
-  .hero {
+  /* .hero {
     padding: 60px 0;
-  }
+  } */
 
   .hero .hero-slider .swiper-slide .row {
     min-height: auto;
@@ -2438,9 +2443,9 @@ section,
 }
 
 @media (max-width: 767.98px) {
-  .hero {
+  /* .hero {
     padding: 40px 0;
-  }
+  } */
 
   .hero .hero-slider .swiper-button-prev,
   .hero .hero-slider .swiper-button-next {
