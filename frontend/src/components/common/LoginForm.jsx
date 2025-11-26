@@ -8,11 +8,18 @@ function Login() {
 	const [errors, setErrors] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const navigate = useNavigate();
+	let redirectPath = "/profile";
+	
+	// get redirect path from query params if exists
+	const params = new URLSearchParams(window.location.search);
+	if (params.get("redirect")) {
+		redirectPath = params.get("redirect");
+	}
 
 	// Redirect if already authenticated
 	useEffect(() => {
 		if (isAuthenticated()) {
-			navigate("/profile");
+			navigate(redirectPath);
 		}
 	}, [navigate]);
 
@@ -26,7 +33,7 @@ function Login() {
 
 			if (response.status === 200) {
 				// Login successful - AuthService already handled token storage
-				navigate("/profile");
+				navigate(redirectPath);
 			} else {
 				setErrors(response.errors || ["Login failed"]);
 			}
@@ -154,7 +161,7 @@ function Login() {
 
 									<div className="signup-link text-center">
 										<span>Don't have an account?</span>
-										<a href="/register">Sign up for free</a>
+										<a href={redirectPath ? "register?redirect=" + redirectPath : "/register"}>Sign up for free</a>
 									</div>
 								</form>
 							</div>

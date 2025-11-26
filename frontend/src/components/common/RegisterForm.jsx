@@ -1,6 +1,9 @@
+import { redirect, useNavigate } from "react-router-dom";
 import { API_URL, BACKEND_URL } from "../../config";
+import { login, isAuthenticated } from "../../services/AuthService";
 import React, { useState, useEffect } from "react";
 
+let redirectPath = "/profile";
 const handleSubmit = (event) => {
 	event.preventDefault();
 
@@ -76,7 +79,11 @@ const handleSubmit = (event) => {
 		})
 		.then((data) => {
 			if (data.status === 'success') {
-				window.location.href = "/login?registered=success";
+				if(redirectPath && redirectPath !== "/profile"){
+					window.location.href = "/login?registered=success&redirect=" + redirectPath;
+				}else{
+					window.location.href = "/login?registered=success";
+				}
 			} else {
 				document.getElementById("errors").innerHTML = `<ul><li>${data.message}</li></ul>`;
 				document.getElementById("errors").classList.remove("d-none");
@@ -106,6 +113,21 @@ const showConfirmPassword = (event) => {
 };
 
 function RegisterForm() {
+	const navigate = useNavigate();
+
+	// get redirect path from query params if exists
+	const params = new URLSearchParams(window.location.search);
+	if (params.get("redirect"))
+	{
+		redirectPath = params.get("redirect");
+	}
+	// Redirect if already authenticated
+	useEffect(() => {
+		if (isAuthenticated()) {
+			navigate(redirectPath);
+		}
+	}, [navigate]);
+
 	return (
 		<div>
 			<section id="register" className="register section">
@@ -252,7 +274,7 @@ function RegisterForm() {
 									<div className="text-center">
 										<p className="mb-0">
 											Already have an account?{" "}
-											<a href="/login">Sign in</a>
+											<a href={redirectPath ? "login?redirect=" + redirectPath : "/login"}>Sign in</a>
 										</p>
 									</div>
 								</form>

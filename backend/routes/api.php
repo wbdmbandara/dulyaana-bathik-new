@@ -1,11 +1,12 @@
 <?php
 
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\FooterController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\PromoCardsController;
-use App\Http\Controllers\UserController; // Add this import
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SliderController;
@@ -26,7 +27,14 @@ Route::middleware('api')->group(function () {
     Route::post('/registerCustomer', [CustomerController::class, 'register']);
     Route::post('/login', [CustomerController::class, 'login']);
     Route::post('/customers/{id}', [CustomerController::class, 'update']);
-    Route::post('/admin/login', [UserController::class, 'login']); // Admin login route
+    // Route::post('/admin/login', [UserController::class, 'login']); // Admin login route
+
+    // cart operations
+    Route::post('/cart/add', [CartController::class, 'addToCart']);
+    Route::post('/cart/remove', [CartController::class, 'removeFromCart']);
+    Route::get('/cart', [CartController::class, 'viewCart']);
+    Route::post('/cart/checkout', [CartController::class, 'checkout']);
+
 });
 
 // Protected routes that require authentication token

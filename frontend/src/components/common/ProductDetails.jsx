@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { API_URL, BACKEND_URL, formatNumber, formatCurrency } from "../../config";
 import PageTitle from "./PageTitle";
+import { useNavigate } from "react-router-dom";
 
 function ProductDetails({ url }) {
 	const [product, setProduct] = useState(null);
@@ -8,6 +9,9 @@ function ProductDetails({ url }) {
 	const [activeImageIndex, setActiveImageIndex] = useState(0);
 	const [quantity, setQuantity] = useState(1);
 	const [videos, setVideos] = useState([]);
+	const [cartErrors, setCartErrors] = useState(null);
+	const [cartSuccess, setCartSuccess] = useState(null);
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		// Fetch product details using the URL
@@ -35,6 +39,45 @@ function ProductDetails({ url }) {
 
 		fetchProductDetails();
 	}, [url]);
+
+	const addToCart = () => {
+		setCartErrors(null);
+		setCartSuccess(null);
+
+		if (!product) return;
+		var customerID = JSON.parse(localStorage.getItem("user"))?.id;
+		if (!customerID) {
+			navigate("/login?redirect=" + window.location.pathname);
+			return;
+		}
+
+		fetch(`${API_URL}cart/add`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+			},
+			body: JSON.stringify({
+				customer_id: customerID,
+				item_id: product.item_id,
+				quantity: quantity,
+			}),
+		})
+		.then((response) => {
+			if (!response.ok) {
+				setCartErrors("Failed to add item to cart");
+				throw new Error("Failed to add item to cart");
+			}
+			return response.json();
+		})
+		.then((data) => {
+			setCartSuccess(data.message || "Item added to cart successfully");
+		})
+		.catch((error) => {
+			setCartErrors("An error occurred while adding item to cart");
+			console.error(error);
+		});
+	};
 
 	const handleQuantityChange = (e) => {
 		const value = Math.max(
@@ -423,9 +466,21 @@ function ProductDetails({ url }) {
 									</div>
 								</div>
 
+								{/* Cart Messages */}
+								{cartErrors && (
+									<div className="alert alert-danger alert-dismissible fade show" role="alert">
+										{cartErrors}
+									</div>
+								)}
+								{cartSuccess && (
+									<div className="alert alert-success alert-dismissible fade show" role="alert">
+										{cartSuccess}
+									</div>
+								)}
+
 								{/* Action Buttons */}
 								<div className="product-actions">
-									<button className="btn btn-primary add-to-cart-btn">
+									<button className="btn btn-primary add-to-cart-btn" onClick={addToCart}>
 										<i className="bi bi-cart-plus"></i> Add
 										to Cart
 									</button>
