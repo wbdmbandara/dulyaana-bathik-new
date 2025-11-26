@@ -1,38 +1,41 @@
 import { useNavigate } from "react-router-dom";
-import { API_URL, BACKEND_URL } from "../../config";
-import { login } from "../../services/AuthService";
+import { login, isAuthenticated } from "../../services/AuthService";
 import React, { useState, useEffect } from "react";
 
 function Login() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [errors, setErrors] = useState([]);
+	const [isLoading, setIsLoading] = useState(false);
 	const navigate = useNavigate();
 
-	const handleSubmit = (event) => {
-		event.preventDefault();
+	// Redirect if already authenticated
+	useEffect(() => {
+		if (isAuthenticated()) {
+			navigate("/profile");
+		}
+	}, [navigate]);
 
-        // console.log({ email, password })
-        login({
-            email,
-            password
-        })
-            .then((response) => {
-                if (response.status === 200) {
-                    // console.log("Login successful:", response.data);
-                    setErrors([]);
-                    localStorage.setItem('user', JSON.stringify(response.data.user));
-                    localStorage.setItem('isLoggedIn', 'true');
-                    navigate('/profile');
-                } else {
-                    console.error("Unexpected response status:", response.status);
-                    setErrors(response.errors || []);
-                }
-            })
-            .catch((error) => {
-                // console.error("Login failed:", error);
-                setErrors(error.errors || []);
-            });
+	const handleSubmit = async (event) => {
+		event.preventDefault();
+		setIsLoading(true);
+		setErrors([]);
+
+		try {
+			const response = await login({ email, password });
+
+			if (response.status === 200) {
+				// Login successful - AuthService already handled token storage
+				navigate("/profile");
+			} else {
+				setErrors(response.errors || ["Login failed"]);
+			}
+		} catch (error) {
+			console.error("Login failed:", error);
+			setErrors(["An unexpected error occurred. Please try again."]);
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	return (
@@ -50,15 +53,31 @@ function Login() {
 							data-aos-delay="200"
 						>
 							<div className="login-form-wrapper">
-								<div className="login-header text-center" id="section-header">
+								<div
+									className="login-header text-center"
+									id="section-header"
+								>
 									<h2>Login</h2>
-									{new URLSearchParams(window.location.search).get("registered") === "success"
-										? <p className="alert alert-success">Registration successful! Please log in to continue shopping.</p>
-										: <p>Welcome back! Please enter your details</p>}
+									{new URLSearchParams(
+										window.location.search
+									).get("registered") === "success" ? (
+										<p className="alert alert-success">
+											Registration successful! Please log
+											in to continue shopping.
+										</p>
+									) : (
+										<p>
+											Welcome back! Please enter your
+											details
+										</p>
+									)}
 								</div>
 
 								{errors.length > 0 && (
-									<div className="errors alert alert-danger" id="errors">
+									<div
+										className="errors alert alert-danger"
+										id="errors"
+									>
 										<ul>
 											{errors.map((error, index) => (
 												<li key={index}>{error}</li>
@@ -82,10 +101,11 @@ function Login() {
 											placeholder="Enter your email"
 											required=""
 											autoComplete="email"
-											onChange={(e) => setEmail(e.target.value)}
+											onChange={(e) =>
+												setEmail(e.target.value)
+											}
 										/>
 									</div>
-
 									<div className="mb-3">
 										<div className="d-flex justify-content-between">
 											<label
@@ -94,7 +114,10 @@ function Login() {
 											>
 												Password
 											</label>
-											<a href="/forgot-password" className="forgot-link">
+											<a
+												href="/forgot-password"
+												className="forgot-link"
+											>
 												Forgot password?
 											</a>
 										</div>
@@ -105,16 +128,20 @@ function Login() {
 											placeholder="Enter your password"
 											required=""
 											autoComplete="current-password"
-											onChange={(e) => setPassword(e.target.value)}
+											onChange={(e) =>
+												setPassword(e.target.value)
+											}
 										/>
-									</div>
-
+									</div>{" "}
 									<div className="d-grid gap-2 mb-4">
 										<button
 											type="submit"
 											className="btn btn-primary"
+											disabled={isLoading}
 										>
-											Sign in
+											{isLoading
+												? "Signing in..."
+												: "Sign in"}
 										</button>
 										<button
 											type="button"

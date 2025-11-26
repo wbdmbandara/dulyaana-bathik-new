@@ -22,6 +22,15 @@ Route::middleware('api')->group(function () {
     Route::get('/getItems', [ItemsController::class, 'filterItems']);
     Route::get('/getItems/{}', [ItemsController::class, 'filterItems']);
 
+    // Authentication routes (no token required)
     Route::post('/registerCustomer', [CustomerController::class, 'register']);
     Route::post('/login', [CustomerController::class, 'login']);
+    Route::post('/admin/login', [UserController::class, 'login']); // Admin login route
+});
+
+// Protected routes that require authentication token
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/logout', [CustomerController::class, 'logout']);
+    Route::post('/validate-token', [CustomerController::class, 'validateToken']);
+    Route::get('/user/profile', [CustomerController::class, 'profile']);
 });

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use Carbon\Carbon;
 
 class CustomerController extends Controller
 {
@@ -105,10 +106,18 @@ class CustomerController extends Controller
         $customer = Customer::where('email', $credentials['email'])->first();
         
         if ($customer && Hash::check($credentials['password'], $customer->password)) {
+            // Update last login timestamp
+            $customer->update(['last_login' => Carbon::now()]);
+            
+            // Create a token that expires in 2 hours
+            $token = $customer->createToken('auth_token', ['*'], Carbon::now()->addHours(2))->plainTextToken;
+
             // Authentication successful
             return response()->json([
                 'status' => 'success',
                 'message' => 'Login successful', 
+                'token' => $token,
+                'token_expires_at' => Carbon::now()->addHours(2)->timestamp,
                 'user' => [
                     'id' => $customer->id,
                     'name' => $customer->name,
@@ -125,9 +134,14 @@ class CustomerController extends Controller
         // If customer authentication fails, try the users table as fallback
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
+            // Create a token that expires in 2 hours for admin users
+            $token = $user->createToken('auth_token', ['*'], Carbon::now()->addHours(2))->plainTextToken;
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Login successful', 
+                'token' => $token,
+                'token_expires_at' => Carbon::now()->addHours(2)->timestamp,
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -141,6 +155,105 @@ class CustomerController extends Controller
             'status' => 'error',
             'message' => 'Invalid login details'
         ], 401);
+    }
+
+    public function logout(Request $request)
+    {
+        try {
+            // Get the current user from the token
+            $user = $request->user();
+            
+            if ($user) {
+                // Revoke the current token
+                $request->user()->currentAccessToken()->delete();
+                
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Logged out successfully'
+                ], 200);
+            }
+            
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated'
+            ], 401);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Logout failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function validateToken(Request $request)
+    {
+        try {
+            // Get the current user from the token
+            $user = $request->user();
+            
+            if ($user) {
+                // Check if the token is still valid
+                $token = $request->user()->currentAccessToken();
+                
+                if ($token && (!$token->expires_at || $token->expires_at->isFuture())) {
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'Token is valid',
+                        'user' => [
+                            'id' => $user->id,
+                            'name' => $user->name,
+                            'email' => $user->email,
+                            'role' => $user->role ?? ($user instanceof Customer ? 'customer' : 'admin')
+                        ],
+                        'token_expires_at' => $token->expires_at ? $token->expires_at->timestamp : null
+                    ], 200);
+                }
+            }
+            
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Token is invalid or expired'
+            ], 401);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Token validation failed: ' . $e->getMessage()
+            ], 401);
+        }
+    }
+
+    public function profile(Request $request)
+    {
+        try {
+            $user = $request->user();
+            
+            if ($user) {
+                return response()->json([
+                    'status' => 'success',
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'email_confirmed' => $user->email_confirmed ?? null,
+                        'phone' => $user->phone ?? null,
+                        'birthday' => $user->birthday ?? null,
+                        'gender' => $user->gender ?? null,
+                        'role' => $user->role ?? ($user instanceof Customer ? 'customer' : 'admin'),
+                        'last_login' => $user->last_login ?? null,
+                    ]
+                ], 200);
+            }
+            
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated'
+            ], 401);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch profile: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
