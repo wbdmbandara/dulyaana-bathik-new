@@ -25,6 +25,7 @@ Route::middleware('api')->group(function () {
     // Authentication routes (no token required)
     Route::post('/registerCustomer', [CustomerController::class, 'register']);
     Route::post('/login', [CustomerController::class, 'login']);
+    Route::post('/customers/{id}', [CustomerController::class, 'update']);
     Route::post('/admin/login', [UserController::class, 'login']); // Admin login route
 });
 

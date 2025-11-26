@@ -264,6 +264,15 @@ class CustomerController extends Controller
         if (!Auth::check()) {
             return redirect('/');
         }
+        $validatedData = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|max:255|unique:customers,email,' . $id,
+            'password' => 'sometimes|string|min:8',
+            'phone' => 'sometimes|string|max:15',
+            'birthday' => 'sometimes|date',
+            'gender' => 'sometimes|string|in:male,female,other',
+        ]);
+
         $customer = $this->customer->find($id);
 
         if($customer) {
@@ -292,7 +301,38 @@ class CustomerController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        try {
+            $customer = $this->customer->find($id);
+
+            if ($customer) {
+                $customer->fill([
+                    'name' => $request->json('name'),
+                    'email' => $request->json('email'),
+                    'phone' => $request->json('phone'),
+                    'birthday' => $request->json('birthday'),
+                    'gender' => $request->json('gender'),
+                    'password' => $request->json('password') ? bcrypt($request->json('password')) : $customer->password,
+                ]);
+
+                $customer->save();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Customer updated successfully',
+                    'customer' => $customer
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found'
+                ], 404);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

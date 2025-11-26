@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 function Profile(){
     const [user, setUser] = useState(null);
+    const [formErrors, setFormErrors] = useState({});
+    const [successMsg, setSuccessMsg] = useState({});
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('profile');
     
@@ -20,6 +22,33 @@ function Profile(){
     if (!user) {
         return <div>Loading...</div>;
     }
+
+    const updateCustomerInfo = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch(`${API_URL}customers/${user.id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify(user)
+            });
+            if (!response.ok) {
+                setFormErrors({ submit: 'Failed to update your information' });
+                throw new Error('Failed to update your information');
+            }
+            const updatedUser = await response.json();
+            setUser(updatedUser.customer);
+            setFormErrors({});
+            setSuccessMsg({ submit: 'Your information updated successfully' });
+            localStorage.setItem('user', JSON.stringify(updatedUser.customer));
+        } catch (error) {
+            setUser(user);
+            setFormErrors({ submit: error.message });
+            console.error(error);
+        }
+    };
 
     return (
         <section id="account" className="account section">
@@ -38,7 +67,7 @@ function Profile(){
                 <div className="col-lg-3 profile-sidebar collapse d-lg-block aos-init aos-animate" id="profileSidebar" data-aos="fade-right" data-aos-delay="200">
                     <div className="profile-header">
                     <div className="profile-avatar">
-                        <span>{user?.name.charAt(0)}</span>
+                        <span>{typeof user?.name === 'string' && user.name.charAt(0) ? user.name.charAt(0) : <i className="bi bi-person-circle"></i>}</span>
                     </div>
                     <div className="profile-info">
                         <h4>{user?.name}</h4>
@@ -130,21 +159,23 @@ function Profile(){
                         <h2>Personal Information</h2>
                         </div>
                         <div className="personal-info-form aos-init aos-animate" data-aos="fade-up" data-aos-delay="100">
-                        <form className="php-email-form">
+                        <form className="php-email-form" onSubmit={updateCustomerInfo}>
+                            {formErrors.submit && <div className="alert alert-danger">{formErrors.submit}</div>}
+                            {successMsg.submit && <div className="alert alert-success">{successMsg.submit}</div>}
                             <div className="row">
                                 <div className="col-md-8 mb-3">
                                     <label htmlFor="name" className="form-label">Name</label>
-                                    <input type="text" className="form-control" id="name" name="name" value={user?.name} onChange={(e) => setUser({ ...user, name: e.target.value })} required="" />
+                                    <input type="text" className="form-control" id="name" name="name" value={user.name} onChange={(e) => setUser({ ...user, name: e.target.value })} required="" />
                                 </div>
                                 <div className="col-md-4 mb-3">
-                                    <label htmlFor="birthdate" className="form-label">Date of Birth</label>
-                                    <input type="date" className="form-control" id="birthdate" name="birthdate" value={user.birthday} onChange={(e) => setUser({ ...user, birthdate: e.target.value })} />
+                                    <label htmlFor="birthday" className="form-label">Date of Birth</label>
+                                    <input type="date" className="form-control" id="birthday" name="birthday" value={user.birthday} onChange={(e) => setUser({ ...user, birthday: e.target.value })} />
                                 </div>
                             </div>
                             <div className="row">
                             <div className="col-md-6 mb-3">
                                 <label htmlFor="email" className="form-label">Email</label>
-                                <input type="email" className="form-control" id="email" name="email" value={user.email} onChange={(e) => setUser({ ...user, email: e.target.value })} required="" />
+                                <input type="email" className="form-control" id="email" name="email" readOnly value={user.email} onChange={(e) => setUser({ ...user, email: e.target.value })} required="" />
                             </div>
                             <div className="col-md-6 mb-3">
                                 <label htmlFor="phone" className="form-label">Phone</label>
