@@ -14,6 +14,7 @@ class CartController extends Controller
     {
         $this->cart = $cart;
     }
+
     public function addToCart(Request $request)
     {
         try {
@@ -38,6 +39,23 @@ class CartController extends Controller
                 $message = 'Item added to cart successfully';
             }
             return response()->json(['message' => $message], 200);
+        } catch (ValidationException $e) {
+            return response()->json(['message' => 'Validation Error', 'errors' => $e->errors()], 422);
+        }
+
+    }
+
+    public function viewCart(Request $request)
+    {
+        try{
+            $customerId = $request->json('customer_id');
+            // $cartItems = Cart::where('customer_id', $customerId)->get();
+            // Get cart items from join cart table and items table
+            $cartItems = Cart::join('items', 'cart.item_id', '=', 'items.item_id')
+                ->where('cart.customer_id', $customerId)
+                ->get(['cart.*', 'items.name', 'items.price as item_price', 'items.discount_price', 'items.url', 'items.main_image', 'items.quantity as available_qty']);
+
+            return response()->json(['cart_items' => $cartItems], 200);
         } catch (ValidationException $e) {
             return response()->json(['message' => 'Validation Error', 'errors' => $e->errors()], 422);
         }

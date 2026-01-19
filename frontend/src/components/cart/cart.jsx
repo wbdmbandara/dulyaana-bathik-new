@@ -1,46 +1,58 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, use } from "react";
+import { API_URL, BACKEND_URL, formatNumber, formatCurrency } from "../../config";
+import { useNavigate } from "react-router-dom";
 
 function Cart() {
+	const navigate = useNavigate();
 	// State for cart items
-	const [cartItems, setCartItems] = useState([
-		{
-			id: 1,
-			name: "Lorem ipsum dolor sit amet",
-			image: "assets/img/product/product-1.webp",
-			color: "Black",
-			size: "M",
-			price: 89.99,
-			quantity: 1,
-			maxQuantity: 10,
-		},
-		{
-			id: 2,
-			name: "Consectetur adipiscing elit",
-			image: "assets/img/product/product-3.webp",
-			color: "White",
-			size: "L",
-			price: 64.99,
-			originalPrice: 79.99,
-			quantity: 2,
-			maxQuantity: 10,
-		},
-		{
-			id: 3,
-			name: "Sed do eiusmod tempor",
-			image: "assets/img/product/product-5.webp",
-			color: "Blue",
-			size: "S",
-			price: 49.99,
-			quantity: 1,
-			maxQuantity: 10,
-		},
-	]);
+	const [cartItems, setCartItems] = useState([]);
+
+	useEffect(() => {
+		const storedUser = localStorage.getItem("user");
+		if (!storedUser) {
+			navigate("/login?redirect=/cart");
+		}
+	}, []);
+
+	var customerID = JSON.parse(localStorage.getItem("user"))?.id;
+
+	// Get cart items 
+	useEffect(() => {
+		const fetchCartItems = async () => {
+			try {
+				fetch(`${API_URL}cart`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+					},
+					body: JSON.stringify({
+						customer_id: customerID,
+					}),
+				}).then((response) => {
+					if (!response.ok) {
+						throw new Error("Failed to fetch cart items");
+					}
+
+					return response.json();
+				}).then((data) => {
+					// console.log(data);
+					setCartItems(data.cart_items);
+				}).catch((error) => {
+					console.error(error);
+				});
+			} catch (error) {
+				console.error("Error fetching cart items:", error);
+			}
+		};
+		fetchCartItems();
+	}, []);
 
 	// Handle quantity increase
 	const handleQuantityIncrease = (itemId) => {
 		setCartItems((items) =>
 			items.map((item) =>
-				item.id === itemId && item.quantity < item.maxQuantity
+				item.item_id === itemId && item.quantity < item.available_qty
 					? { ...item, quantity: item.quantity + 1 }
 					: item
 			)
@@ -51,7 +63,7 @@ function Cart() {
 	const handleQuantityDecrease = (itemId) => {
 		setCartItems((items) =>
 			items.map((item) =>
-				item.id === itemId && item.quantity > 1
+				item.item_id === itemId && item.quantity > 1
 					? { ...item, quantity: item.quantity - 1 }
 					: item
 			)
@@ -65,10 +77,10 @@ function Cart() {
 
 		setCartItems((items) =>
 			items.map((item) => {
-				if (item.id === itemId) {
+				if (item.item_id === itemId) {
 					const validQuantity = Math.max(
 						1,
-						Math.min(item.maxQuantity, quantity)
+						Math.min(item.available_qty, quantity)
 					);
 					return { ...item, quantity: validQuantity };
 				}
@@ -79,12 +91,12 @@ function Cart() {
 
 	// Handle item removal
 	const handleRemoveItem = (itemId) => {
-		setCartItems((items) => items.filter((item) => item.id !== itemId));
+		setCartItems((items) => items.filter((item) => item.item_id !== itemId));
 	};
 
 	// Calculate totals
 	const subtotal = cartItems.reduce(
-		(sum, item) => sum + item.price * item.quantity,
+		(sum, item) => sum + item.item_price * item.quantity,
 		0
 	);
 	const tax = subtotal * 0.1; // 10% tax
@@ -123,13 +135,16 @@ function Cart() {
 							</div>
 
 							{cartItems.map((item) => (
-								<div key={item.id} className="cart-item">
+								<div key={item.item_id} className="cart-item">
 									<div className="row align-items-center">
 										<div className="col-lg-6 col-12 mt-3 mt-lg-0 mb-lg-0 mb-3">
 											<div className="product-info d-flex align-items-center">
 												<div className="product-image">
 													<img
-														src={item.image}
+														src={
+															BACKEND_URL +
+															item.main_image
+														}
 														alt={item.name}
 														className="img-fluid"
 														loading="lazy"
@@ -139,7 +154,7 @@ function Cart() {
 													<h6 className="product-title">
 														{item.name}
 													</h6>
-													<div className="product-meta">
+													<div className="product-meta d-none">
 														<span className="product-color">
 															Color: {item.color}
 														</span>
@@ -152,7 +167,7 @@ function Cart() {
 														type="button"
 														onClick={() =>
 															handleRemoveItem(
-																item.id
+																item.item_id
 															)
 														}
 													>
@@ -164,14 +179,17 @@ function Cart() {
 										</div>
 										<div className="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
 											<div className="price-tag">
-												<span className="current-price">
-													${item.price.toFixed(2)}
+												<span className="current-price d-block">
+													{formatCurrency(
+														item?.discount_price > 0
+															? item?.discount_price
+															: item?.item_price
+													)}
 												</span>
-												{item.originalPrice && (
-													<span className="original-price">
-														$
-														{item.originalPrice.toFixed(
-															2
+												{item.discount_price > 0 && (
+													<span className="original-price d-block">
+														{formatCurrency(
+															item.item_price
 														)}
 													</span>
 												)}
@@ -183,7 +201,7 @@ function Cart() {
 													className="quantity-btn decrease"
 													onClick={() =>
 														handleQuantityDecrease(
-															item.id
+															item.item_id
 														)
 													}
 												>
@@ -197,7 +215,7 @@ function Cart() {
 													max={item.maxQuantity}
 													onChange={(e) =>
 														handleQuantityChange(
-															item.id,
+															item.item_id,
 															e.target.value
 														)
 													}
@@ -206,7 +224,7 @@ function Cart() {
 													className="quantity-btn increase"
 													onClick={() =>
 														handleQuantityIncrease(
-															item.id
+															item.item_id
 														)
 													}
 												>
@@ -217,11 +235,11 @@ function Cart() {
 										<div className="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
 											<div className="item-total">
 												<span>
-													$
-													{(
-														item.price *
-														item.quantity
-													).toFixed(2)}
+													{
+														item?.discount_price > 0 
+														? formatCurrency(item.discount_price * item.quantity) 
+														: formatCurrency(item.item_price * item.quantity)
+													}
 												</span>
 											</div>
 										</div>
@@ -277,7 +295,7 @@ function Cart() {
 							<div className="summary-item">
 								<span className="summary-label">Subtotal</span>
 								<span className="summary-value">
-									${subtotal.toFixed(2)}
+									{formatCurrency(subtotal)}
 								</span>
 							</div>
 
@@ -296,7 +314,7 @@ function Cart() {
 											className="form-check-label"
 											htmlFor="standard"
 										>
-											Standard Delivery - $4.99
+											Standard Delivery - {formatCurrency(4.99)}
 										</label>
 									</div>
 									<div className="form-check text-end">
@@ -310,7 +328,7 @@ function Cart() {
 											className="form-check-label"
 											htmlFor="express"
 										>
-											Express Delivery - $12.99
+											Express Delivery - {formatCurrency(12.99)}
 										</label>
 									</div>
 									<div className="form-check text-end">
@@ -324,7 +342,7 @@ function Cart() {
 											className="form-check-label"
 											htmlFor="free"
 										>
-											Free Shipping (Orders over $300)
+											Free Shipping (Orders over {formatCurrency(300)})
 										</label>
 									</div>
 								</div>
@@ -333,19 +351,19 @@ function Cart() {
 							<div className="summary-item">
 								<span className="summary-label">Tax</span>
 								<span className="summary-value">
-									${tax.toFixed(2)}
+									{formatCurrency(tax)}
 								</span>
 							</div>
 
 							<div className="summary-item discount">
 								<span className="summary-label">Discount</span>
-								<span className="summary-value">-$0.00</span>
+								<span className="summary-value">-{formatCurrency(0)}</span>
 							</div>
 
 							<div className="summary-total">
 								<span className="summary-label">Total</span>
 								<span className="summary-value">
-									${total.toFixed(2)}
+									{formatCurrency(total)}
 								</span>
 							</div>
 

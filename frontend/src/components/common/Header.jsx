@@ -348,7 +348,7 @@ function Header({activeMenu}) {
 										</div>
 										<div className="cart-actions">
 											<a
-												href="cart.html"
+												href="cart"
 												className="btn btn-outline-primary"
 											>
 												View Cart
