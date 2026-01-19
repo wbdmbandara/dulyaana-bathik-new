@@ -7,8 +7,8 @@ function Profile(){
     const [formErrors, setFormErrors] = useState({});
     const [successMsg, setSuccessMsg] = useState({});
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('profile');
-    
+    const [activeTab, setActiveTab] = useState(window.location.search.split('?')[1] || 'profile');
+
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
@@ -154,7 +154,7 @@ function Profile(){
                     <div className="tab-content" id="profileTabsContent">
                     
                     {/* Personal Info Tab */}
-                    <div className="tab-pane fade active show" id="personal" role="tabpanel" aria-labelledby="personal-tab">
+                    <div className={activeTab === 'profile' ? 'tab-pane fade active show' : 'tab-pane fade'} id="personal" role="tabpanel" aria-labelledby="personal-tab">
                         <div className="tab-header">
                         <h2>Personal Information</h2>
                         </div>
@@ -204,7 +204,7 @@ function Profile(){
                     </div>
                     
                     {/* Orders Tab */}
-                    <div className="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                    <div className={activeTab === "orders" ? "tab-pane fade show active" : "tab-pane fade"} id="orders" role="tabpanel" aria-labelledby="orders-tab">
                         <div className="tab-header">
                         <h2>Orders</h2>
                         <div className="tab-filters">
@@ -730,7 +730,7 @@ function Profile(){
                     </div>
 
                     {/* Wishlist Tab */}
-                    <div className="tab-pane fade" id="wishlist" role="tabpanel" aria-labelledby="wishlist-tab">
+                    <div className={activeTab === "wishlist" ? "tab-pane fade show active" : "tab-pane fade"} id="wishlist" role="tabpanel" aria-labelledby="wishlist-tab">
                         <div className="tab-header">
                         <h2>Wishlist</h2>
                         </div>
@@ -794,7 +794,7 @@ function Profile(){
                     </div>
 
                     {/* Payment Methods Tab */}
-                    <div className="tab-pane fade" id="payment" role="tabpanel" aria-labelledby="payment-tab">
+                    <div className={activeTab === "payment" ? "tab-pane fade show active" : "tab-pane fade"} id="payment" role="tabpanel" aria-labelledby="payment-tab">
                         <div className="tab-header">
                         <h2>Payment Methods</h2>
                         <button className="btn btn-add-payment" type="button">
@@ -851,7 +851,7 @@ function Profile(){
                     </div>
 
                     {/* Reviews Tab */}
-                    <div className="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                    <div className={activeTab === "reviews" ? "tab-pane fade show active" : "tab-pane fade"} id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
                         <div className="tab-header">
                         <h2>My Reviews</h2>
                         </div>
@@ -915,7 +915,7 @@ function Profile(){
                     </div>
 
                     {/* Addresses Tab */}
-                    <div className="tab-pane fade" id="addresses" role="tabpanel" aria-labelledby="addresses-tab">
+                    <div className={activeTab === "addresses" ? "tab-pane fade show active" : "tab-pane fade"} id="addresses" role="tabpanel" aria-labelledby="addresses-tab">
                         <div className="tab-header">
                         <h2>My Addresses</h2>
                         <button className="btn btn-add-address" type="button">
@@ -972,7 +972,7 @@ function Profile(){
                     </div>
 
                     {/* Notifications Tab */}
-                    <div className="tab-pane fade" id="notifications" role="tabpanel" aria-labelledby="notifications-tab">
+                    <div className={activeTab === "notifications" ? "tab-pane fade show active" : "tab-pane fade"} id="notifications" role="tabpanel" aria-labelledby="notifications-tab">
                         <div className="tab-header">
                         <h2>Notification Settings</h2>
                         </div>
