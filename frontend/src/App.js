@@ -13,26 +13,29 @@ import Register from "./Register";
 import Profile from "./user/Profile";
 import Logout from "./Logout";
 import SessionManager from "./components/common/SessionManager";
+import { SnackbarProvider } from "./context/SnackbarContext";
 
 function App() {
 	return (
 		<>
 			<BrowserRouter>
 				<SessionManager>
-					<Routes>
-						<Route path="/" element={<Home />} />
-						<Route path="/about" element={<About />} />
-						<Route path="/login" element={<Login />} />
-						<Route path="/register" element={<Register />} />
-						<Route path="/shop" element={<Shop />} />
-						<Route path="/cart" element={<Cart />} />
-						<Route
-							path="/product/:url"
-							element={<Product url={window.location.pathname} />}
-						/>
-						<Route path="/profile" element={<Profile />} />
-						<Route path="/logout" element={<Logout />} />
-					</Routes>
+					<SnackbarProvider>
+						<Routes>
+							<Route path="/" element={<Home />} />
+							<Route path="/about" element={<About />} />
+							<Route path="/login" element={<Login />} />
+							<Route path="/register" element={<Register />} />
+							<Route path="/shop" element={<Shop />} />
+							<Route path="/cart" element={<Cart />} />
+							<Route
+								path="/product/:url"
+								element={<Product url={window.location.pathname} />}
+							/>
+							<Route path="/profile" element={<Profile />} />
+							<Route path="/logout" element={<Logout />} />
+						</Routes>
+					</SnackbarProvider>
 				</SessionManager>
 			</BrowserRouter>
 		</>

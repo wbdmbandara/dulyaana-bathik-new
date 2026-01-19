@@ -1,11 +1,13 @@
 import React, { useState, useEffect, use } from "react";
 import { API_URL, BACKEND_URL, formatNumber, formatCurrency } from "../../config";
 import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 function Cart() {
 	const navigate = useNavigate();
 	// State for cart items
 	const [cartItems, setCartItems] = useState([]);
+	const { showSnackbar } = useSnackbar();
 
 	useEffect(() => {
 		const storedUser = localStorage.getItem("user");
@@ -31,6 +33,7 @@ function Cart() {
 					}),
 				}).then((response) => {
 					if (!response.ok) {
+						showSnackbar("Failed to fetch cart items", "error");
 						throw new Error("Failed to fetch cart items");
 					}
 
@@ -40,9 +43,11 @@ function Cart() {
 					setCartItems(data.cart_items);
 				}).catch((error) => {
 					console.error(error);
+					showSnackbar("Failed to fetch cart items", "error");
 				});
 			} catch (error) {
 				console.error("Error fetching cart items:", error);
+				showSnackbar("Error fetching cart items", "error");
 			}
 		};
 		fetchCartItems();
@@ -51,22 +56,34 @@ function Cart() {
 	// Handle quantity increase
 	const handleQuantityIncrease = (itemId) => {
 		setCartItems((items) =>
-			items.map((item) =>
-				item.item_id === itemId && item.quantity < item.available_qty
-					? { ...item, quantity: item.quantity + 1 }
-					: item
-			)
+			items.map((item) => {
+				if (item.item_id === itemId) {
+					if (item.quantity < item.available_qty) {
+						showSnackbar("Increased item quantity", "success");
+						return { ...item, quantity: item.quantity + 1 };
+					}
+					else {
+						showSnackbar("Cannot exceed available stock", "error");
+					}
+				}
+				return item;
+			})
 		);
 	};
 
 	// Handle quantity decrease
 	const handleQuantityDecrease = (itemId) => {
 		setCartItems((items) =>
-			items.map((item) =>
-				item.item_id === itemId && item.quantity > 1
-					? { ...item, quantity: item.quantity - 1 }
-					: item
-			)
+			items.map((item) => {
+				if (item.item_id === itemId && item.quantity > 1) {
+					showSnackbar("Decreased item quantity", "success");
+					return { ...item, quantity: item.quantity - 1 };
+				}
+				else{
+					showSnackbar("Cannot decrease item quantity", "error");
+				}
+				return item;
+			})
 		);
 	};
 
@@ -82,6 +99,11 @@ function Cart() {
 						1,
 						Math.min(item.available_qty, quantity)
 					);
+					if (validQuantity > item.quantity) {
+						showSnackbar("Increased item quantity", "success");
+					}else if (validQuantity < item.quantity) {
+						showSnackbar("Decreased item quantity", "success");
+					}
 					return { ...item, quantity: validQuantity };
 				}
 				return item;
@@ -93,6 +115,7 @@ function Cart() {
 	const handleRemoveItem = (itemId) => {
 		setCartItems((items) => items.filter((item) => item.item_id !== itemId));
 		removeCartItem(itemId);
+		showSnackbar("Removed item from cart", "success");
 	};
 
 	const removeCartItem = async (itemId) => {
@@ -163,6 +186,7 @@ function Cart() {
 			}
 		};
 		clearCartOnServer();
+		showSnackbar("Cleared cart", "success");
 	};
 
 	// Calculate totals
