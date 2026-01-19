@@ -140,9 +140,38 @@ function Cart() {
 		updateCart();
 	}, [cartItems]);
 
+	// Handle clear cart
+	const clearCart = () => {
+		setCartItems([]);
+		const clearCartOnServer = async () => {
+			try {
+				const response = await fetch(`${API_URL}cart/clear`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+					},
+					body: JSON.stringify({
+						customer_id: customerID,
+					}),
+				});
+				if (!response.ok) {
+					throw new Error("Failed to clear cart");
+				}
+			} catch (error) {
+				console.error("Error clearing cart:", error);
+			}
+		};
+		clearCartOnServer();
+	};
+
 	// Calculate totals
 	const subtotal = cartItems.reduce(
-		(sum, item) => sum + item.item_price * item.quantity,
+		(sum, item) =>
+			sum +
+			(item?.discount_price > 0
+				? item?.discount_price
+				: item?.item_price) * item.quantity,
 		0
 	);
 	const tax = subtotal * 0.1; // 10% tax
@@ -319,7 +348,7 @@ function Cart() {
 										</button>
 										<button
 											className="btn btn-outline-remove"
-											onClick={() => setCartItems([])}
+											onClick={() => clearCart()}
 										>
 											<i className="bi bi-trash"></i>{" "}
 											Clear Cart

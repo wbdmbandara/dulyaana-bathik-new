@@ -95,4 +95,17 @@ class CartController extends Controller
             return response()->json(['message' => 'Validation Error', 'errors' => $e->errors()], 422);
         }
     }
+
+    public function clearCart(Request $request)
+    {
+        try {
+            $customerId = $request->json('customer_id');
+
+            Cart::where('customer_id', $customerId)->delete();
+
+            return response()->json(['message' => 'Cart cleared successfully'], 200);
+        } catch (ValidationException $e) {
+            return response()->json(['message' => 'Validation Error', 'errors' => $e->errors()], 422);
+        }
+    }
 }

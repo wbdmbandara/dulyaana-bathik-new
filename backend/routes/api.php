@@ -33,6 +33,7 @@ Route::middleware('api')->group(function () {
     Route::post('/cart/add', [CartController::class, 'addToCart']);
     Route::post('/cart/remove', [CartController::class, 'removeFromCart']);
     Route::post('/cart/update', [CartController::class, 'updateCart']);
+    Route::post('/cart/clear', [CartController::class, 'clearCart']);
     Route::post('/cart', [CartController::class, 'viewCart']);
     Route::post('/cart/checkout', [CartController::class, 'checkout']);
 
