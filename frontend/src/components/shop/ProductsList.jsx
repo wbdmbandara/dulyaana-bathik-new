@@ -6,6 +6,8 @@ import {
 } from "../../config";
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 function ProductsList() {
 	const location = useLocation();
@@ -16,6 +18,8 @@ function ProductsList() {
 		last_page: 1,
 		current_page: 1,
 	});
+	const { showSnackbar } = useSnackbar();
+	const navigate = useNavigate();
 	useEffect(() => {
 		const fetchProducts = async () => {
 			setLoading(true);
@@ -56,6 +60,48 @@ function ProductsList() {
 
 		fetchProducts();
 	}, [location.search]);
+
+	const addToCart = (itemId) => async (e) => {
+		e.preventDefault();
+
+		var customerID = JSON.parse(localStorage.getItem("user"))?.id;
+		if (!customerID) {
+			navigate("/login?redirect=" + window.location.pathname);
+			return;
+		}
+
+		try {
+			fetch(`${API_URL}cart/add`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+				},
+				body: JSON.stringify({
+					customer_id: customerID,
+					item_id: itemId,
+					quantity: 1,
+				}),
+			})
+			.then((response) => {
+				if (!response.ok) {
+					showSnackbar("Failed to add item to cart", "error");
+					throw new Error("Failed to add item to cart");
+				}
+				return response.json();
+			})
+			.then((data) => {
+				showSnackbar(data.message || "Item added to cart successfully", "success");
+			})
+			.catch((error) => {
+				showSnackbar("An error occurred while adding item to cart", "error");
+				console.error(error);
+			});
+		} catch (error) {
+			console.error("Error adding item to cart:", error);
+			showSnackbar("An error occurred while adding item to cart", "error");
+		}
+	};
 
 	return (
 		<div>
@@ -135,6 +181,10 @@ function ProductsList() {
 													<button
 														type="button"
 														className="add-to-cart-btn"
+														onClick={addToCart(
+															product.product
+																?.item_id
+														)}
 													>
 														Add to Cart
 													</button>
