@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { API_URL, BACKEND_URL, formatNumber, formatCurrency } from "../../config";
 import PageTitle from "./PageTitle";
 import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 function ProductDetails({ url }) {
 	const [product, setProduct] = useState(null);
@@ -12,6 +13,7 @@ function ProductDetails({ url }) {
 	const [cartErrors, setCartErrors] = useState(null);
 	const [cartSuccess, setCartSuccess] = useState(null);
 	const navigate = useNavigate();
+	const { showSnackbar } = useSnackbar();
 
 	useEffect(() => {
 		// Fetch product details using the URL
@@ -65,16 +67,19 @@ function ProductDetails({ url }) {
 		})
 		.then((response) => {
 			if (!response.ok) {
-				setCartErrors("Failed to add item to cart");
+				// setCartErrors("Failed to add item to cart");
+				showSnackbar("Failed to add item to cart", "error");
 				throw new Error("Failed to add item to cart");
 			}
 			return response.json();
 		})
 		.then((data) => {
-			setCartSuccess(data.message || "Item added to cart successfully");
+			// setCartSuccess(data.message || "Item added to cart successfully");
+			showSnackbar(data.message || "Item added to cart successfully", "success");
 		})
 		.catch((error) => {
-			setCartErrors("An error occurred while adding item to cart");
+			// setCartErrors("An error occurred while adding item to cart");
+			showSnackbar("An error occurred while adding item to cart", "error");
 			console.error(error);
 		});
 	};
