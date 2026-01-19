@@ -70,8 +70,13 @@ function ProductsList() {
 			return;
 		}
 
+		const button = e.currentTarget;
+		const originalText = button.textContent;
+		button.textContent = "Updating...";
+		button.disabled = true;
+
 		try {
-			fetch(`${API_URL}cart/add`, {
+			await fetch(`${API_URL}cart/add`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -100,6 +105,9 @@ function ProductsList() {
 		} catch (error) {
 			console.error("Error adding item to cart:", error);
 			showSnackbar("An error occurred while adding item to cart", "error");
+		} finally {
+			button.textContent = originalText;
+			button.disabled = false;
 		}
 	};
 
