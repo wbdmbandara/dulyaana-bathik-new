@@ -264,14 +264,6 @@ class CustomerController extends Controller
         if (!Auth::check()) {
             return redirect('/');
         }
-        $validatedData = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|max:255|unique:customers,email,' . $id,
-            'password' => 'sometimes|string|min:8',
-            'phone' => 'sometimes|string|max:15',
-            'birthday' => 'sometimes|date',
-            'gender' => 'sometimes|string|in:male,female,other',
-        ]);
 
         $customer = $this->customer->find($id);
 
