@@ -61,4 +61,38 @@ class CartController extends Controller
         }
 
     }
+
+    public function updateCart(Request $request)
+    {
+        try {
+            $customerId = $request->json('customer_id');
+            $cartItems = $request->json('cart_items');
+
+            foreach ($cartItems as $item) {
+                Cart::where('customer_id', $customerId)
+                    ->where('item_id', $item['item_id'])
+                    ->update(['quantity' => $item['quantity']]);
+            }
+
+            return response()->json(['message' => 'Cart updated successfully'], 200);
+        } catch (ValidationException $e) {
+            return response()->json(['message' => 'Validation Error', 'errors' => $e->errors()], 422);
+        }
+    }
+
+    public function removeFromCart(Request $request)
+    {
+        try {
+            $customerId = $request->json('customer_id');
+            $itemId = $request->json('item_id');
+
+            Cart::where('customer_id', $customerId)
+                ->where('item_id', $itemId)
+                ->delete();
+
+            return response()->json(['message' => 'Item removed from cart successfully'], 200);
+        } catch (ValidationException $e) {
+            return response()->json(['message' => 'Validation Error', 'errors' => $e->errors()], 422);
+        }
+    }
 }

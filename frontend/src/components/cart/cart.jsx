@@ -92,7 +92,53 @@ function Cart() {
 	// Handle item removal
 	const handleRemoveItem = (itemId) => {
 		setCartItems((items) => items.filter((item) => item.item_id !== itemId));
+		removeCartItem(itemId);
 	};
+
+	const removeCartItem = async (itemId) => {
+		try {
+			const response = await fetch(`${API_URL}cart/remove`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+				},
+				body: JSON.stringify({
+					customer_id: customerID,
+					item_id: itemId,
+				}),
+			});
+			if (!response.ok) {
+				throw new Error("Failed to remove cart item");
+			}
+		} catch (error) {
+			console.error("Error removing cart item:", error);
+		}
+	};
+
+	useEffect(() => {
+		const updateCart = async () => {
+			try {
+				const response = await fetch(`${API_URL}cart/update`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+					},
+					body: JSON.stringify({
+						customer_id: customerID,
+						cart_items: cartItems,
+					}),
+				});
+				if (!response.ok) {
+					throw new Error("Failed to update cart");
+				}
+			} catch (error) {
+				console.error("Error updating cart:", error);
+			}
+		};
+		updateCart();
+	}, [cartItems]);
 
 	// Calculate totals
 	const subtotal = cartItems.reduce(
