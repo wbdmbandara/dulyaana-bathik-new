@@ -464,6 +464,13 @@ h6 {
   color: color-mix(in srgb, var(--default-color), transparent 40%);
 }
 
+.cart-item-total{
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--accent-color);
+  text-align: right;
+}
+
 .header .main-header .cart-dropdown .cart-dropdown-menu .dropdown-body .cart-item .cart-item-remove {
   background: none;
   border: none;

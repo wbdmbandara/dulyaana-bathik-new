@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useState, useEffect, use } from "react";
+import { API_URL, BACKEND_URL, formatNumber, formatCurrency } from "../../config";
 import { Link } from "react-router-dom";
+import { useSnackbar } from "../../context/SnackbarContext";
 
-function Header({activeMenu}) {
+function Header({ activeMenu }) {
+	const { showSnackbar } = useSnackbar();
+	const [cartItems, setCartItems] = useState([]);
 	// Add mobile navigation styles for React compatibility
 	React.useEffect(() => {
-		const style = document.createElement('style');
-		style.id = 'mobile-nav-styles';
+		const style = document.createElement("style");
+		style.id = "mobile-nav-styles";
 		style.textContent = `
 			/* Mobile Navigation Styles for React - Ultra-fast response */
 			@media (max-width: 1199.98px) {
@@ -85,7 +89,7 @@ function Header({activeMenu}) {
 		`;
 		
 		// Remove existing styles if any
-		const existingStyle = document.getElementById('mobile-nav-styles');
+		const existingStyle = document.getElementById("mobile-nav-styles");
 		if (existingStyle) {
 			existingStyle.remove();
 		}
@@ -94,7 +98,7 @@ function Header({activeMenu}) {
 		
 		// Cleanup on unmount
 		return () => {
-			const styleElement = document.getElementById('mobile-nav-styles');
+			const styleElement = document.getElementById("mobile-nav-styles");
 			if (styleElement) {
 				styleElement.remove();
 			}
@@ -107,18 +111,85 @@ function Header({activeMenu}) {
 		setUserLoggedIn(isLoggedIn === "true");
 	}, []);
 
+	var customerID = JSON.parse(localStorage.getItem("user"))?.id;
+
+	useEffect(() => {
+		const fetchCartItems = async () => {
+			try {
+				fetch(`${API_URL}cart`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${localStorage.getItem(
+							"auth_token"
+						)}`,
+					},
+					body: JSON.stringify({
+						customer_id: customerID,
+					}),
+				})
+					.then((response) => {
+						if (!response.ok) {
+							showSnackbar("Failed to fetch cart items", "error");
+							throw new Error("Failed to fetch cart items");
+						}
+
+						return response.json();
+					})
+					.then((data) => {
+						// console.log(data);
+						setCartItems(data.cart_items);
+					})
+					.catch((error) => {
+						console.error(error);
+						showSnackbar("Failed to fetch cart items", "error");
+					});
+			} catch (error) {
+				console.error("Error fetching cart items:", error);
+				showSnackbar("Error fetching cart items", "error");
+			}
+		};
+		fetchCartItems();
+	}, []);
+
+	const handleRemoveItem = (itemId) => {
+		setCartItems((items) => items.filter((item) => item.item_id !== itemId));
+		removeCartItem(itemId);
+		showSnackbar("Removed item from cart", "success");
+		setTimeout(() => {
+			window.location.reload();
+		}, 1000);
+	};
+
+	const removeCartItem = async (itemId) => {
+		try {
+			const response = await fetch(`${API_URL}cart/remove`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+				},
+				body: JSON.stringify({
+					customer_id: customerID,
+					item_id: itemId,
+				}),
+			});
+			if (!response.ok) {
+				throw new Error("Failed to remove cart item");
+			}
+		} catch (error) {
+			console.error("Error removing cart item:", error);
+		}
+	};
+
 	return (
 		<header id="header" className="header position-relative">
-
 			{/*Main Header */}
 			<div className="main-header">
 				<div className="container-fluid container-xl">
 					<div className="d-flex py-3 align-items-center justify-content-between">
 						{/*Logo */}
-						<a
-							href="/"
-							className="logo d-flex align-items-center"
-						>
+						<a href="/" className="logo d-flex align-items-center">
 							{/*Uncomment the line below if you also wish to use an image logo */}
 							<img src="/logo.png" alt="Dulyaana Bathik" />
 							<h1 className="sitename d-none">
@@ -156,7 +227,6 @@ function Header({activeMenu}) {
 							>
 								<i className="bi bi-search"></i>
 							</button>
-
 							{/*Account */}
 							<div className="dropdown account-dropdown">
 								<button
@@ -241,7 +311,6 @@ function Header({activeMenu}) {
 									</div>
 								</div>
 							</div>
-
 							{/*Wishlist */}
 							<a
 								href="/profile?wishlist"
@@ -253,7 +322,6 @@ function Header({activeMenu}) {
 								</span>
 								<span className="badge">0</span>
 							</a>
-
 							{/*Cart */}
 							<div className="dropdown cart-dropdown">
 								<button
@@ -264,105 +332,80 @@ function Header({activeMenu}) {
 									<span className="action-text d-none d-md-inline-block">
 										Cart
 									</span>
-									<span className="badge">3</span>
+									<span className="badge">{cartItems.length}</span>
 								</button>
 								<div className="dropdown-menu cart-dropdown-menu">
 									<div className="dropdown-header">
-										<h6>Shopping Cart (3)</h6>
+										<h6>Shopping Cart ({cartItems.length})</h6>
 									</div>
 									<div className="dropdown-body">
 										<div className="cart-items">
-											{/*Cart Item 1 */}
-											<div className="cart-item">
-												<div className="cart-item-image">
-													<img
-														src="assets/img/product/product-1.webp"
-														alt="Product"
-														className="img-fluid"
-													/>
-												</div>
-												<div className="cart-item-content">
-													<h6 className="cart-item-title">
-														Wireless Headphones
-													</h6>
-													<div className="cart-item-meta">
-														1 × $89.99
+											{cartItems.length > 0 ? (
+												cartItems.map((item, index) => (
+													<div className="cart-item" key={index}>
+														<div className="cart-item-image">
+															<img
+																src={BACKEND_URL + item.main_image || "assets/img/product/default.webp"}
+																alt={item.name}
+																className="img-fluid"
+															/>
+														</div>
+														<div className="cart-item-content">
+															<h6 className="cart-item-title">{item.name}</h6>
+															<div className="cart-item-meta">
+																{item.quantity} × {formatCurrency(
+																	item?.discount_price > 0
+																	? item?.discount_price
+																	: item?.item_price
+																)}
+																<span> = </span>
+																<span className="cart-item-total">
+																	{formatCurrency(
+																		(item?.discount_price > 0
+																			? item?.discount_price
+																			: item?.item_price) * item.quantity
+																	)}
+																</span>
+															</div>
+														</div>
+														<button className="cart-item-remove" type="button" onClick={() => handleRemoveItem(item.item_id)}>
+															<i className="bi bi-x"></i>
+														</button>
 													</div>
-												</div>
-												<button className="cart-item-remove">
-													<i className="bi bi-x"></i>
-												</button>
-											</div>
-
-											{/*Cart Item 2 */}
-											<div className="cart-item">
-												<div className="cart-item-image">
-													<img
-														src="assets/img/product/product-2.webp"
-														alt="Product"
-														className="img-fluid"
-													/>
-												</div>
-												<div className="cart-item-content">
-													<h6 className="cart-item-title">
-														Smart Watch
-													</h6>
-													<div className="cart-item-meta">
-														1 × $129.99
-													</div>
-												</div>
-												<button className="cart-item-remove">
-													<i className="bi bi-x"></i>
-												</button>
-											</div>
-
-											{/*Cart Item 3 */}
-											<div className="cart-item">
-												<div className="cart-item-image">
-													<img
-														src="assets/img/product/product-3.webp"
-														alt="Product"
-														className="img-fluid"
-													/>
-												</div>
-												<div className="cart-item-content">
-													<h6 className="cart-item-title">
-														Bluetooth Speaker
-													</h6>
-													<div className="cart-item-meta">
-														1 × $59.99
-													</div>
-												</div>
-												<button className="cart-item-remove">
-													<i className="bi bi-x"></i>
-												</button>
-											</div>
+												))
+											) : (
+												<p className="text-center">Your cart is empty.</p>
+											)}
 										</div>
 									</div>
-									<div className="dropdown-footer">
-										<div className="cart-total">
-											<span>Total:</span>
-											<span className="cart-total-price">
-												$279.97
-											</span>
+									{cartItems.length > 0 && (
+										<div className="dropdown-footer">
+											<div className="cart-total">
+												<span>Total:</span>
+												<span className="cart-total-price">
+													{formatCurrency(
+														cartItems.reduce((total, item) => total + (item?.discount_price > 0 ? item?.discount_price : item?.item_price) * item.quantity, 0)
+													)}
+												</span>
+											</div>
+											<div className="cart-actions">
+												<a
+													href="/cart"
+													className="btn btn-outline-primary"
+												>
+													View Cart
+												</a>
+												<a
+													href="/checkout"
+													className="btn btn-primary"
+												>
+													Checkout
+												</a>
+											</div>
 										</div>
-										<div className="cart-actions">
-											<a
-												href="/cart"
-												className="btn btn-outline-primary"
-											>
-												View Cart
-											</a>
-											<a
-												href="/checkout"
-												className="btn btn-primary"
-											>
-												Checkout
-											</a>
-										</div>
-									</div>
+									)}
 								</div>
-							</div>							{/*Mobile Navigation Toggle */}
+							</div>
 							<button 
 								className="mobile-nav-toggle d-xl-none border-0 bg-transparent p-0"
 								type="button"
