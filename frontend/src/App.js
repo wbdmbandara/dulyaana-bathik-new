@@ -9,6 +9,7 @@ import Shop from "./Shop";
 import Product from "./Product";
 import Login from "./Login";
 import Cart from "./Cart";
+import Checkout from "./Checkout";
 import Register from "./Register";
 import Profile from "./user/Profile";
 import Logout from "./Logout";
@@ -28,6 +29,7 @@ function App() {
 							<Route path="/register" element={<Register />} />
 							<Route path="/shop" element={<Shop />} />
 							<Route path="/cart" element={<Cart />} />
+							<Route path="/checkout" element={<Checkout />} />
 							<Route
 								path="/product/:url"
 								element={<Product url={window.location.pathname} />}

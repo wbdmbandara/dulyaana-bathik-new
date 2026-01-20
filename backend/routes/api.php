@@ -37,6 +37,9 @@ Route::middleware('api')->group(function () {
     Route::post('/cart', [CartController::class, 'viewCart']);
     Route::post('/cart/checkout', [CartController::class, 'checkout']);
 
+    // getting customer details
+    // Route::get('/customers/{id}', [CustomerController::class, 'getCustomerDetails']);
+
 });
 
 // Protected routes that require authentication token

@@ -1,0 +1,884 @@
+import React, { useState, useEffect, use } from "react";
+import {
+	API_URL,
+	BACKEND_URL,
+	formatNumber,
+	formatCurrency,
+} from "../../config";
+import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "../../context/SnackbarContext";
+import "./checkout.css";
+
+function Checkout() {
+	const navigate = useNavigate();
+	// State for checkout items
+	const [checkoutItems, setCheckoutItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [customerData, setCustomerData] = useState(null);
+  const [shippingData, setShippingData] = useState(null);
+  const [paymentData, setPaymentData] = useState(null);
+	const [currentStep, setCurrentStep] = useState(1);
+	const { showSnackbar } = useSnackbar();
+
+	useEffect(() => {
+		const storedUser = localStorage.getItem("user");
+		if (!storedUser) {
+			navigate("/login?redirect=/checkout");
+		}
+	}, []);
+
+	var customerID = JSON.parse(localStorage.getItem("user"))?.id;
+
+	// Get checkout items
+	useEffect(() => {
+		const fetchCheckoutItems = async () => {
+			try {
+				fetch(`${API_URL}cart`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${localStorage.getItem(
+							"auth_token"
+						)}`,
+					},
+					body: JSON.stringify({
+						customer_id: customerID,
+					}),
+				})
+					.then((response) => {
+						if (!response.ok) {
+							showSnackbar("Failed to fetch checkout items", "error");
+							throw new Error("Failed to fetch checkout items");
+						}
+
+						return response.json();
+					})
+					.then((data) => {
+						// console.log(data);
+						setCheckoutItems(data.cart_items);
+					})
+					.catch((error) => {
+						console.error(error);
+						showSnackbar("Failed to fetch checkout items", "error");
+					});
+			} catch (error) {
+				console.error("Error fetching checkout items:", error);
+				showSnackbar("Error fetching checkout items", "error");
+			}
+		};
+		fetchCheckoutItems();
+	}, []);
+
+	// Get customer data
+	useEffect(() => {
+		const fetchCustomerData = async () => {
+			try {
+				const response = await fetch(`${API_URL}user/profile`, {
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+					},
+				});
+				if (response.success === false || !response.ok) {
+					showSnackbar("Failed to fetch customer data", "error");
+					throw new Error("Failed to fetch customer data");
+				}
+				const data = await response.json();
+				setCustomerData(data.user);
+			} catch (error) {
+				console.error("Error fetching customer data:", error);
+				showSnackbar("Error fetching customer data", "error");
+			}
+		};
+		fetchCustomerData();
+	}, [customerID]);
+
+
+	// Calculate totals
+	const subtotal = checkoutItems.reduce(
+		(sum, item) =>
+			sum +
+			(item?.discount_price > 0
+				? item?.discount_price
+				: item?.item_price) *
+				item.quantity,
+		0
+	);
+	const tax = subtotal * 0.1; // 10% tax
+	const shipping = 4.99; // Default shipping
+	const total = subtotal + tax + shipping;
+
+	// Validation functions for each step
+	const validateStep1 = () => {
+		const name = document.getElementById('name')?.value?.trim();
+		const email = document.getElementById('email')?.value?.trim();
+		const phone = document.getElementById('phone')?.value?.trim();
+
+		if (!name) {
+			showSnackbar('Please enter your name', 'error');
+			document.getElementById('name')?.focus();
+			return false;
+		}
+
+		if (!email) {
+			showSnackbar('Please enter your email address', 'error');
+			document.getElementById('email')?.focus();
+			return false;
+		}
+
+		// Basic email validation
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(email)) {
+			showSnackbar('Please enter a valid email address', 'error');
+			document.getElementById('email')?.focus();
+			return false;
+		}
+
+		if (!phone) {
+			showSnackbar('Please enter your phone number', 'error');
+			document.getElementById('phone')?.focus();
+			return false;
+		}
+
+		// Save customer data
+		setCustomerData({ name, email, phone });
+		return true;
+	};
+
+	const validateStep2 = () => {
+		const address = document.getElementById('address')?.value?.trim();
+		const city = document.getElementById('city')?.value?.trim();
+		const state = document.getElementById('state')?.value?.trim();
+		const zip = document.getElementById('zip')?.value?.trim();
+		const country = document.getElementById('country')?.value;
+
+		if (!address) {
+			showSnackbar('Please enter your street address', 'error');
+			document.getElementById('address')?.focus();
+			return false;
+		}
+
+		if (!city) {
+			showSnackbar('Please enter your city', 'error');
+			document.getElementById('city')?.focus();
+			return false;
+		}
+
+		if (!state) {
+			showSnackbar('Please enter your state/province', 'error');
+			document.getElementById('state')?.focus();
+			return false;
+		}
+
+		if (!zip) {
+			showSnackbar('Please enter your ZIP/postal code', 'error');
+			document.getElementById('zip')?.focus();
+			return false;
+		}
+
+		if (!country) {
+			showSnackbar('Please select your country', 'error');
+			document.getElementById('country')?.focus();
+			return false;
+		}
+
+		// Save shipping data
+		const apartment = document.getElementById('apartment')?.value?.trim();
+		setShippingData({ address, apartment, city, state, zip, country });
+		return true;
+	};
+
+	const validateStep3 = () => {
+		const paymentMethod = document.querySelector('input[name="payment-method"]:checked')?.id;
+
+		if (!paymentMethod) {
+			showSnackbar('Please select a payment method', 'error');
+			return false;
+		}
+
+		// If credit card is selected, validate card details
+		if (paymentMethod === 'credit-card') {
+			const cardNumber = document.getElementById('card-number')?.value?.trim();
+			const expiry = document.getElementById('expiry')?.value?.trim();
+			const cvv = document.getElementById('cvv')?.value?.trim();
+			const cardName = document.getElementById('card-name')?.value?.trim();
+
+			if (!cardNumber) {
+				showSnackbar('Please enter your card number', 'error');
+				document.getElementById('card-number')?.focus();
+				return false;
+			}
+
+			// Basic card number validation (remove spaces)
+			const cleanCardNumber = cardNumber.replace(/\s/g, '');
+			if (cleanCardNumber.length < 13 || cleanCardNumber.length > 19) {
+				showSnackbar('Please enter a valid card number', 'error');
+				document.getElementById('card-number')?.focus();
+				return false;
+			}
+
+			if (!expiry) {
+				showSnackbar('Please enter the card expiration date', 'error');
+				document.getElementById('expiry')?.focus();
+				return false;
+			}
+
+			// Basic expiry validation (MM/YY format)
+			const expiryRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
+			if (!expiryRegex.test(expiry)) {
+				showSnackbar('Please enter expiry date in MM/YY format', 'error');
+				document.getElementById('expiry')?.focus();
+				return false;
+			}
+
+			if (!cvv) {
+				showSnackbar('Please enter the CVV security code', 'error');
+				document.getElementById('cvv')?.focus();
+				return false;
+			}
+
+			if (cvv.length < 3 || cvv.length > 4) {
+				showSnackbar('Please enter a valid CVV (3-4 digits)', 'error');
+				document.getElementById('cvv')?.focus();
+				return false;
+			}
+
+			if (!cardName) {
+				showSnackbar('Please enter the name on the card', 'error');
+				document.getElementById('card-name')?.focus();
+				return false;
+			}
+
+			// Save payment data (in real app, don't store full card details)
+			setPaymentData({
+				method: 'credit-card',
+				cardLast4: cleanCardNumber.slice(-4),
+				cardName
+			});
+		} else {
+			// For other payment methods
+			setPaymentData({ method: paymentMethod });
+		}
+
+		return true;
+	};
+
+	const validateStep4 = () => {
+		const termsAccepted = document.getElementById('terms')?.checked;
+
+		if (!termsAccepted) {
+			showSnackbar('Please accept the terms and conditions to continue', 'error');
+			document.getElementById('terms')?.focus();
+			return false;
+		}
+
+		return true;
+	};
+
+	// Navigate to specific step
+	const goToStep = (stepNumber) => {
+		// Validate current step before moving forward
+		if (stepNumber > currentStep) {
+			let isValid = true;
+
+			// Validate all previous steps
+			for (let i = currentStep; i < stepNumber; i++) {
+				if (i === 1 && !validateStep1()) {
+					isValid = false;
+					break;
+				} else if (i === 2 && !validateStep2()) {
+					isValid = false;
+					break;
+				} else if (i === 3 && !validateStep3()) {
+					isValid = false;
+					break;
+				}
+			}
+
+			if (!isValid) return;
+		}
+
+		// Update UI
+		setCurrentStep(stepNumber);
+
+		// Update step indicators
+		document.querySelectorAll('.step').forEach((step, index) => {
+			const stepNum = index + 1;
+			if (stepNum < stepNumber) {
+				step.classList.add('completed');
+				step.classList.remove('active');
+			} else if (stepNum === stepNumber) {
+				step.classList.add('active');
+				step.classList.remove('completed');
+			} else {
+				step.classList.remove('active', 'completed');
+			}
+		});
+
+		// Show/hide forms
+		document.querySelectorAll('.checkout-form').forEach((form, index) => {
+			const formNum = index + 1;
+			if (formNum === stepNumber) {
+				form.classList.add('active');
+			} else {
+				form.classList.remove('active');
+			}
+		});
+
+		// Update review section if moving to step 4
+		if (stepNumber === 4) {
+			updateReviewSection();
+		}
+
+		// Scroll to top of checkout section
+		document.getElementById('checkout')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	};
+
+	// Update review section with collected data
+	const updateReviewSection = () => {
+		if (customerData) {
+			document.querySelector('.review-name').textContent = customerData.name || '';
+			document.querySelector('.review-email').textContent = customerData.email || '';
+			document.querySelector('.review-phone').textContent = customerData.phone || '';
+		}
+
+		if (shippingData) {
+			const shippingContent = document.querySelectorAll('.review-section-content')[1];
+			if (shippingContent) {
+				shippingContent.innerHTML = `
+					<p>${shippingData.address}${shippingData.apartment ? ', ' + shippingData.apartment : ''}</p>
+					<p>${shippingData.city}, ${shippingData.state} ${shippingData.zip}</p>
+					<p>${document.querySelector(`option[value="${shippingData.country}"]`)?.textContent || shippingData.country}</p>
+				`;
+			}
+		}
+
+		if (paymentData) {
+			const paymentContent = document.querySelectorAll('.review-section-content')[2];
+			if (paymentContent) {
+				if (paymentData.method === 'credit-card') {
+					paymentContent.innerHTML = `
+						<p><i class="bi bi-credit-card-2-front me-2"></i> Credit Card ending in ${paymentData.cardLast4}</p>
+					`;
+				} else if (paymentData.method === 'paypal') {
+					paymentContent.innerHTML = `
+						<p><i class="bi bi-paypal me-2"></i> PayPal</p>
+					`;
+				} else if (paymentData.method === 'apple-pay') {
+					paymentContent.innerHTML = `
+						<p><i class="bi bi-apple me-2"></i> Apple Pay</p>
+					`;
+				}
+			}
+		}
+	};
+
+	// Handle next button click
+	const handleNext = (nextStep) => {
+		goToStep(nextStep);
+	};
+
+	// Handle previous button click
+	const handlePrev = (prevStep) => {
+		goToStep(prevStep);
+	};
+
+	// Handle edit button click in review section
+	const handleEdit = (stepToEdit) => {
+		goToStep(stepToEdit);
+	};
+
+	// Handle form submission
+	const handlePlaceOrder = (e) => {
+		e.preventDefault();
+
+		// Validate final step
+		if (!validateStep4()) {
+			return;
+		}
+
+		// TODO: Implement order placement logic here
+		// This would typically send data to your backend API
+
+		console.log('Order Data:', {
+			customer: customerData,
+			shipping: shippingData,
+			payment: paymentData,
+			items: checkoutItems,
+			totals: { subtotal, tax, shipping, total }
+		});
+
+		// Show success message
+		const successMessage = document.querySelector('.success-message');
+		if (successMessage) {
+			successMessage.classList.remove('d-none');
+			
+			// Hide place order button
+			const placeOrderBtn = document.querySelector('.place-order-btn');
+			if (placeOrderBtn) {
+				placeOrderBtn.disabled = true;
+				placeOrderBtn.textContent = 'Order Placed';
+			}
+
+			showSnackbar('Order placed successfully! Thank you for your purchase.', 'success');
+
+			// Redirect to order confirmation page after 3 seconds
+			setTimeout(() => {
+				navigate('/order-confirmation');
+			}, 3000);
+		}
+	};
+
+	// Setup event listeners after component mounts
+	useEffect(() => {
+		// Next buttons
+		document.querySelectorAll('.next-step').forEach(btn => {
+			btn.addEventListener('click', (e) => {
+				const nextStep = parseInt(e.target.getAttribute('data-next'));
+				handleNext(nextStep);
+			});
+		});
+
+		// Previous buttons
+		document.querySelectorAll('.prev-step').forEach(btn => {
+			btn.addEventListener('click', (e) => {
+				const prevStep = parseInt(e.target.getAttribute('data-prev'));
+				handlePrev(prevStep);
+			});
+		});
+
+		// Edit buttons
+		document.querySelectorAll('.btn-edit').forEach(btn => {
+			btn.addEventListener('click', (e) => {
+				const stepToEdit = parseInt(e.target.getAttribute('data-edit'));
+				handleEdit(stepToEdit);
+			});
+		});
+
+		// Payment method radio buttons
+		document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
+			radio.addEventListener('change', (e) => {
+				// Hide all payment method bodies
+				document.querySelectorAll('.payment-method-body').forEach(body => {
+					body.classList.add('d-none');
+				});
+
+				// Show selected payment method body
+				const selectedMethod = e.target.closest('.payment-method');
+				const methodBody = selectedMethod?.querySelector('.payment-method-body');
+				if (methodBody && e.target.id === 'credit-card') {
+					methodBody.classList.remove('d-none');
+				}
+
+				// Update active class
+				document.querySelectorAll('.payment-method').forEach(method => {
+					method.classList.remove('active');
+				});
+				selectedMethod?.classList.add('active');
+			});
+		});
+
+		// Place order form submission
+		const reviewForm = document.querySelector('[data-form="4"] form');
+		if (reviewForm) {
+			reviewForm.addEventListener('submit', handlePlaceOrder);
+		}
+
+		// Cleanup event listeners
+		return () => {
+			document.querySelectorAll('.next-step, .prev-step, .btn-edit').forEach(btn => {
+				btn.replaceWith(btn.cloneNode(true));
+			});
+		};
+	}, [currentStep, customerData, shippingData, paymentData, checkoutItems]);
+
+	return (
+		<section id="checkout" className="checkout section">
+
+      <div className="container aos-init aos-animate" data-aos="fade-up" data-aos-delay="100">
+
+        <div className="row">
+          <div className="col-lg-8">
+            {/* Checkout Steps */}
+            <div className="checkout-steps mb-4 aos-init aos-animate" data-aos="fade-up">
+              <div className="step active" data-step="1">
+                <div className="step-number">1</div>
+                <div className="step-title">Information</div>
+              </div>
+              <div className="step-connector"></div>
+              <div className="step" data-step="2">
+                <div className="step-number">2</div>
+                <div className="step-title">Shipping</div>
+              </div>
+              <div className="step-connector"></div>
+              <div className="step" data-step="3">
+                <div className="step-number">3</div>
+                <div className="step-title">Payment</div>
+              </div>
+              <div className="step-connector"></div>
+              <div className="step" data-step="4">
+                <div className="step-number">4</div>
+                <div className="step-title">Review</div>
+              </div>
+            </div>
+
+            {/* Checkout Forms Container */}
+            <div className="checkout-forms aos-init aos-animate" data-aos="fade-up" data-aos-delay="150">
+              {/* Step 1: Customer Information */}
+              <div className="checkout-form active" data-form="1">
+                <div className="form-header">
+                  <h3>Customer Information</h3>
+                  <p>Please enter your contact details</p>
+                </div>
+                <form className="checkout-form-element">
+                  <div className="form-group mt-3">
+                    <label htmlFor="name">Name</label>
+                    <input type="text" name="name" className="form-control" id="name" placeholder="Your Name" required="" value={customerData?.name || ''} />
+                  </div>
+                  <div className="form-group mt-3">
+                    <label htmlFor="email">Email Address</label>
+                    <input type="email" className="form-control" name="email" id="email" placeholder="Your Email" required="" value={customerData?.email || ''} />
+                  </div>
+                  <div className="form-group mt-3">
+                    <label htmlFor="phone">Phone Number</label>
+                    <input type="tel" className="form-control" name="phone" id="phone" placeholder="Your Phone Number" required="" value={customerData?.phone || ''} />
+                  </div>
+                  <div className="text-end mt-4">
+                    <button type="button" className="btn btn-primary next-step" data-next="2">Continue to Shipping</button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Step 2: Shipping Address */}
+              <div className="checkout-form" data-form="2">
+                <div className="form-header">
+                  <h3>Shipping Address</h3>
+                  <p>Where should we deliver your order?</p>
+                </div>
+                <form className="checkout-form-element">
+                  <div className="form-group">
+                    <label htmlFor="address">Street Address</label>
+                    <input type="text" className="form-control" name="address" id="address" placeholder="Street Address" required="" />
+                  </div>
+                  <div className="form-group mt-3">
+                    <label htmlFor="apartment">Apartment, Suite, etc. (optional)</label>
+                    <input type="text" className="form-control" name="apartment" id="apartment" placeholder="Apartment, Suite, Unit, etc." />
+                  </div>
+                  <div className="row mt-3">
+                    <div className="col-md-4 form-group">
+                      <label htmlFor="city">City</label>
+                      <input type="text" name="city" className="form-control" id="city" placeholder="City" required="" />
+                    </div>
+                    <div className="col-md-4 form-group mt-3 mt-md-0">
+                      <label htmlFor="state">State</label>
+                      <input type="text" name="state" className="form-control" id="state" placeholder="State" required="" />
+                    </div>
+                    <div className="col-md-4 form-group mt-3 mt-md-0">
+                      <label htmlFor="zip">ZIP Code</label>
+                      <input type="text" name="zip" className="form-control" id="zip" placeholder="ZIP Code" required="" />
+                    </div>
+                  </div>
+                  <div className="form-group mt-3">
+                    <label htmlFor="country">Country</label>
+                    <select className="form-select" id="country" name="country" required="">
+                      <option value="">Select Country</option>
+                      <option value="US">United States</option>
+                      <option value="CA">Canada</option>
+                      <option value="UK">United Kingdom</option>
+                      <option value="AU">Australia</option>
+                      <option value="DE">Germany</option>
+                      <option value="FR">France</option>
+                    </select>
+                  </div>
+                  <div className="form-check mt-3">
+                    <input className="form-check-input" type="checkbox" id="save-address" name="save-address" />
+                    <label className="form-check-label" htmlFor="save-address">
+                      Save this address for future orders
+                    </label>
+                  </div>
+                  <div className="d-flex justify-content-between mt-4">
+                    <button type="button" className="btn btn-outline-secondary prev-step" data-prev="1">Back to Information</button>
+                    <button type="button" className="btn btn-primary next-step" data-next="3">Continue to Payment</button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Step 3: Payment Method */}
+              <div className="checkout-form" data-form="3">
+                <div className="form-header">
+                  <h3>Payment Method</h3>
+                  <p>Choose how you'd like to pay</p>
+                </div>
+                <form className="checkout-form-element">
+                  <div className="payment-methods">
+                    <div className="payment-method active">
+                      <div className="payment-method-header">
+                        <div className="form-check">
+                          <input className="form-check-input" type="radio" name="payment-method" id="credit-card" defaultChecked />
+                          <label className="form-check-label" htmlFor="credit-card">
+                            Credit / Debit Card
+                          </label>
+                        </div>
+                        <div className="payment-icons">
+                          <i className="bi bi-credit-card-2-front"></i>
+                          <i className="bi bi-credit-card"></i>
+                        </div>
+                      </div>
+                      <div className="payment-method-body">
+                        <div className="row">
+                          <div className="col-12 form-group">
+                            <label htmlFor="card-number">Card Number</label>
+                            <input type="text" className="form-control" name="card-number" id="card-number" placeholder="1234 5678 9012 3456" required="" />
+                          </div>
+                        </div>
+                        <div className="row mt-3">
+                          <div className="col-md-6 form-group">
+                            <label htmlFor="expiry">Expiration Date</label>
+                            <input type="text" className="form-control" name="expiry" id="expiry" placeholder="MM/YY" required="" />
+                          </div>
+                          <div className="col-md-6 form-group mt-3 mt-md-0">
+                            <label htmlFor="cvv">Security Code (CVV)</label>
+                            <input type="text" className="form-control" name="cvv" id="cvv" placeholder="123" required="" />
+                          </div>
+                        </div>
+                        <div className="form-group mt-3">
+                          <label htmlFor="card-name">Name on Card</label>
+                          <input type="text" className="form-control" name="card-name" id="card-name" placeholder="John Doe" required="" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="payment-method mt-3">
+                      <div className="payment-method-header">
+                        <div className="form-check">
+                          <input className="form-check-input" type="radio" name="payment-method" id="paypal" />
+                          <label className="form-check-label" htmlFor="paypal">
+                            PayPal
+                          </label>
+                        </div>
+                        <div className="payment-icons">
+                          <i className="bi bi-paypal"></i>
+                        </div>
+                      </div>
+                      <div className="payment-method-body d-none">
+                        <p>You will be redirected to PayPal to complete your purchase securely.</p>
+                      </div>
+                    </div>
+
+                    <div className="payment-method mt-3">
+                      <div className="payment-method-header">
+                        <div className="form-check">
+                          <input className="form-check-input" type="radio" name="payment-method" id="apple-pay" />
+                          <label className="form-check-label" htmlFor="apple-pay">
+                            Apple Pay
+                          </label>
+                        </div>
+                        <div className="payment-icons">
+                          <i className="bi bi-apple"></i>
+                        </div>
+                      </div>
+                      <div className="payment-method-body d-none">
+                        <p>You will be prompted to authorize payment with Apple Pay.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="d-flex justify-content-between mt-4">
+                    <button type="button" className="btn btn-outline-secondary prev-step" data-prev="2">Back to Shipping</button>
+                    <button type="button" className="btn btn-primary next-step" data-next="4">Review Order</button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Step 4: Order Review */}
+              <div className="checkout-form" data-form="4">
+                <div className="form-header">
+                  <h3>Review Your Order</h3>
+                  <p>Please review your information before placing your order</p>
+                </div>
+                <form className="checkout-form-element">
+                  <div className="review-sections">
+                    <div className="review-section">
+                      <div className="review-section-header">
+                        <h4>Contact Information</h4>
+                        <button type="button" className="btn-edit" data-edit="1">Edit</button>
+                      </div>
+                      <div className="review-section-content">
+                        <p className="review-name">John Doe</p>
+                        <p className="review-email">johndoe@example.com</p>
+                        <p className="review-phone">+1 (555) 123-4567</p>
+                      </div>
+                    </div>
+
+                    <div className="review-section mt-3">
+                      <div className="review-section-header">
+                        <h4>Shipping Address</h4>
+                        <button type="button" className="btn-edit" data-edit="2">Edit</button>
+                      </div>
+                      <div className="review-section-content">
+                        <p>123 Main Street, Apt 4B</p>
+                        <p>New York, NY 10001</p>
+                        <p>United States</p>
+                      </div>
+                    </div>
+
+                    <div className="review-section mt-3">
+                      <div className="review-section-header">
+                        <h4>Payment Method</h4>
+                        <button type="button" className="btn-edit" data-edit="3">Edit</button>
+                      </div>
+                      <div className="review-section-content">
+                        <p><i className="bi bi-credit-card-2-front me-2"></i> Credit Card ending in 3456</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="form-check mt-4">
+                    <input className="form-check-input" type="checkbox" id="terms" name="terms" required="" />
+                    <label className="form-check-label" htmlFor="terms">
+                      I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a> and <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
+                    </label>
+                  </div>
+                  <div className="success-message d-none">Your order has been placed successfully! Thank you for your purchase.</div>
+                  <div className="d-flex justify-content-between mt-4">
+                    <button type="button" className="btn btn-outline-secondary prev-step" data-prev="3">Back to Payment</button>
+                    <button type="submit" className="btn btn-success place-order-btn">Place Order</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-lg-4">
+            {/* Order Summary */}
+            <div className="order-summary aos-init aos-animate" data-aos="fade-left" data-aos-delay="200">
+              <div className="order-summary-header">
+                <h3>Order Summary</h3>
+                <button type="button" className="btn-toggle-summary d-lg-none">
+                  <i className="bi bi-chevron-down"></i>
+                </button>
+              </div>
+
+              <div className="order-summary-content">
+                <div className="order-items">
+                  {checkoutItems.map((item, index) => (
+                    <div className="order-item" key={index}>
+                      <div className="order-item-image">
+                        <img src={BACKEND_URL + item.main_image} alt={item.name} className="img-fluid" />
+                      </div>
+                      <div className="order-item-details">
+                        <h4>{item.name}</h4>
+                        <div className="order-item-price">
+                          <span className="quantity">{item.quantity} ×</span>
+                          <span className="price">
+                            {formatCurrency(
+                              item.discount_price > 0 ? item.discount_price : item.item_price
+                            )}
+                          </span>
+                          <span> = </span>
+                          <span className="price text-end">
+                            {item?.discount_price > 0 
+                              ? formatCurrency(item.discount_price * item.quantity) 
+                              : formatCurrency(item.item_price * item.quantity)
+                            }
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="order-totals">
+                  <div className="order-subtotal d-flex justify-content-between">
+                    <span>Subtotal</span>
+                    <span>{formatCurrency(subtotal)}</span>
+                  </div>
+                  <div className="order-shipping d-flex justify-content-between">
+                    <span>Shipping</span>
+                    <span>{formatCurrency(shipping)}</span>
+                  </div>
+                  <div className="order-tax d-flex justify-content-between">
+                    <span>Tax</span>
+                    <span>{formatCurrency(tax)}</span>
+                  </div>
+                  <div className="order-total d-flex justify-content-between">
+                    <span>Total</span>
+                    <span>{formatCurrency(total)}</span>
+                  </div>
+                </div>
+
+                <div className="promo-code mt-3">
+                  <div className="input-group">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Promo Code"
+                      aria-label="Promo Code"
+                    />
+                    <button className="btn btn-outline-primary" type="button">
+                      Apply
+                    </button>
+                  </div>
+                </div>
+
+                <div className="secure-checkout mt-4">
+                  <div className="secure-checkout-header">
+                    <i className="bi bi-shield-lock"></i>
+                    <span>Secure Checkout</span>
+                  </div>
+                  <div className="payment-icons mt-2">
+                    <i className="bi bi-credit-card-2-front"></i>
+                    <i className="bi bi-credit-card"></i>
+                    <i className="bi bi-paypal"></i>
+                    <i className="bi bi-apple"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Terms and Privacy Modals */}
+        <div className="modal fade" id="termsModal" tabIndex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+          <div className="modal-dialog modal-dialog-scrollable">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div className="modal-body">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor.</p>
+                <p>Suspendisse in orci enim. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor.</p>
+                <p>Suspendisse in orci enim. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor.</p>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-primary" data-bs-dismiss="modal">I Understand</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="modal fade" id="privacyModal" tabIndex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+          <div className="modal-dialog modal-dialog-scrollable">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id="privacyModalLabel">Privacy Policy</h5>
+                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div className="modal-body">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim.</p>
+                <p>Suspendisse in orci enim. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor.</p>
+                <p>Suspendisse in orci enim. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor.</p>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-primary" data-bs-dismiss="modal">I Understand</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+	);
+}
+
+export default Checkout;
