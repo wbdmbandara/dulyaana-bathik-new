@@ -30,6 +30,7 @@ Route::post('/users/delete/{id}', [UserController::class, 'delete']);
 
 Route::get('/sarees', [ItemsController::class, 'index']);
 Route::get('/new-saree', [ItemsController::class, 'create']);
+Route::get('/sarees/details/{id}', [ItemsController::class, 'getDetails']);
 Route::post('/sarees/new', [ItemsController::class, 'store']);
 Route::get('/edit-saree/{id}', [ItemsController::class, 'edit']);
 Route::post('/sarees/update/{id}', [ItemsController::class, 'update']);

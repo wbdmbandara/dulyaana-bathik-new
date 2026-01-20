@@ -958,4 +958,33 @@ class ItemsController extends Controller
         ]);
     }
 
+    public function getDetails($id)
+    {
+        try {
+            if (!Auth::check()) {
+                return redirect('/');
+            }
+
+            $item = $this->item->where('item_id', $id)->first();
+            if (!$item) {
+                return redirect()->back()->with('error', 'Item not found.');
+            }
+
+            $additionalImages = $this->itemImages->where('item_id', $item->item_id)->pluck('image_path')->toArray();
+            $videos = $this->itemVideos->where('item_id', $item->item_id)->pluck('video_url')->toArray();
+
+            return response()->json([
+                'success' => true,
+                'item' => $item,
+                'additional_images' => $additionalImages,
+                'videos' => $videos
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching item details: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 }

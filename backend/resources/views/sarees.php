@@ -77,7 +77,7 @@
                                     <tr>
                                         <th class="text-center" scope="row"><?= $index + 1 ?></th>
                                         <td class="text-center">
-                                            <img src="<?= htmlspecialchars($saree['main_image']) ?>" alt="" class="img-fluid" style="max-height: 150px;">
+                                            <img src="<?= htmlspecialchars($saree['main_image']) ?>" alt="" class="img-fluid" style="max-height: 50px;" onclick="viewSareeImage('<?= htmlspecialchars($saree['name']) ?>', '<?= htmlspecialchars($saree['main_image']) ?>')">
                                         </td>
                                         <td><?= htmlspecialchars($saree['name']) ?></td>
                                         <td><?= htmlspecialchars($saree['category_name']) ?></td>
@@ -85,9 +85,10 @@
                                         <td class="text-center"><?= htmlspecialchars($saree['quantity']) ?></td>
                                         <td class="text-center"><?= htmlspecialchars($saree['price']) ?></td>
                                         <td class="text-center"><?= htmlspecialchars($saree['discount_price']) ?></td>
-                                        <td class="text-center d-flex flex-column gap-2">
-                                            <a href="/edit-saree/<?= $saree['item_id'] ?>" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i> Edit </a>
-                                            <button class="btn btn-sm btn-danger deletebtn" onclick="deleteSaree(<?= $saree['item_id'] . ',\'' . $saree['name'] . '\'' ?>)"><i class="bi bi-trash"></i> Delete</button>
+                                        <td class="text-center gap-2">
+                                            <a href="<?= env('FRONTEND_URL') ?>/product/<?= $saree['url'] ?>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-info"><i class="bi bi-box-arrow-up-right"></i></a>
+                                            <a href="/edit-saree/<?= $saree['item_id'] ?>" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
+                                            <button class="btn btn-sm btn-danger deletebtn" onclick="deleteSaree(<?= $saree['item_id'] . ',\'' . $saree['name'] . '\'' ?>)"><i class="bi bi-trash"></i></button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -102,6 +103,30 @@
 
     </main><!-- End #main -->
 
+    <!-- viewSareeImage -->
+    <div class="modal fade" id="viewSareeImage" tabindex="-1" aria-labelledby="viewSareeImageLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewSareeImageLabel">Saree Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="sareeDetailsContent">
+                        <!-- Saree details will be loaded here via AJAX -->
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <?php
     include_once 'common/footer.php';
@@ -159,5 +184,18 @@
                 });
             }
         });
+    }
+
+    // viewSareeImage
+    function viewSareeImage(sareeName, sareeImageUrl) {
+        const modalTitle = document.getElementById('viewSareeImageLabel');
+        const modalBody = document.getElementById('sareeDetailsContent');
+
+        modalTitle.textContent = sareeName + ' - Image Preview';
+        modalBody.innerHTML = `<div class="text-center">
+                                    <img src="${sareeImageUrl}" alt="${sareeName}" class="img-fluid" style="max-height: 400px;">
+                               </div>`;
+        const viewSareeModal = new bootstrap.Modal(document.getElementById('viewSareeImage'));
+        viewSareeModal.show();
     }
 </script>
