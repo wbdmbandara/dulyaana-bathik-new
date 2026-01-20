@@ -202,7 +202,7 @@ class ItemsController extends Controller
                 'price' => 'required|numeric',
                 'discount_price' => 'nullable|numeric',
                 'quantity' => 'required|integer',
-                'url' => 'required|string|max:255|unique:items,url',
+                'url' => 'required|string|max:255',
                 'fabric' => 'nullable|string|max:255',
                 'pattern' => 'nullable|string|max:255',
                 'saree_work' => 'nullable|string|max:255',
@@ -226,13 +226,18 @@ class ItemsController extends Controller
                 'quantity.required' => 'The quantity is required.',
                 'quantity.integer' => 'The quantity must be a whole number.',
                 'url.required' => 'The URL is required.',
-                'url.unique' => 'This URL already exists.',
+                // 'url.unique' => 'This URL already exists.',
                 'status.required' => 'The status is required.',
                 'category.required' => 'Please select a category.',
                 'category.exists' => 'The selected category is invalid.',
             ];
 
             $validatedData = $request->validate($rules, $messages);
+
+            $existingItem = $this->item->where('url', $validatedData['url'])->first();
+            if ($existingItem) {
+                $validatedData['url'] = $validatedData['url'] . '_' . ($existingItem->count + 1);
+            }
 
             // Move main image from temp to permanent location
             if (session()->has('temp_image')) {

@@ -102,7 +102,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="row mb-2">
+                            <div class="row mb-2 d-none">
                                 <div class="col-6">
                                     <label for="fabric" class="form-label">Fabric</label>
                                     <input type="text" class="form-control" id="fabric" name="fabric" value="<?= old('fabric') ?>">
@@ -116,7 +116,7 @@
                                 <label for="saree_work" class="form-label">Saree Work</label>
                                 <input type="text" class="form-control" id="saree_work" name="saree_work" value="<?= old('saree_work') ?>">
                             </div>
-                            <div class="row mb-2">
+                            <div class="row mb-2 d-none">
                                 <div class="col-4">
                                     <label for="saree_length" class="form-label">Saree Length</label>
                                     <input type="text" class="form-control" id="saree_length" name="saree_length" value="<?= old('saree_length') ?>">
@@ -138,13 +138,13 @@
                                 <label for="occasion" class="form-label">Occasion</label>
                                 <input type="text" class="form-control" id="occasion" name="occasion" value="<?= old('occasion') ?>">
                             </div>
-                            <div class="mb-2">
+                            <div class="mb-2 d-none">
                                 <label for="wash_care" class="form-label">Wash Care</label>
                                 <input type="text" class="form-control" id="wash_care" name="wash_care" value="<?= old('wash_care') ?>">
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-2">
+                            <div class="mb-2 d-none">
                                 <label for="url" class="form-label">URL Slug</label>
                                 <input type="text" class="form-control" id="url" name="url" required value="<?= old('url') ?>">
                             </div>
