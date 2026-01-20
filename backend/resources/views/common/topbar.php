@@ -169,6 +169,13 @@
 
         </li><!-- End Messages Nav -->
 
+        <!-- view website button -->
+        <li class="nav-item">
+          <a class="btn btn-primary me-3" href="<?php echo e(env('FRONTEND_URL')); ?>" target="_blank">
+            <i class="bi bi-globe"></i> View Website
+          </a>
+        </li>
+
         <li class="nav-item dropdown pe-3">
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
