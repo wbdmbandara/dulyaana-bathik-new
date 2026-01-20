@@ -10,8 +10,11 @@ use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SliderController;
+use App\Http\Controllers\ThemeController;
 
 Route::middleware('api')->group(function () {
+    Route::get('/theme-settings', [ThemeController::class, 'getThemeSettings']);
+
     Route::get('/getSlider', [SliderController::class, 'displaySlides']);
     Route::get('/getPromoCards', [PromoCardsController::class, 'getPromoCards']);
     Route::get('/getRecentProducts', [ItemsController::class, 'getRecentProducts']);

@@ -93,7 +93,7 @@ const SnackbarUI = ({ snack, onClose }) => {
 				maxWidth: "90%",
 				backgroundColor: currentStyle.backgroundColor,
 				borderLeft: "8px solid",
-				borderColor: "#8c0d4f",
+				borderColor: "var(--accent-color)",
 				animation: "slideUp 0.3s ease-out",
 			}}
 		>

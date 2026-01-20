@@ -13064,7 +13064,7 @@ section,
 div .prod-category{
   z-index: 3;
   width: fit-content;
-  background-color: #8c0d4f;
+  background-color: var(--accent-color);
   color: #ffffff;
   font-size: 0.7rem;
   font-weight: 600;
