@@ -73,8 +73,8 @@
         </a>
         <ul id="appearance-nav" class="nav-content <?php if($active != 'appearance'){echo 'collapse';} ?>" data-bs-parent="#sidebar-nav">
           <li>
-            <a href="/theme-colors" class="<?php if($subMenu == 'theme-colors'){echo 'active';} ?>">
-              <i class="bi bi-circle"></i><span>Theme Colors</span>
+            <a href="/theme-settings" class="<?php if($subMenu == 'theme-settings'){echo 'active';} ?>">
+              <i class="bi bi-circle"></i><span>Theme Settings</span>
             </a>
           </li>
           <li>

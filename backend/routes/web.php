@@ -12,6 +12,7 @@ use App\Http\Controllers\FooterController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\PromoCardsController;
 use App\Http\Controllers\SliderController;
+use App\Http\Controllers\ThemeController;
 use Inertia\Inertia;
 
 Route::get('/', [UserController::class, 'showLogin']);
@@ -66,6 +67,9 @@ Route::post('/update-email-settings', [EmailSettingController::class, 'update'])
 
 Route::get('/footer', [FooterController::class, 'index']);
 Route::post('/footer/save', [FooterController::class, 'store']);
+
+Route::get('/theme-settings', [ThemeController::class, 'index']);
+Route::post('/theme-settings/update', [ThemeController::class, 'updateThemeSettings']);
 
 // Route::get('/', function () {
 //     return Inertia::render('Welcome', [
