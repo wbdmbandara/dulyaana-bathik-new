@@ -257,6 +257,8 @@ class ItemsController extends Controller
             $validatedData['added_by'] = Auth::id();
             $item = $this->item->create($validatedData);
 
+            $item = $this->item->where('item_id', $item->id)->first();
+
             // Move additional images from temp to permanent location and save to database
             if (session()->has('temp_additional_images')) {
                 $tempAdditionalImages = session('temp_additional_images');
@@ -314,6 +316,7 @@ class ItemsController extends Controller
                         $itemVideos[] = [
                             'item_id' => $item->item_id,
                             'video_url' => $path,
+                            'video_type' => 'local',
                             'created_at' => now(),
                             'updated_at' => now()
                         ];
@@ -321,6 +324,28 @@ class ItemsController extends Controller
                     $this->itemVideos->insert($itemVideos);
                 }
                 session()->forget('temp_videos');
+            }
+
+            // Process youtube_videos[]
+            if ($request->has('youtube_videos')) {
+                $youtubeVideosInput = $request->input('youtube_videos');
+                $youtubeVideos = is_array($youtubeVideosInput) ? explode(',', $youtubeVideosInput[0]) : []; // Split URLs by comma
+                $itemVideos = [];
+                foreach ($youtubeVideos as $youtubeUrl) {
+                    $youtubeUrl = trim($youtubeUrl); // Trim whitespace from each URL
+                    if (!empty($youtubeUrl)) {
+                        $itemVideos[] = [
+                            'item_id' => $item->item_id,
+                            'video_url' => $youtubeUrl,
+                            'video_type' => 'youtube',
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ];
+                    }
+                }
+                if (!empty($itemVideos)) {
+                    $this->itemVideos->insert($itemVideos);
+                }
             }
 
             // Clean up temp directory
