@@ -102,7 +102,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="row mb-2">
+                            <div class="row mb-2 d-none">
                                 <div class="col-6">
                                     <label for="fabric" class="form-label">Fabric</label>
                                     <input type="text" class="form-control" id="fabric" name="fabric" value="<?= old('fabric', $saree['fabric']) ?>">
@@ -116,7 +116,7 @@
                                 <label for="saree_work" class="form-label">Saree Work</label>
                                 <input type="text" class="form-control" id="saree_work" name="saree_work" value="<?= old('saree_work', $saree['saree_work']) ?>">
                             </div>
-                            <div class="row mb-2">
+                            <div class="row mb-2 d-none">
                                 <div class="col-4">
                                     <label for="saree_length" class="form-label">Saree Length</label>
                                     <input type="text" class="form-control" id="saree_length" name="saree_length" value="<?= old('saree_length', $saree['saree_length']) ?>">
@@ -138,7 +138,7 @@
                                 <label for="occasion" class="form-label">Occasion</label>
                                 <input type="text" class="form-control" id="occasion" name="occasion" value="<?= old('occasion', $saree['occasion']) ?>">
                             </div>
-                            <div class="mb-2">
+                            <div class="mb-2 d-none">
                                 <label for="wash_care" class="form-label">Wash Care</label>
                                 <input type="text" class="form-control" id="wash_care" name="wash_care" value="<?= old('wash_care', $saree['wash_care']) ?>">
                             </div>
@@ -264,6 +264,22 @@
                                 <div id="videosContainer"></div>
                                 <input class="form-control" type="file" id="videos" name="videos[]" accept="video/mp4,video/webm,video/ogg,video/avi,video/mov,video/wmv" multiple>
                                 <small class="text-muted">You can select up to 5 videos (MP4, WebM, OGG, AVI, MOV, WMV formats, max 50MB each)</small>
+                            </div>
+                            <div class="mb-2">
+                                <label for="youtubeVideos" class="form-label">YouTube Videos</label>
+                                <div class="alert alert-danger" id="youtubeVideosError" style="display:none;"></div>
+                                <div id="youtubeVideosContainer"></div>
+                                <textarea class="form-control" id="youtubeVideos" name="youtube_videos[]" placeholder="Enter YouTube video URLs, separated by commas" rows="5"><?php 
+                                    $oldYoutubeVideos = old('youtube_videos');
+                                    if (is_array($oldYoutubeVideos)) {
+                                        echo implode(', ', $oldYoutubeVideos);
+                                    } elseif ($oldYoutubeVideos) {
+                                        echo $oldYoutubeVideos;
+                                    } elseif (isset($youtube_videos) && is_array($youtube_videos)) {
+                                        echo implode(', ', $youtube_videos);
+                                    }
+                                ?></textarea>
+                                <small class="text-muted">You can add multiple YouTube video URLs, separated by commas</small>
                             </div>
                         </div>
                         <div class="text-center mt-3">
@@ -487,5 +503,71 @@
                 }
             }
         }
+    }
+
+    // YouTube Videos Input Handling
+    const youtubeVideosInput = document.getElementById('youtubeVideos');
+
+    if (youtubeVideosInput.value.trim() !== '') {
+        handleYouTubeVideosInput();
+    }
+
+    youtubeVideosInput.addEventListener('change', handleYouTubeVideosInput);
+    youtubeVideosInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter' || event.key === ',') {
+            handleYouTubeVideosInput();
+        }
+    });
+
+    function handleYouTubeVideosInput() {
+        const container = document.getElementById('youtubeVideosContainer');
+        const errorDiv = document.getElementById('youtubeVideosError');
+        errorDiv.style.display = 'none';
+        errorDiv.innerHTML = '';
+
+        const input = youtubeVideosInput;
+        const urls = input.value.split(',').map(url => url.trim()).filter(url => url.length > 0);
+        container.innerHTML = '';
+
+        const maxYoutubeVideos = 10;
+        if (urls.length > maxYoutubeVideos) {
+            errorDiv.innerHTML = `<div>You can only add up to ${maxYoutubeVideos} YouTube video URLs.</div>`;
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        urls.forEach(url => {
+            if (isValidYouTubeUrl(url)) {
+                const videoDiv = document.createElement('div');
+                videoDiv.className = 'mb-2 col-md-4';
+                videoDiv.innerHTML = `
+                    <div class="border rounded p-2">
+                        <iframe width="100%" height="150" src="${convertToEmbedUrl(url)}" frameborder="0" allowfullscreen></iframe>
+                        <small class="text-muted d-block mt-1">${url}</small>
+                    </div>
+                `;
+                container.appendChild(videoDiv);
+            } else {
+                errorDiv.innerHTML += `<div>Invalid YouTube URL: ${url}</div>`;
+                errorDiv.style.display = 'block';
+            }
+        });
+
+        container.className = 'row';
+    }
+
+    function isValidYouTubeUrl(url) {
+        const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+        return youtubeRegex.test(url);
+    }
+
+    function convertToEmbedUrl(url) {
+        let videoId;
+        if (url.includes('youtu.be')) {
+            videoId = url.split('/').pop().split('?')[0];
+        } else if (url.includes('youtube.com')) {
+            videoId = url.split('v=')[1]?.split('&')[0];
+        }
+        return videoId ? `https://www.youtube.com/embed/${videoId}` : '';
     }
 </script>

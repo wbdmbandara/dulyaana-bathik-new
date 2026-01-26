@@ -402,7 +402,8 @@ class ItemsController extends Controller
         $response['saree'] = $item;
         $response['categories'] = Categories::all();
         $response['additional_images'] = $this->itemImages->where('item_id', $id)->pluck('image_path')->toArray();
-        $response['videos'] = $this->itemVideos->where('item_id', $id)->pluck('video_url')->toArray();
+        $response['videos'] = $this->itemVideos->where('item_id', $id)->where('video_type', 'local')->pluck('video_url')->toArray();
+        $response['youtube_videos'] = $this->itemVideos->where('item_id', $id)->where('video_type', 'youtube')->pluck('video_url')->toArray();
         return view('edit-saree', $response);
     }
 
@@ -643,12 +644,35 @@ class ItemsController extends Controller
                     $itemVideos[] = [
                         'item_id' => $item->item_id,
                         'video_url' => $path,
+                        'video_type' => 'local',
                         'created_at' => now(),
                         'updated_at' => now()
                     ];
                 }
                 $this->itemVideos->insert($itemVideos);
             }
+            // process youtube_videos[]
+            if ($request->has('youtube_videos')) {
+                $youtubeVideosInput = $request->input('youtube_videos');
+                $youtubeVideos = is_array($youtubeVideosInput) ? explode(',', $youtubeVideosInput[0]) : []; // Split URLs by comma
+                $itemVideos = [];
+                foreach ($youtubeVideos as $youtubeUrl) {
+                    $youtubeUrl = trim($youtubeUrl); // Trim whitespace from each URL
+                    if (!empty($youtubeUrl)) {
+                        $itemVideos[] = [
+                            'item_id' => $item->item_id,
+                            'video_url' => $youtubeUrl,
+                            'video_type' => 'youtube',
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ];
+                    }
+                }
+                if (!empty($itemVideos)) {
+                    $this->itemVideos->insert($itemVideos);
+                }
+            }
+
             // Clean up temp directory
             $tempDir = public_path('assets/sarees/temp');
             if (is_dir($tempDir)) {
