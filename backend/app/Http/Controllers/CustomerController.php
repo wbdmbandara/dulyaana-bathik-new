@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\WelcomeMail;
 use App\Models\Customer;
+use App\Models\CustomerAddress;
 use App\Services\MailConfigService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,10 +18,12 @@ class CustomerController extends Controller
 {
     use HasApiTokens;
     protected $customer;
+    protected $customerAddress;
 
-    public function __construct(Customer $customer)
+    public function __construct(Customer $customer, CustomerAddress $customerAddress)
     {
         $this->customer = $customer;
+        $this->customerAddress = $customerAddress;
     }
     /**
      * Display a listing of the resource.
@@ -346,5 +349,51 @@ class CustomerController extends Controller
             'success' => false,
             'message' => 'Customer not found'
         ], 404);
+    }
+
+    public function addAddress(Request $request, $id)
+    {
+        try {
+            $customer = $this->customer->find($id);
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found'
+                ], 404);
+            }
+
+            $isDefault = $request->json('isDefault', false) ? 1 : 0;
+
+            // If this address is set as default, unset other default addresses for this customer
+            if ($isDefault) {
+                $this->customerAddress->where('customer_id', $id)->update(['is_default' => 0]);
+            }
+
+            $address = $this->customerAddress->create([
+                'full_name' => $request->json('fullName'),
+                'phone_number' => $request->json('phoneNumber'),
+                'customer_id' => $id,
+                'address_line1' => $request->json('addressLine1'),
+                'address_line2' => $request->json('addressLine2'),
+                'type' => $request->json('type'),
+                'city' => $request->json('city'),
+                'state' => $request->json('state'),
+                'postal_code' => $request->json('zipCode'),
+                'label' => $request->json('addressLabel'),
+                'is_default' => $isDefault,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Address added successfully',
+                'address' => $address
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to add address: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

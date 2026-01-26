@@ -43,6 +43,9 @@ Route::middleware('api')->group(function () {
     // getting customer details
     // Route::get('/customers/{id}', [CustomerController::class, 'getCustomerDetails']);
 
+    // Customer Profile Management
+    Route::post('/customerNewAddress/{id}', [CustomerController::class, 'addAddress']);
+
 });
 
 // Protected routes that require authentication token

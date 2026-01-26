@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 function Profile(){
     const [user, setUser] = useState(null);
+    const [newAddress, setNewAddress] = useState(null);
     const [formErrors, setFormErrors] = useState({});
     const [successMsg, setSuccessMsg] = useState({});
     const navigate = useNavigate();
@@ -30,6 +31,7 @@ function Profile(){
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
                 body: JSON.stringify(user)
@@ -45,6 +47,43 @@ function Profile(){
             localStorage.setItem('user', JSON.stringify(updatedUser.customer));
         } catch (error) {
             setUser(user);
+            setFormErrors({ submit: error.message });
+            console.error(error);
+        }
+    };
+
+    const saveNewAddress = async (e) => {
+        e.preventDefault();
+        console.log(JSON.stringify(newAddress));
+        try {
+            const response = await fetch(`${API_URL}customerNewAddress/${user.id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify(newAddress)
+            });
+            console.log(response);
+            if (!response.ok) {
+                setFormErrors({ submit: 'Failed to add new address' });
+                throw new Error('Failed to add new address');
+            }
+            const addedAddress = await response.json();
+            setFormErrors({});
+            setSuccessMsg({ submit: 'New address added successfully' });
+            
+            const modal = document.getElementById('addAddressModal');
+            if (modal) {
+                modal.classList.remove('show');
+                modal.setAttribute('aria-hidden', 'true');
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+            }
+            setNewAddress(null);
+        } catch (error) {
             setFormErrors({ submit: error.message });
             console.error(error);
         }
@@ -99,7 +138,7 @@ function Profile(){
                             <span>Wishlist</span>
                         </button>
                         </li>
-                        <li className="nav-item" role="presentation">
+                        <li className="nav-item d-none" role="presentation">
                         <button className={activeTab === 'payment' ? 'nav-link active' : 'nav-link'} id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment" type="button" role="tab" aria-controls="payment" aria-selected="false" tabIndex="-1">
                             <i className="bi bi-credit-card"></i>
                             <span>Payment methods</span>
@@ -918,11 +957,85 @@ function Profile(){
                     <div className={activeTab === "addresses" ? "tab-pane fade show active" : "tab-pane fade"} id="addresses" role="tabpanel" aria-labelledby="addresses-tab">
                         <div className="tab-header">
                         <h2>My Addresses</h2>
-                        <button className="btn btn-add-address" type="button">
+                        <button className="btn btn-add-address" type="button" data-bs-toggle="modal" data-bs-target="#addAddressModal">
                             <i className="bi bi-plus-lg"></i> Add new address
                         </button>
                         </div>
+                                                                    
+                        {/* Add Address Modal */}
+                        <div className="modal fade" id="addAddressModal" tabIndex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+                            <div className="modal-dialog">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                    <h5 className="modal-title" id="addAddressModalLabel">Add New Address</h5>
+                                    <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form id="addAddressForm" onSubmit={saveNewAddress}>
+                                        <div className="modal-body">
+                                            {formErrors.submit && <div className="alert alert-danger">{formErrors.submit}</div>}
+
+                                            <div className="mb-3">
+                                                <label htmlFor="addressLabel" className="form-label">Address Label</label>
+                                                <input type="text" className="form-control" id="addressLabel" value={newAddress?.addressLabel || ''} onChange={(e) => setNewAddress({ ...newAddress, addressLabel: e.target.value })} placeholder="e.g., Home, Work" required />
+                                            </div>
+                                            <div className="mb-3">
+                                                <label htmlFor="fullName" className="form-label">Full Name</label>
+                                                <input type="text" className="form-control" id="fullName" value={newAddress?.fullName || ''} onChange={(e) => setNewAddress({ ...newAddress, fullName: e.target.value })} placeholder="John Doe" required />
+                                            </div>
+                                            <div className="mb-3">
+                                                <label htmlFor="phoneNumber" className="form-label">Phone Number</label>
+                                                <input type="tel" className="form-control" id="phoneNumber" value={newAddress?.phoneNumber || ''} onChange={(e) => setNewAddress({ ...newAddress, phoneNumber: e.target.value })} placeholder="071 234 5678" required />
+                                            </div>
+                                            <div className="mb-3">
+                                                <label htmlFor="addressLine1" className="form-label">Address Line 1</label>
+                                                <input type="text" className="form-control" id="addressLine1" value={newAddress?.addressLine1 || ''} onChange={(e) => setNewAddress({ ...newAddress, addressLine1: e.target.value })} placeholder="123 Main Street" required />
+                                            </div>
+                                            <div className="mb-3">
+                                                <label htmlFor="addressLine2" className="form-label">Address Line 2 (optional)</label>
+                                                <input type="text" className="form-control" id="addressLine2" value={newAddress?.addressLine2 || ''} onChange={(e) => setNewAddress({ ...newAddress, addressLine2: e.target.value })} placeholder="Apt 4B" />
+                                            </div>
+                                            <div className="row">
+                                            <div className="col-md-6 mb-3">
+                                                <label htmlFor="city" className="form-label">City</label>
+                                                <input type="text" className="form-control" id="city" value={newAddress?.city || ''} onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })} required />
+                                            </div>
+                                            <div className="col-md-6 mb-3">
+                                                <label htmlFor="state" className="form-label">State/Province</label>
+                                                <input type="text" className="form-control" id="state" value={newAddress?.state || ''} onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })} required />
+                                            </div>
+                                            </div>
+                                            <div className="row">
+                                            <div className="col-md-6 mb-3">
+                                                <label htmlFor="zipCode" className="form-label">ZIP/Postal Code</label>
+                                                <input type="text" className="form-control" id="zipCode" value={newAddress?.zipCode || ''} onChange={(e) => setNewAddress({ ...newAddress, zipCode: e.target.value })} required />
+                                            </div>
+                                            <div className="col-md-6 mb-3">
+                                                <label htmlFor="type" className="form-label">Address Type</label>
+                                                <select className="form-select" id="type" value={newAddress?.type || ''} onChange={(e) => setNewAddress({ ...newAddress, type: e.target.value })} required>
+                                                    <option value="">Select Type</option>
+                                                    <option value="shipping">Shipping</option>
+                                                    <option value="billing">Billing</option>
+                                                    <option value="both">Billing and Shipping</option>
+                                                </select>
+                                            </div>
+                                            </div>
+                                            <div className="mb-3 form-check">
+                                                <input type="checkbox" className="form-check-input" id="defaultAddress" checked={newAddress?.isDefault || false} onChange={(e) => setNewAddress({ ...newAddress, isDefault: e.target.checked })} />
+                                                <label className="form-check-label" htmlFor="defaultAddress">Set as default address</label>
+                                            </div>
+                                        </div>
+                                        <div className="modal-footer">
+                                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" className="btn btn-save" style={{ backgroundColor: 'var(--accent-color)', color: 'white' }}>Save Address</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div className="addresses-list">
+                            {successMsg.submit && <div className="alert alert-success">{successMsg.submit}</div>}
+
                         <div className="row">
                             {/* Address Item 1 */}
                             <div className="col-lg-6 mb-4 aos-init aos-animate" data-aos="fade-up" data-aos-delay="100">
