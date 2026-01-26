@@ -373,8 +373,10 @@ function Header({ activeMenu }) {
 														</button>
 													</div>
 												))
+											) : userLoggedIn ? (
+												<p className="text-center">Your cart is empty. Start shopping now!</p>
 											) : (
-												<p className="text-center">Your cart is empty.</p>
+												<p className="text-center">Please <a href="/login?redirect=/cart">log in</a> to view your cart.</p>
 											)}
 										</div>
 									</div>
