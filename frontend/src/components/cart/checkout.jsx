@@ -13,10 +13,11 @@ function Checkout() {
 	const navigate = useNavigate();
 	// State for checkout items
 	const [checkoutItems, setCheckoutItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [customerData, setCustomerData] = useState(null);
-  const [shippingData, setShippingData] = useState(null);
-  const [paymentData, setPaymentData] = useState(null);
+	const [isLoading, setIsLoading] = useState(true);
+	const [customerData, setCustomerData] = useState(null);
+	const [shippingData, setShippingData] = useState(null);
+	const [paymentData, setPaymentData] = useState(null);
+	const [addresses, setAddresses] = useState([]);
 	const [currentStep, setCurrentStep] = useState(1);
 	const { showSnackbar } = useSnackbar();
 
@@ -93,6 +94,32 @@ function Checkout() {
 	}, [customerID]);
 
 
+	// Fetch customer addresses
+	useEffect(() => {
+		const fetchAddresses = async (id) => {
+			try {
+				const response = await fetch(`${API_URL}customerAddresses/${id}`, {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': `Bearer ${localStorage.getItem('token')}`
+					}
+				});
+				if (!response.ok) {
+					throw new Error('Failed to fetch addresses');
+				}
+				const data = await response.json();
+				setAddresses(data.addresses);
+				console.log(data.addresses);
+			} catch (error) {
+				console.error(error);
+			}
+		};
+		if (customerID) {
+			fetchAddresses(customerID);
+		}
+	}, [customerID]);
+
 	// Calculate totals
 	const subtotal = checkoutItems.reduce(
 		(sum, item) =>
@@ -145,15 +172,29 @@ function Checkout() {
 	};
 
 	const validateStep2 = () => {
-		const address = document.getElementById('address')?.value?.trim();
+		const fullName = document.getElementById('full-name')?.value?.trim();
+		const phoneNumber = document.getElementById('phone-number')?.value?.trim();
+		const addressLine1 = document.getElementById('address-line1')?.value?.trim();
+		const addressLine2 = document.getElementById('address-line2')?.value?.trim();
 		const city = document.getElementById('city')?.value?.trim();
 		const state = document.getElementById('state')?.value?.trim();
-		const zip = document.getElementById('zip')?.value?.trim();
-		const country = document.getElementById('country')?.value;
+		const postalCode = document.getElementById("postal-code")?.value?.trim();
+		const addressLabel = document.getElementById("address-label")?.value?.trim();
 
-		if (!address) {
-			showSnackbar('Please enter your street address', 'error');
-			document.getElementById('address')?.focus();
+		if (!fullName) {
+			showSnackbar('Please enter your full name', 'error');
+			document.getElementById('full-name')?.focus();
+			return false;
+		}
+		if (!phoneNumber) {
+			showSnackbar('Please enter your phone number', 'error');
+			document.getElementById('phone-number')?.focus();
+			return false;
+		}
+		
+		if (!addressLine1) {
+			showSnackbar('Please enter your address line 1', 'error');
+			document.getElementById('address-line1')?.focus();
 			return false;
 		}
 
@@ -169,21 +210,20 @@ function Checkout() {
 			return false;
 		}
 
-		if (!zip) {
+		if (!postalCode) {
 			showSnackbar('Please enter your ZIP/postal code', 'error');
-			document.getElementById('zip')?.focus();
+			document.getElementById('postal-code')?.focus();
 			return false;
 		}
 
-		if (!country) {
-			showSnackbar('Please select your country', 'error');
-			document.getElementById('country')?.focus();
+		if (!addressLabel) {
+			showSnackbar('Please enter a label for your address', 'error');
+			document.getElementById('address-label')?.focus();
 			return false;
 		}
 
 		// Save shipping data
-		const apartment = document.getElementById('apartment')?.value?.trim();
-		setShippingData({ address, apartment, city, state, zip, country });
+		setShippingData({ fullName, phoneNumber, addressLine1, addressLine2, city, state, postalCode, addressLabel });
 		return true;
 	};
 
@@ -548,61 +588,170 @@ function Checkout() {
                 </form>
               </div>
 
-              {/* Step 2: Shipping Address */}
-              <div className="checkout-form" data-form="2">
-                <div className="form-header">
-                  <h3>Shipping Address</h3>
-                  <p>Where should we deliver your order?</p>
-                </div>
-                <form className="checkout-form-element">
-                  <div className="form-group">
-                    <label htmlFor="address">Street Address</label>
-                    <input type="text" className="form-control" name="address" id="address" placeholder="Street Address" required="" />
-                  </div>
-                  <div className="form-group mt-3">
-                    <label htmlFor="apartment">Apartment, Suite, etc. (optional)</label>
-                    <input type="text" className="form-control" name="apartment" id="apartment" placeholder="Apartment, Suite, Unit, etc." />
-                  </div>
-                  <div className="row mt-3">
-                    <div className="col-md-4 form-group">
-                      <label htmlFor="city">City</label>
-                      <input type="text" name="city" className="form-control" id="city" placeholder="City" required="" />
-                    </div>
-                    <div className="col-md-4 form-group mt-3 mt-md-0">
-                      <label htmlFor="state">State</label>
-                      <input type="text" name="state" className="form-control" id="state" placeholder="State" required="" />
-                    </div>
-                    <div className="col-md-4 form-group mt-3 mt-md-0">
-                      <label htmlFor="zip">ZIP Code</label>
-                      <input type="text" name="zip" className="form-control" id="zip" placeholder="ZIP Code" required="" />
-                    </div>
-                  </div>
-                  <div className="form-group mt-3">
-                    <label htmlFor="country">Country</label>
-                    <select className="form-select" id="country" name="country" required="">
-                      <option value="">Select Country</option>
-                      <option value="US">United States</option>
-                      <option value="CA">Canada</option>
-                      <option value="UK">United Kingdom</option>
-                      <option value="AU">Australia</option>
-                      <option value="DE">Germany</option>
-                      <option value="FR">France</option>
-                    </select>
-                  </div>
-                  <div className="form-check mt-3">
-                    <input className="form-check-input" type="checkbox" id="save-address" name="save-address" />
-                    <label className="form-check-label" htmlFor="save-address">
-                      Save this address for future orders
-                    </label>
-                  </div>
-                  <div className="d-flex justify-content-between mt-4">
-                    <button type="button" className="btn btn-outline-secondary prev-step" data-prev="1">Back to Information</button>
-                    <button type="button" className="btn btn-primary next-step" data-next="3">Continue to Payment</button>
-                  </div>
-                </form>
-              </div>
+			{/* Step 2: Shipping Address */}
+			<div className="checkout-form" data-form="2">
+				<div className="form-header">
+					<h3>Shipping Address</h3>
+					<p>Where should we deliver your order?</p>
+				</div>
+				<form className="checkout-form-element">
+					{addresses && addresses.length > 0 && (
+					<div className="form-group mb-3">
+						<label htmlFor="saved-address">Saved Addresses</label>
+						{addresses.length === 1 ? (
+						<div className="saved-address-display p-3 border rounded">
+							<p className="mb-1"><strong>{addresses[0].full_name}</strong></p>
+							<p className="mb-1">{addresses[0].phone_number}</p>
+							<p className="mb-1">{addresses[0].address_line1}</p>
+							{addresses[0].address_line2 && <p className="mb-1">{addresses[0].address_line2}</p>}
+							<p className="mb-1">{addresses[0].city}, {addresses[0].state} {addresses[0].postal_code}</p>
+							{addresses[0].label && <span className="badge bg-secondary">{addresses[0].label}</span>}
+						</div>
+						) : (
+						<select 
+							className="form-select" 
+							id="saved-address" 
+							name="saved-address"
+							onChange={(e) => {
+							const selectedAddress = addresses.find(addr => addr.id == e.target.value);
+							if (selectedAddress) {
+								document.getElementById('full-name').value = selectedAddress.full_name || '';
+								document.getElementById('phone-number').value = selectedAddress.phone_number || '';
+								document.getElementById('address-line1').value = selectedAddress.address_line1 || '';
+								document.getElementById('address-line2').value = selectedAddress.address_line2 || '';
+								document.getElementById('city').value = selectedAddress.city || '';
+								document.getElementById('state').value = selectedAddress.state || '';
+								document.getElementById('postal-code').value = selectedAddress.postal_code || '';
+								document.getElementById('address-label').value = selectedAddress.label || '';
+							}
+							}}
+						>
+							<option value="">Select a saved address</option>
+							{addresses.map((addr, index) => (
+							<option key={addr.id || index} value={addr.id}>
+								{addr.label ? `${addr.label}: ` : ''}{addr.address_line1}, {addr.city}, {addr.state} {addr.postal_code}
+							</option>
+							))}
+						</select>
+						)}
+					</div>
+					)}
+					<div className="form-group">
+						<label htmlFor="full-name">Full Name</label>
+						<input 
+							type="text" 
+							className="form-control" 
+							name="full-name" 
+							id="full-name" 
+							placeholder="Full Name" 
+							required="" 
+							defaultValue={addresses && addresses.length === 1 ? addresses[0].full_name : ''}
+						/>
+					</div>
+					<div className="form-group mt-3">
+						<label htmlFor="phone-number">Phone Number</label>
+						<input 
+							type="tel" 
+							className="form-control" 
+							name="phone-number" 
+							id="phone-number" 
+							placeholder="Phone Number" 
+							required="" 
+							defaultValue={addresses && addresses.length === 1 ? addresses[0].phone_number : ''}
+						/>
+					</div>
+					<div className="form-group mt-3">
+						<label htmlFor="address-line1">Address Line 1</label>
+						<input 
+							type="text" 
+							className="form-control" 
+							name="address-line1" 
+							id="address-line1" 
+							placeholder="Street Address" 
+							required="" 
+							defaultValue={addresses && addresses.length === 1 ? addresses[0].address_line1 : ''}
+						/>
+					</div>
+					<div className="form-group mt-3">
+						<label htmlFor="address-line2">Address Line 2 (optional)</label>
+						<input 
+							type="text" 
+							className="form-control" 
+							name="address-line2" 
+							id="address-line2" 
+							placeholder="Apartment, Suite, Unit, etc." 
+							defaultValue={addresses && addresses.length === 1 ? addresses[0].address_line2 : ''}
+						/>
+					</div>
+					<div className="row mt-3">
+						<div className="col-md-4 form-group">
+							<label htmlFor="city">City</label>
+							<input 
+							type="text" 
+							name="city" 
+							className="form-control" 
+							id="city" 
+							placeholder="City" 
+							required="" 
+							defaultValue={addresses && addresses.length === 1 ? addresses[0].city : ''}
+							/>
+						</div>
+						<div className="col-md-4 form-group mt-3 mt-md-0">
+							<label htmlFor="state">State</label>
+							<input 
+							type="text" 
+							name="state" 
+							className="form-control" 
+							id="state" 
+							placeholder="State" 
+							required="" 
+							defaultValue={addresses && addresses.length === 1 ? addresses[0].state : ''}
+							/>
+						</div>
+						<div className="col-md-4 form-group mt-3 mt-md-0">
+							<label htmlFor="postal-code">Postal Code</label>
+							<input 
+							type="text" 
+							name="postal-code" 
+							className="form-control" 
+							id="postal-code" 
+							placeholder="Postal Code" 
+							required="" 
+							defaultValue={addresses && addresses.length === 1 ? addresses[0].postal_code : ''}
+							/>
+						</div>
+					</div>
+					<div className="form-group mt-3">
+						<label htmlFor="address-label">Address Label (optional)</label>
+						<input 
+							type="text" 
+							className="form-control" 
+							name="address-label" 
+							id="address-label" 
+							placeholder="e.g., Home, Office" 
+							defaultValue={addresses && addresses.length === 1 ? addresses[0].label : ''}
+						/>
+					</div>
+					<div className="form-check mt-3">
+						<input className="form-check-input" type="checkbox" id="save-address" name="save-address" />
+						<label className="form-check-label" htmlFor="save-address">
+							Save this address for future orders
+						</label>
+					</div>
+					<div className="form-check mt-2">
+						<input className="form-check-input" type="checkbox" id="is-default" name="is-default" />
+						<label className="form-check-label" htmlFor="is-default">
+							Set as default address
+						</label>
+					</div>
+					<div className="d-flex justify-content-between mt-4">
+						<button type="button" className="btn btn-outline-secondary prev-step" data-prev="1">Back to Information</button>
+						<button type="button" className="btn btn-primary next-step" data-next="3">Continue to Payment</button>
+					</div>
+				</form>
+			</div>
 
-              {/* Step 3: Payment Method */}
+			  {/* Step 3: Payment Method */}
               <div className="checkout-form" data-form="3">
                 <div className="form-header">
                   <h3>Payment Method</h3>
