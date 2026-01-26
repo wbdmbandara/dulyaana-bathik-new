@@ -10,6 +10,7 @@ function ProductDetails({ url }) {
 	const [activeImageIndex, setActiveImageIndex] = useState(0);
 	const [quantity, setQuantity] = useState(1);
 	const [videos, setVideos] = useState([]);
+	const [youtubeVideos, setYoutubeVideos] = useState([]);
 	const [cartErrors, setCartErrors] = useState(null);
 	const [cartSuccess, setCartSuccess] = useState(null);
 	const navigate = useNavigate();
@@ -31,6 +32,7 @@ function ProductDetails({ url }) {
 					setProduct(data.product);
 					setAdditionalImages(data.additional_images || []);
 					setVideos(data.videos || []);
+					setYoutubeVideos(data.youtube_videos || []);
 				} else {
 					setProduct(null);
 				}
@@ -137,6 +139,7 @@ function ProductDetails({ url }) {
 											product.main_image,
 											...additionalImages,
 											...videos.map((video) => BACKEND_URL + video),
+											...youtubeVideos,
 										].map((media, index) => (
 											<div
 												key={index}
@@ -151,8 +154,18 @@ function ProductDetails({ url }) {
 														className="img-fluid"
 														style={{ maxHeight: "100px" }}
 														muted
-														// poster={`${media}#t=0.1`} // Use the first frame as a poster for faster display
 													/>
+												) : media.includes("youtube.com") || media.includes("youtu.be") ? (
+													<div className="youtube-thumbnail">
+														<img
+															src={`https://img.youtube.com/vi/${media.match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/watch\?.+&v=))([\w-]{11})/)?.[1]}/mqdefault.jpg`}
+															alt="YouTube video"
+															className="img-fluid"
+														/>
+														<div className="youtube-play-icon">
+															<i className="bi bi-youtube"></i>
+														</div>
+													</div>
 												) : (
 													<img
 														src={BACKEND_URL + media}
@@ -168,36 +181,55 @@ function ProductDetails({ url }) {
 								{/* Main Media */}
 								<div className="main-image-wrapper">
 									<div className="image-zoom-container">
-										{[
-											product.main_image,
-											...additionalImages,
-											...videos.map((video) => BACKEND_URL + video),
-										][activeImageIndex].includes(".mp4") ? (
-											<video
-												src={
-													[
-														product.main_image,
-														...additionalImages,
-														...videos.map((video) => BACKEND_URL + video),
-													][activeImageIndex]
-												}
-												autoPlay
-												className="img-fluid main-video"
-												style={{ maxHeight: "400px", width: "100%" }}
-											/>
-										) : (
-											<img
-												src={
-													BACKEND_URL +
-													[
-														product.main_image,
-														...additionalImages,
-													][activeImageIndex]
-												}
-												alt={product.name}
-												className="img-fluid main-image"
-											/>
-										)}
+										{(() => {
+											const allMedia = [
+												product.main_image,
+												...additionalImages,
+												...videos.map((video) => BACKEND_URL + video),
+												...youtubeVideos,
+											];
+											const currentMedia = allMedia[activeImageIndex];
+											
+											if (currentMedia?.includes(".mp4")) {
+												return (
+													<video
+														src={currentMedia}
+														autoPlay
+														controls
+														className="img-fluid main-video"
+														style={{ maxHeight: "400px", width: "100%" }}
+													/>
+												);
+											} else if (currentMedia?.includes("youtube.com") || currentMedia?.includes("youtu.be")) {
+												const videoId = currentMedia.match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/watch\?.+&v=))([\w-]{11})/)?.[1];
+												return (
+													<iframe
+														width="100%"
+														height="400"
+														src={`https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&modestbranding=1&showinfo=0&rel=0`}
+														title="YouTube video"
+														frameBorder="0"
+														allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+														allowFullScreen
+														className="main-video"
+													/>
+												);
+											} else {
+												return (
+													<img
+														src={
+															BACKEND_URL +
+															[
+																product.main_image,
+																...additionalImages,
+															][activeImageIndex]
+														}
+														alt={product.name}
+														className="img-fluid main-image"
+													/>
+												);
+											}
+										})()}
 										<div className="zoom-overlay">
 											<i className="bi bi-zoom-in"></i>
 										</div>
@@ -206,10 +238,11 @@ function ProductDetails({ url }) {
 										<button
 											className="image-nav-btn prev-image"
 											onClick={() => {
+												const totalMedia = 1 + additionalImages.length + videos.length + youtubeVideos.length;
 												setActiveImageIndex((prevIndex) =>
 													prevIndex > 0
 														? prevIndex - 1
-														: additionalImages.length + videos.length
+														: totalMedia - 1
 												);
 											}}
 										>
@@ -218,9 +251,9 @@ function ProductDetails({ url }) {
 										<button
 											className="image-nav-btn next-image"
 											onClick={() => {
+												const totalMedia = 1 + additionalImages.length + videos.length + youtubeVideos.length;
 												setActiveImageIndex((prevIndex) =>
-													prevIndex <
-													additionalImages.length + videos.length
+													prevIndex < totalMedia - 1
 														? prevIndex + 1
 														: 0
 												);
@@ -620,7 +653,7 @@ function ProductDetails({ url }) {
 								</div>
 
 								{/* Videos Accordion */}
-								{videos.length > 0 && (
+								{(videos.length > 0 || youtubeVideos.length > 0) && (
 									<div className="accordion-item">
 										<h2 className="accordion-header">
 											<button
@@ -639,22 +672,41 @@ function ProductDetails({ url }) {
 											className="accordion-collapse collapse"
 										>
 											<div className="accordion-body">
-												<div className="product-videos text-center">
-													{videos.map((video, index) => (
-														<video
-															key={index}
-															controls
-															className="video-player"
-															style={{ maxWidth: "100%", marginBottom: "20px", height: "auto", maxHeight: "400px" }}
-														>
-															<source
-																src={BACKEND_URL + video}
-																type="video/mp4"
-															/>
-															Your browser does not support the
-															video tag.
-														</video>
-													))}
+												<div className="product-videos">
+													<div className="row g-3">
+														{videos.map((video, index) => (
+															<div key={index} className="col-md-6 col-lg-4">
+																<video
+																	controls
+																	className="video-player w-100"
+																	style={{ height: "auto", maxHeight: "300px" }}
+																>
+																	<source
+																		src={BACKEND_URL + video}
+																		type="video/mp4"
+																	/>
+																	Your browser does not support the
+																	video tag.
+																</video>
+															</div>
+														))}
+														{youtubeVideos.map((video, index) => {
+															const videoId = video.match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/watch\?.+&v=))([\w-]{11})/)?.[1];
+															return (
+																<div key={`youtube-${index}`} className="col-md-6 col-lg-4">
+																	<iframe
+																		width="100%"
+																		height="200"
+																		src={`https://www.youtube.com/embed/${videoId}`}
+																		title={`YouTube video ${index + 1}`}
+																		frameBorder="0"
+																		allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+																		allowFullScreen
+																	/>
+																</div>
+															);
+														})}
+													</div>
 												</div>
 											</div>
 										</div>
@@ -662,7 +714,7 @@ function ProductDetails({ url }) {
 								)}
 
 								{/* Specifications Accordion */}
-								<div className="accordion-item">
+								<div className="accordion-item d-none">
 									<h2 className="accordion-header">
 										<button
 											className="accordion-button collapsed"

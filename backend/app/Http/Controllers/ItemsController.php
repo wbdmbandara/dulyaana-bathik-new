@@ -791,13 +791,15 @@ class ItemsController extends Controller
             }
 
             $additionalImages = $this->itemImages->where('item_id', $item->item_id)->pluck('image_path')->toArray();
-            $videos = $this->itemVideos->where('item_id', $item->item_id)->pluck('video_url')->toArray();
+            $videos = $this->itemVideos->where('item_id', $item->item_id)->where('video_type', 'local')->pluck('video_url')->toArray();
+            $youtubeVideos = $this->itemVideos->where('item_id', $item->item_id)->where('video_type', 'youtube')->pluck('video_url')->toArray();
 
             return response()->json([
                 'success' => true,
                 'product' => $item,
                 'additional_images' => $additionalImages,
-                'videos' => $videos
+                'videos' => $videos,
+                'youtube_videos' => $youtubeVideos
             ]);
         } catch (\Exception $e) {
             return response()->json([
