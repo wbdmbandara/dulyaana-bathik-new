@@ -4,17 +4,39 @@ import { useNavigate } from "react-router-dom";
 
 function Profile(){
     const [user, setUser] = useState(null);
+    const [addresses, setAddresses] = useState([]);
     const [newAddress, setNewAddress] = useState(null);
     const [formErrors, setFormErrors] = useState({});
     const [successMsg, setSuccessMsg] = useState({});
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState(window.location.search.split('?')[1] || 'profile');
 
+    const fetchAddresses = async (id) => {
+        try {
+            const response = await fetch(`${API_URL}customerAddresses/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Failed to fetch addresses');
+            }
+            const data = await response.json();
+            setAddresses(data.addresses);
+            console.log(data.addresses);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
             setActiveTab(window.location.search.split('?')[1] || 'profile');
             setUser(JSON.parse(storedUser));
+            fetchAddresses(JSON.parse(storedUser).id);
         }else{
             navigate('/login');
         }
@@ -72,7 +94,7 @@ function Profile(){
             const addedAddress = await response.json();
             setFormErrors({});
             setSuccessMsg({ submit: 'New address added successfully' });
-            
+
             const modal = document.getElementById('addAddressModal');
             if (modal) {
                 modal.classList.remove('show');
@@ -1037,49 +1059,43 @@ function Profile(){
                             {successMsg.submit && <div className="alert alert-success">{successMsg.submit}</div>}
 
                         <div className="row">
-                            {/* Address Item 1 */}
-                            <div className="col-lg-6 mb-4 aos-init aos-animate" data-aos="fade-up" data-aos-delay="100">
-                            <div className="address-item">
-                                <div className="address-header">
-                                <h5>Home Address</h5>
-                                <div className="address-actions">
-                                    <button className="btn-edit-address" type="button">
-                                    <i className="bi bi-pencil"></i>
-                                    </button>
-                                    <button className="btn-delete-address" type="button">
-                                    <i className="bi bi-trash"></i>
-                                    </button>
+                            {addresses && addresses.length > 0 ? (
+                                addresses.map((address, index) => (
+                                    <div key={address.id} className="col-lg-6 mb-4 aos-init aos-animate" data-aos="fade-up" data-aos-delay={100 + (index * 100)}>
+                                        <div className="address-item">
+                                            <div className="address-header">
+                                                <h5>{address.label} <span className="badge bg-secondary text-capitalize ms-2">{address.type === 'both' ? 'Shipping & Billing' : address.type}</span></h5>
+                                                <div className="address-actions">
+                                                    <button className="btn-edit-address" type="button">
+                                                        <i className="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button className="btn-delete-address" type="button">
+                                                        <i className="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className="address-content">
+                                                <p>
+                                                    <strong>{address.full_name}</strong><br/>
+                                                    {address.phone_number}<br/>
+                                                    {address.address_line1}<br/>
+                                                    {address.address_line2 && <>{address.address_line2}<br/></>}
+                                                    {address.city}, {address.state} {address.postal_code}
+                                                </p>
+                                            </div>
+                                            {address.is_default === 1 ? (
+                                                <div className="default-badge">Default</div>
+                                            ) : (
+                                                <button className="btn btn-sm btn-make-default" type="button">Make default</button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="col-12">
+                                    <p className="text-center">No addresses found. Add a new address to get started.</p>
                                 </div>
-                                </div>
-                                <div className="address-content">
-                                <p>123 Main Street<br/>Apt 4B<br/>New York, NY 10001<br/>United States</p>
-                                </div>
-                                <div className="default-badge">Default</div>
-                            </div>
-                            </div>
-                            {/* End Address Item */}
-
-                            {/* Address Item 2 */}
-                            <div className="col-lg-6 mb-4 aos-init aos-animate" data-aos="fade-up" data-aos-delay="200">
-                            <div className="address-item">
-                                <div className="address-header">
-                                <h5>Work Address</h5>
-                                <div className="address-actions">
-                                    <button className="btn-edit-address" type="button">
-                                    <i className="bi bi-pencil"></i>
-                                    </button>
-                                    <button className="btn-delete-address" type="button">
-                                    <i className="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                                </div>
-                                <div className="address-content">
-                                <p>456 Business Ave<br/>Suite 200<br/>San Francisco, CA 94107<br/>United States</p>
-                                </div>
-                                <button className="btn btn-sm btn-make-default" type="button">Make default</button>
-                            </div>
-                            </div>
-                            {/* End Address Item */}
+                            )}
                         </div>
                         </div>
                     </div>

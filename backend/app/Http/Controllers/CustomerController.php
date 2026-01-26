@@ -396,4 +396,30 @@ class CustomerController extends Controller
             ], 500);
         }
     }
+
+    public function getAddresses(Request $request, $id)
+    {
+        try {
+            $customer = $this->customer->find($id);
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer not found'
+                ], 404);
+            }
+
+            $addresses = $this->customerAddress->where('customer_id', $id)->orderBy('is_default', 'desc')->get();
+
+            return response()->json([
+                'success' => true,
+                'addresses' => $addresses
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch addresses: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

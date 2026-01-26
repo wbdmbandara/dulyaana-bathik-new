@@ -44,6 +44,7 @@ Route::middleware('api')->group(function () {
     // Route::get('/customers/{id}', [CustomerController::class, 'getCustomerDetails']);
 
     // Customer Profile Management
+    Route::get('/customerAddresses/{id}', [CustomerController::class, 'getAddresses']);
     Route::post('/customerNewAddress/{id}', [CustomerController::class, 'addAddress']);
 
 });
