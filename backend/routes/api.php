@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BankDetailsController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
@@ -46,6 +47,9 @@ Route::middleware('api')->group(function () {
     // Customer Profile Management
     Route::get('/customerAddresses/{id}', [CustomerController::class, 'getAddresses']);
     Route::post('/customerNewAddress/{id}', [CustomerController::class, 'addAddress']);
+
+    // get bank details
+    Route::get('/getBankDetails', [BankDetailsController::class, 'getBankDetails']);
 
 });
 

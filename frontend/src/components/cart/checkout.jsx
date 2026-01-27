@@ -17,6 +17,7 @@ function Checkout() {
 	const [customerData, setCustomerData] = useState(null);
 	const [shippingData, setShippingData] = useState(null);
 	const [paymentData, setPaymentData] = useState(null);
+	const [bankDetails, setBankDetails] = useState([]);
 	const [addresses, setAddresses] = useState([]);
 	const [currentStep, setCurrentStep] = useState(1);
 	const { showSnackbar } = useSnackbar();
@@ -90,7 +91,9 @@ function Checkout() {
 				showSnackbar("Error fetching customer data", "error");
 			}
 		};
-		fetchCustomerData();
+		if(customerID) {
+			fetchCustomerData();
+		}
 	}, [customerID]);
 
 
@@ -119,6 +122,29 @@ function Checkout() {
 			fetchAddresses(customerID);
 		}
 	}, [customerID]);
+
+	// Fetch Payment Bank Details
+	useEffect(() => {
+		const fetchPaymentBankDetails = async () => {
+			try {
+				const response = await fetch(`${API_URL}getBankDetails`, {
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+					},
+				});
+				if (!response.ok) {
+					showSnackbar("Failed to fetch payment bank details", "error");
+					throw new Error("Failed to fetch payment bank details");
+				}
+				const data = await response.json();
+				setBankDetails(data.data);
+			} catch (error) {
+				console.error("Error fetching payment bank details:", error);
+				showSnackbar("Error fetching payment bank details", "error");
+			}
+		};
+		fetchPaymentBankDetails();
+	}, []);
 
 	// Calculate totals
 	const subtotal = checkoutItems.reduce(
@@ -505,7 +531,7 @@ function Checkout() {
 				// Show selected payment method body
 				const selectedMethod = e.target.closest('.payment-method');
 				const methodBody = selectedMethod?.querySelector('.payment-method-body');
-				if (methodBody && e.target.id === 'credit-card') {
+				if (methodBody) {
 					methodBody.classList.remove('d-none');
 				}
 
@@ -751,93 +777,91 @@ function Checkout() {
 				</form>
 			</div>
 
-			  {/* Step 3: Payment Method */}
-              <div className="checkout-form" data-form="3">
-                <div className="form-header">
-                  <h3>Payment Method</h3>
-                  <p>Choose how you'd like to pay</p>
-                </div>
-                <form className="checkout-form-element">
-                  <div className="payment-methods">
-                    <div className="payment-method active">
-                      <div className="payment-method-header">
-                        <div className="form-check">
-                          <input className="form-check-input" type="radio" name="payment-method" id="credit-card" defaultChecked />
-                          <label className="form-check-label" htmlFor="credit-card">
-                            Credit / Debit Card
-                          </label>
-                        </div>
-                        <div className="payment-icons">
-                          <i className="bi bi-credit-card-2-front"></i>
-                          <i className="bi bi-credit-card"></i>
-                        </div>
-                      </div>
-                      <div className="payment-method-body">
-                        <div className="row">
-                          <div className="col-12 form-group">
-                            <label htmlFor="card-number">Card Number</label>
-                            <input type="text" className="form-control" name="card-number" id="card-number" placeholder="1234 5678 9012 3456" required="" />
-                          </div>
-                        </div>
-                        <div className="row mt-3">
-                          <div className="col-md-6 form-group">
-                            <label htmlFor="expiry">Expiration Date</label>
-                            <input type="text" className="form-control" name="expiry" id="expiry" placeholder="MM/YY" required="" />
-                          </div>
-                          <div className="col-md-6 form-group mt-3 mt-md-0">
-                            <label htmlFor="cvv">Security Code (CVV)</label>
-                            <input type="text" className="form-control" name="cvv" id="cvv" placeholder="123" required="" />
-                          </div>
-                        </div>
-                        <div className="form-group mt-3">
-                          <label htmlFor="card-name">Name on Card</label>
-                          <input type="text" className="form-control" name="card-name" id="card-name" placeholder="John Doe" required="" />
-                        </div>
-                      </div>
-                    </div>
+			{/* Step 3: Payment Method */}
+			<div className="checkout-form" data-form="3">
+				<div className="form-header">
+					<h3>Payment Method</h3>
+					<p>Choose how you'd like to pay</p>
+				</div>
+				<form className="checkout-form-element">
+					<div className="payment-methods">
+					<div className="payment-method active">
+						<div className="payment-method-header">
+						<div className="form-check">
+							<input className="form-check-input" type="radio" name="payment-method" id="bank-transfer" defaultChecked />
+							<label className="form-check-label" htmlFor="bank-transfer">
+							Bank Transfer
+							</label>
+						</div>
+						<div className="payment-icons">
+							<i className="bi bi-bank"></i>
+						</div>
+						</div>
+						<div className="payment-method-body">
+						<p className="mb-3">Please transfer the total amount to one of the following bank accounts:</p>
+						{bankDetails && bankDetails.length > 0 ? (
+							<div className="bank-accounts">
+							<div className="row">
+								{bankDetails.map((bank, index) => (
+								<div key={index} className="col-md-6 mb-3">
+									<div className="bank-account-card p-3 border rounded h-100">
+									<h5 className="mb-2">{bank.bank_name}</h5>
+									<div className="bank-details">
+										<p className="mb-1"><strong>Account Name:</strong> {bank.account_name}</p>
+										<p className="mb-1"><strong>Account Number:</strong> {bank.account_number}</p>
+										<p className="mb-1"><strong>Branch:</strong> {bank.branch}</p>
+										{bank.branch_code && <p className="mb-1"><strong>Branch Code:</strong> {bank.branch_code}</p>}
+										{bank.instructions && (
+										<div className="mt-2">
+											<strong>Instructions:</strong>
+											<p className="mb-0 text-muted">{bank.instructions}</p>
+										</div>
+										)}
+									</div>
+									</div>
+								</div>
+								))}
+							</div>
+							</div>
+						) : (
+							<p className="text-muted">Loading bank details...</p>
+						)}
+						<div className="alert alert-info mt-3">
+							<i className="bi bi-info-circle me-2"></i>
+							Please include your order number as the payment reference. Your order will be processed once we confirm the payment.
+						</div>
+						</div>
+					</div>
 
-                    <div className="payment-method mt-3">
-                      <div className="payment-method-header">
-                        <div className="form-check">
-                          <input className="form-check-input" type="radio" name="payment-method" id="paypal" />
-                          <label className="form-check-label" htmlFor="paypal">
-                            PayPal
-                          </label>
-                        </div>
-                        <div className="payment-icons">
-                          <i className="bi bi-paypal"></i>
-                        </div>
-                      </div>
-                      <div className="payment-method-body d-none">
-                        <p>You will be redirected to PayPal to complete your purchase securely.</p>
-                      </div>
-                    </div>
+					<div className="payment-method mt-3">
+						<div className="payment-method-header">
+						<div className="form-check">
+							<input className="form-check-input" type="radio" name="payment-method" id="cash-on-delivery" />
+							<label className="form-check-label" htmlFor="cash-on-delivery">
+							Cash on Delivery
+							</label>
+						</div>
+						<div className="payment-icons">
+							<i className="bi bi-cash"></i>
+						</div>
+						</div>
+						<div className="payment-method-body d-none">
+						<p>Pay with cash when your order is delivered to your doorstep.</p>
+						<div className="alert alert-warning mt-2">
+							<i className="bi bi-exclamation-triangle me-2"></i>
+							Please ensure someone is available to receive and pay for the order at the delivery address.
+						</div>
+						</div>
+					</div>
+					</div>
+					<div className="d-flex justify-content-between mt-4">
+						<button type="button" className="btn btn-outline-secondary prev-step" data-prev="2">Back to Shipping</button>
+						<button type="button" className="btn btn-primary next-step" data-next="4">Review Order</button>
+					</div>
+				</form>
+			</div>
 
-                    <div className="payment-method mt-3">
-                      <div className="payment-method-header">
-                        <div className="form-check">
-                          <input className="form-check-input" type="radio" name="payment-method" id="apple-pay" />
-                          <label className="form-check-label" htmlFor="apple-pay">
-                            Apple Pay
-                          </label>
-                        </div>
-                        <div className="payment-icons">
-                          <i className="bi bi-apple"></i>
-                        </div>
-                      </div>
-                      <div className="payment-method-body d-none">
-                        <p>You will be prompted to authorize payment with Apple Pay.</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="d-flex justify-content-between mt-4">
-                    <button type="button" className="btn btn-outline-secondary prev-step" data-prev="2">Back to Shipping</button>
-                    <button type="button" className="btn btn-primary next-step" data-next="4">Review Order</button>
-                  </div>
-                </form>
-              </div>
-
-              {/* Step 4: Order Review */}
+			{/* Step 4: Order Review */}
               <div className="checkout-form" data-form="4">
                 <div className="form-header">
                   <h3>Review Your Order</h3>

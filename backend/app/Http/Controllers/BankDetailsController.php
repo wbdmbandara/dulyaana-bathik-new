@@ -84,4 +84,16 @@ class BankDetailsController extends Controller
 
         return redirect('/bank-details')->with('success', 'Bank details deleted successfully.');
     }
+
+    public function getBankDetails()
+    {
+        $bankDetails = $this->bankDetails->all();
+        if ($bankDetails->isEmpty()) {
+            return response()->json(['message' => 'No bank details found.'], 404);
+        }
+        return response()->json([
+            'message' => 'Bank details retrieved successfully.',
+            'data' => $bankDetails
+        ]);
+    }
 }
