@@ -50,6 +50,19 @@
       </li>
 
       <li class="nav-item">
+        <a class="nav-link <?php if($active != 'payments'){echo 'collapsed';} ?>" data-bs-target="#payments-nav" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-credit-card"></i><span>Payments</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="payments-nav" class="nav-content <?php if($active != 'payments'){echo 'collapse';} ?>" data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="/bank-details" class="<?php if($subMenu == 'bank-details'){echo 'active';} ?>">
+              <i class="bi bi-circle"></i><span>Bank Details</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <li class="nav-item">
         <a class="nav-link <?php if($active != 'home-page'){echo 'collapsed';} ?>" data-bs-target="#home-page-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-layout-text-window-reverse"></i><span>Home Page</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
