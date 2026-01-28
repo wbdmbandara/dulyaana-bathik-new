@@ -16,7 +16,10 @@ function Checkout() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [customerData, setCustomerData] = useState(null);
 	const [shippingData, setShippingData] = useState(null);
-	const [paymentData, setPaymentData] = useState(null);
+	const [paymentData, setPaymentData] = useState({
+		method: "bank-transfer",
+		displayName: "Bank Transfer",
+	});
 	const [bankDetails, setBankDetails] = useState([]);
 	const [addresses, setAddresses] = useState([]);
 	const [currentStep, setCurrentStep] = useState(1);
@@ -315,14 +318,30 @@ function Checkout() {
 			}
 
 			// Save payment data (in real app, don't store full card details)
-			setPaymentData({
+			const newPaymentData = {
 				method: 'credit-card',
 				cardLast4: cleanCardNumber.slice(-4),
 				cardName
-			});
+			};
+			setPaymentData(newPaymentData);
+		} else if (paymentMethod === 'bank-transfer') {
+			// Bank transfer selected - no additional validation needed
+			const newPaymentData = { 
+				method: 'bank-transfer',
+				displayName: 'Bank Transfer'
+			};
+			setPaymentData(newPaymentData);
+		} else if (paymentMethod === 'cash-on-delivery') {
+			// Cash on delivery selected - no additional validation needed
+			const newPaymentData = { 
+				method: 'cash-on-delivery',
+				displayName: 'Cash on Delivery'
+			};
+			setPaymentData(newPaymentData);
 		} else {
 			// For other payment methods
-			setPaymentData({ method: paymentMethod });
+			const newPaymentData = { method: paymentMethod };
+			setPaymentData(newPaymentData);
 		}
 
 		return true;
@@ -411,9 +430,11 @@ function Checkout() {
 			const shippingContent = document.querySelectorAll('.review-section-content')[1];
 			if (shippingContent) {
 				shippingContent.innerHTML = `
-					<p>${shippingData.address}${shippingData.apartment ? ', ' + shippingData.apartment : ''}</p>
-					<p>${shippingData.city}, ${shippingData.state} ${shippingData.zip}</p>
-					<p>${document.querySelector(`option[value="${shippingData.country}"]`)?.textContent || shippingData.country}</p>
+					<p><strong>${shippingData.fullName}</strong></p>
+					<p>${shippingData.phoneNumber}</p>
+					<p>${shippingData.addressLine1}</p>
+					<p>${shippingData.addressLine2 ? shippingData.addressLine2 + ', ' : ''}</p>
+					<p>${shippingData.city}, ${shippingData.state} ${shippingData.postalCode}</p>
 				`;
 			}
 		}
@@ -421,19 +442,38 @@ function Checkout() {
 		if (paymentData) {
 			const paymentContent = document.querySelectorAll('.review-section-content')[2];
 			if (paymentContent) {
+				let paymentHTML = '';
+				
 				if (paymentData.method === 'credit-card') {
-					paymentContent.innerHTML = `
+					paymentHTML = `
 						<p><i class="bi bi-credit-card-2-front me-2"></i> Credit Card ending in ${paymentData.cardLast4}</p>
+						<p class="text-muted">Name on card: ${paymentData.cardName}</p>
 					`;
 				} else if (paymentData.method === 'paypal') {
-					paymentContent.innerHTML = `
+					paymentHTML = `
 						<p><i class="bi bi-paypal me-2"></i> PayPal</p>
 					`;
 				} else if (paymentData.method === 'apple-pay') {
-					paymentContent.innerHTML = `
+					paymentHTML = `
 						<p><i class="bi bi-apple me-2"></i> Apple Pay</p>
 					`;
+				} else if (paymentData.method === 'bank-transfer') {
+					paymentHTML = `
+						<p><i class="bi bi-bank me-2"></i> Bank Transfer</p>
+						<p class="text-muted">Please transfer the total amount to our bank account. Your order will be processed once payment is confirmed.</p>
+					`;
+				} else if (paymentData.method === 'cash-on-delivery') {
+					paymentHTML = `
+						<p><i class="bi bi-cash me-2"></i> Cash on Delivery</p>
+						<p class="text-muted">Pay with cash when your order is delivered.</p>
+					`;
+				} else {
+					paymentHTML = `
+						<p><i class="bi bi-wallet me-2"></i> ${paymentData.displayName || paymentData.method}</p>
+					`;
 				}
+				
+				paymentContent.innerHTML = paymentHTML;
 			}
 		}
 	};
@@ -788,7 +828,7 @@ function Checkout() {
 					<div className="payment-method active">
 						<div className="payment-method-header">
 						<div className="form-check">
-							<input className="form-check-input" type="radio" name="payment-method" id="bank-transfer" defaultChecked />
+							<input className="form-check-input" type="radio" name="payment-method" id="bank-transfer" defaultChecked onChange={() => setPaymentData({ method: 'bank-transfer', displayName: 'Bank Transfer' })} />
 							<label className="form-check-label" htmlFor="bank-transfer">
 							Bank Transfer
 							</label>
@@ -836,7 +876,7 @@ function Checkout() {
 					<div className="payment-method mt-3">
 						<div className="payment-method-header">
 						<div className="form-check">
-							<input className="form-check-input" type="radio" name="payment-method" id="cash-on-delivery" />
+							<input className="form-check-input" type="radio" name="payment-method" id="cash-on-delivery" onChange={() => setPaymentData({ method: 'cash-on-delivery', displayName: 'Cash on Delivery' })} />
 							<label className="form-check-label" htmlFor="cash-on-delivery">
 							Cash on Delivery
 							</label>
