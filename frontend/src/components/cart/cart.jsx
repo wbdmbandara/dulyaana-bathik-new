@@ -198,9 +198,8 @@ function Cart() {
 				: item?.item_price) * item.quantity,
 		0
 	);
-	const tax = subtotal * 0.1; // 10% tax
 	const shipping = 4.99; // Default shipping
-	const total = subtotal + tax + shipping;
+	const total = subtotal + shipping;
 
 	return (
 		<section id="cart" className="cart section">
@@ -448,13 +447,6 @@ function Cart() {
 									</div>
 								</div>
 
-								<div className="summary-item">
-									<span className="summary-label">Tax</span>
-									<span className="summary-value">
-										{formatCurrency(tax)}
-									</span>
-								</div>
-
 								<div className="summary-item discount">
 									<span className="summary-label">Discount</span>
 									<span className="summary-value">-{formatCurrency(0)}</span>
@@ -468,7 +460,7 @@ function Cart() {
 								</div>
 
 								<div className="checkout-button">
-									<a href="#" className="btn btn-accent w-100">
+									<a href="/checkout" className="btn btn-accent w-100">
 										Proceed to Checkout{" "}
 										<i className="bi bi-arrow-right"></i>
 									</a>

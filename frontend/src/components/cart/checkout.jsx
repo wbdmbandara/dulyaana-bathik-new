@@ -113,7 +113,7 @@ function Checkout() {
 				}
 				const data = await response.json();
 				setAddresses(data.addresses);
-				console.log(data.addresses);
+				// console.log(data.addresses);
 			} catch (error) {
 				console.error(error);
 			}
@@ -156,9 +156,9 @@ function Checkout() {
 				item.quantity,
 		0
 	);
-	const tax = subtotal * 0.1; // 10% tax
+	
 	const shipping = 4.99; // Default shipping
-	const total = subtotal + tax + shipping;
+	const total = subtotal + shipping;
 
 	// Validation functions for each step
 	const validateStep1 = () => {
@@ -470,7 +470,7 @@ function Checkout() {
 			shipping: shippingData,
 			payment: paymentData,
 			items: checkoutItems,
-			totals: { subtotal, tax, shipping, total }
+			totals: { subtotal, shipping, total }
 		});
 
 		// Show success message
@@ -598,15 +598,15 @@ function Checkout() {
                 <form className="checkout-form-element">
                   <div className="form-group mt-3">
                     <label htmlFor="name">Name</label>
-                    <input type="text" name="name" className="form-control" id="name" placeholder="Your Name" required="" value={customerData?.name || ''} />
+                    <input type="text" name="name" className="form-control" id="name" placeholder="Your Name" required="" value={customerData?.name || ''} onChange={(e) => setCustomerData({...customerData, name: e.target.value})}/>
                   </div>
                   <div className="form-group mt-3">
                     <label htmlFor="email">Email Address</label>
-                    <input type="email" className="form-control" name="email" id="email" placeholder="Your Email" required="" value={customerData?.email || ''} />
+                    <input type="email" className="form-control" name="email" id="email" placeholder="Your Email" required="" value={customerData?.email || ''} onChange={(e) => setCustomerData({...customerData, email: e.target.value})}/>
                   </div>
                   <div className="form-group mt-3">
                     <label htmlFor="phone">Phone Number</label>
-                    <input type="tel" className="form-control" name="phone" id="phone" placeholder="Your Phone Number" required="" value={customerData?.phone || ''} />
+                    <input type="tel" className="form-control" name="phone" id="phone" placeholder="Your Phone Number" required="" value={customerData?.phone || ''} onChange={(e) => setCustomerData({...customerData, phone: e.target.value})}/>
                   </div>
                   <div className="text-end mt-4">
                     <button type="button" className="btn btn-primary next-step" data-next="2">Continue to Shipping</button>
@@ -967,10 +967,6 @@ function Checkout() {
                   <div className="order-shipping d-flex justify-content-between">
                     <span>Shipping</span>
                     <span>{formatCurrency(shipping)}</span>
-                  </div>
-                  <div className="order-tax d-flex justify-content-between">
-                    <span>Tax</span>
-                    <span>{formatCurrency(tax)}</span>
                   </div>
                   <div className="order-total d-flex justify-content-between">
                     <span>Total</span>
