@@ -118,7 +118,7 @@ function OrderDetails() {
 				data-aos="fade-up"
 				data-aos-delay="100"
 			>
-				{orderedItems.length > 0 ? (
+				{orderData && orderedItems.length > 0 ? (
 					<>
 						{/* Order Header with Status */}
 						<div className="row mb-4">
@@ -332,13 +332,13 @@ function OrderDetails() {
 					</>
 				) : (
 					<div className="empty-cart text-center">
-						<h3>Your cart is empty</h3>
-						<p>
-							Looks like you haven't added anything to your cart
-							yet.
+						<i className="bi bi-receipt-cutoff display-1 text-muted mb-3"></i>
+						<h3>No Order Details Found</h3>
+						<p className="text-muted">
+							We couldn't find any details for this order. Please check the order ID and try again.
 						</p>
 						<a href="/shop" className="btn btn-accent">
-							Shop Now
+							Continue Shopping
 						</a>
 					</div>
 				)}
