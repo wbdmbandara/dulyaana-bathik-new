@@ -422,4 +422,130 @@ class CustomerController extends Controller
             ], 500);
         }
     }
+
+    public function updateAddress(Request $request, $id)
+    {
+        try {
+            $address = $this->customerAddress->find($id);
+
+            if (!$address) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Address not found'
+                ], 404);
+            }
+
+            $isDefault = $request->json('isDefault', false) ? 1 : 0;
+
+            // If this address is set as default, unset other default addresses for this customer
+            if ($isDefault) {
+                $this->customerAddress
+                    ->where('customer_id', $address->customer_id)
+                    ->where('id', '!=', $id)
+                    ->update(['is_default' => 0]);
+            }
+
+            $address->update([
+                'full_name' => $request->json('fullName'),
+                'phone_number' => $request->json('phoneNumber'),
+                'address_line1' => $request->json('addressLine1'),
+                'address_line2' => $request->json('addressLine2'),
+                'type' => $request->json('type'),
+                'city' => $request->json('city'),
+                'state' => $request->json('state'),
+                'postal_code' => $request->json('zipCode'),
+                'label' => $request->json('addressLabel'),
+                'is_default' => $isDefault,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Address updated successfully',
+                'address' => $address
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update address: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function deleteAddress($id)
+    {
+        try {
+            $address = $this->customerAddress->find($id);
+
+            if (!$address) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Address not found'
+                ], 404);
+            }
+
+            // Don't allow deletion of the default address if it's the only one
+            if ($address->is_default) {
+                $addressCount = $this->customerAddress
+                    ->where('customer_id', $address->customer_id)
+                    ->count();
+
+                if ($addressCount > 1) {
+                    // Set another address as default
+                    $nextAddress = $this->customerAddress
+                        ->where('customer_id', $address->customer_id)
+                        ->where('id', '!=', $id)
+                        ->first();
+
+                    if ($nextAddress) {
+                        $nextAddress->update(['is_default' => 1]);
+                    }
+                }
+            }
+
+            $address->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Address deleted successfully'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete address: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function setDefaultAddress($id)
+    {
+        try {
+            $address = $this->customerAddress->find($id);
+
+            if (!$address) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Address not found'
+                ], 404);
+            }
+
+            // Unset other default addresses for this customer
+            $this->customerAddress
+                ->where('customer_id', $address->customer_id)
+                ->update(['is_default' => 0]);
+
+            // Set this address as default
+            $address->update(['is_default' => 1]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Default address updated successfully',
+                'address' => $address
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to set default address: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

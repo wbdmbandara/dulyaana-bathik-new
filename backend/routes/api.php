@@ -44,6 +44,7 @@ Route::middleware('api')->group(function () {
     Route::post('/cart/place-order', [OrdersController::class, 'placeOrder']);
 
     Route::get('/order-details/{id}', [OrdersController::class, 'orderDetails']);
+    Route::get('/order-confirmation/{id}', [OrdersController::class, 'orderConfirmation']);
 
     // getting customer details
     // Route::get('/customers/{id}', [CustomerController::class, 'getCustomerDetails']);
@@ -51,6 +52,9 @@ Route::middleware('api')->group(function () {
     // Customer Profile Management
     Route::get('/customerAddresses/{id}', [CustomerController::class, 'getAddresses']);
     Route::post('/customerNewAddress/{id}', [CustomerController::class, 'addAddress']);
+    Route::put('/customerUpdateAddress/{id}', [CustomerController::class, 'updateAddress']);
+    Route::delete('/customerDeleteAddress/{id}', [CustomerController::class, 'deleteAddress']);
+    Route::put('/customerSetDefaultAddress/{id}', [CustomerController::class, 'setDefaultAddress']);
 
     // get bank details
     Route::get('/getBankDetails', [BankDetailsController::class, 'getBankDetails']);
