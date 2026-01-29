@@ -266,21 +266,21 @@ function Header({ activeMenu }) {
 											<span>My Orders</span>
 										</a>
 										<a
-											className="dropdown-item d-flex align-items-center"
+											className="dropdown-item d-flex align-items-center d-none"
 											href="/profile?wishlist"
 										>
 											<i className="bi bi-heart me-2"></i>
 											<span>My Wishlist</span>
 										</a>
 										<a
-											className="dropdown-item d-flex align-items-center"
+											className="dropdown-item d-flex align-items-center d-none"
 											href="returns.html"
 										>
 											<i className="bi bi-arrow-return-left me-2"></i>
 											<span>Returns &amp; Refunds</span>
 										</a>
 										<a
-											className="dropdown-item d-flex align-items-center"
+											className="dropdown-item d-flex align-items-center d-none"
 											href="settings.html"
 										>
 											<i className="bi bi-gear me-2"></i>
@@ -313,7 +313,7 @@ function Header({ activeMenu }) {
 							</div>
 							{/*Wishlist */}
 							<a
-								href="/profile?wishlist"
+								href="#"
 								className="header-action-btn d-none d-md-flex"
 							>
 								<i className="bi bi-heart"></i>
@@ -1771,7 +1771,7 @@ function Header({ activeMenu }) {
 			</div>
 
 			{/*Announcement Bar */}
-			<div className="announcement-bar py-2">
+			<div className="announcement-bar py-2 d-none">
 				<div className="container-fluid container-xl">
 					<div className="announcement-slider swiper init-swiper">
 						<div className="swiper-wrapper">

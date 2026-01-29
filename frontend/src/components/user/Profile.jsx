@@ -366,7 +366,7 @@ function Profile() {
 										<span className="badge">1</span>
 									</button>
 								</li>
-								<li className="nav-item" role="presentation">
+								<li className="nav-item d-none" role="presentation">
 									<button
 										className={
 											activeTab === "wishlist"
@@ -409,7 +409,7 @@ function Profile() {
 										<span>Payment methods</span>
 									</button>
 								</li>
-								<li className="nav-item" role="presentation">
+								<li className="nav-item d-none" role="presentation">
 									<button
 										className={
 											activeTab === "reviews"
@@ -449,7 +449,7 @@ function Profile() {
 										<span>Addresses</span>
 									</button>
 								</li>
-								<li className="nav-item" role="presentation">
+								<li className="nav-item d-none" role="presentation">
 									<button
 										className={
 											activeTab === "notifications"
