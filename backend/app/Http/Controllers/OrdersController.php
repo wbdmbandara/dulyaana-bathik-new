@@ -144,4 +144,27 @@ class OrdersController extends Controller
         // Generate a unique tracking number for the order using hash or any other logic
         return strtoupper(uniqid('DBTRK-'));
     }
+
+    public function orderDetails()
+    {
+        $orderID = request()->route('id');
+        $order = $this->order->find($orderID);
+        $orderedItems = $this->orderedItems
+            ->where('order_id', $orderID)
+            ->join('items', 'ordered_items.product_id', '=', 'items.item_id')
+            ->select('ordered_items.*', 'items.name', 'items.url', 'items.main_image')
+            ->get();
+        if (!$order) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Order not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'order_data' => $order,
+            'ordered_items' => $orderedItems,
+        ]);
+    }
 }

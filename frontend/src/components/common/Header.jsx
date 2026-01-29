@@ -443,9 +443,9 @@ function Header({ activeMenu }) {
 							<li>
 								<Link to="/cart" className={activeMenu === "cart" ? "active" : ""}>Cart</Link>
 							</li>
-							<li>
+							{/* <li>
 								<Link to="/checkout" className={activeMenu === "checkout" ? "active" : ""}>Checkout</Link>
-							</li>
+							</li> */}
 							<li className="dropdown d-none">
 								<a href="#">
 									<span>Dropdown</span>{" "}

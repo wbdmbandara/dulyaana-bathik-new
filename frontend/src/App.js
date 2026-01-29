@@ -12,6 +12,7 @@ import Product from "./Product";
 import Login from "./Login";
 import Cart from "./Cart";
 import Checkout from "./Checkout";
+import OrderDetails from "./OrderDetails";
 import Register from "./Register";
 import Profile from "./user/Profile";
 import Logout from "./Logout";
@@ -94,6 +95,7 @@ function App() {
 							<Route path="/shop" element={<Shop />} />
 							<Route path="/cart" element={<Cart />} />
 							<Route path="/checkout" element={<Checkout />} />
+							<Route path="/order-details" element={<OrderDetails />} />
 							<Route
 								path="/product/:url"
 								element={<Product url={window.location.pathname} />}

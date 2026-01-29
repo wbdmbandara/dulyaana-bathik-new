@@ -1001,9 +1001,9 @@
 
 					// Simulate redirect after 3 seconds
 					setTimeout(() => {
-						// In a real application, this would redirect to an order confirmation page
+						// In a real application, this would redirect to an order details page
 						console.log(
-							"Redirecting to order confirmation page..."
+							"Redirecting to order details page..."
 						);
 					}, 3000);
 				}
@@ -1164,9 +1164,9 @@
 
 					// Simulate redirect after 3 seconds
 					setTimeout(() => {
-						// In a real application, this would redirect to an order confirmation page
+						// In a real application, this would redirect to an order details page
 						console.log(
-							"Redirecting to order confirmation page..."
+							"Redirecting to order details page..."
 						);
 					}, 3000);
 				}

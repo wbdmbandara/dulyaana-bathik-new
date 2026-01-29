@@ -612,9 +612,9 @@ function Checkout() {
 					"success"
 				);
 
-				// Redirect to order confirmation page after 2 seconds
+				// Redirect to order details page after 2 seconds
 				setTimeout(() => {
-					navigate("/order-confirmation?order_id=" + data.order_id);
+					navigate("/order-details?order_id=" + data.order_id);
 				}, 2000);
 			})
 			.catch((error) => {
