@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NewOrderMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Items;
@@ -10,6 +11,9 @@ use App\Models\OrderedItems;
 use App\Models\OrderShipping;
 use App\Models\OrderStatus;
 use App\Models\Cart;
+use App\Models\Customer;
+use App\Services\MailConfigService;
+use Illuminate\Support\Facades\Mail;
 
 class OrdersController extends Controller
 {
@@ -19,8 +23,9 @@ class OrdersController extends Controller
     protected $orderShipping;
     protected $orderStatus;
     protected $cart;
+    protected $customer;
 
-    public function __construct(Items $items, Order $order, OrderedItems $orderedItems, OrderShipping $orderShipping, OrderStatus $orderStatus, Cart $cart)
+    public function __construct(Items $items, Order $order, OrderedItems $orderedItems, OrderShipping $orderShipping, OrderStatus $orderStatus, Cart $cart, Customer $customer)
     {
         $this->items = $items;
         $this->order = $order;
@@ -28,6 +33,7 @@ class OrdersController extends Controller
         $this->orderShipping = $orderShipping;
         $this->orderStatus = $orderStatus;
         $this->cart = $cart;
+        $this->customer = $customer;
     }
 
     public function placeOrder(Request $request)
@@ -117,6 +123,7 @@ class OrdersController extends Controller
                 DB::commit();
 
                 // Send Email
+                $this->sendCustomerEmail($orderId);
 
                 return response()->json([
                     'status' => 'success',
@@ -190,5 +197,20 @@ class OrdersController extends Controller
             'order_data' => $order,
             'ordered_items' => $orderedItems,
         ]);
+    }
+
+    public function sendCustomerEmail($orderID)
+    {
+        $order = $this->order->find($orderID);
+        if (!$order) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Order not found',
+            ], 404);
+        }
+
+        $customer = $this->customer->find($order->customer_id);
+        MailConfigService::applyMailSettings();
+        Mail::to($customer->email)->send(new NewOrderMail($order, $customer));
     }
 }
