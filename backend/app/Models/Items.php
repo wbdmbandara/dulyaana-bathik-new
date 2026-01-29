@@ -13,6 +13,7 @@ class Items extends Model
         'price',
         'discount_price',
         'quantity',
+        'sold_qty',
         'url',
         'fabric',
         'pattern',

@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\FooterController;
 use App\Http\Controllers\ItemsController;
+use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\PromoCardsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -40,6 +41,7 @@ Route::middleware('api')->group(function () {
     Route::post('/cart/clear', [CartController::class, 'clearCart']);
     Route::post('/cart', [CartController::class, 'viewCart']);
     Route::post('/cart/checkout', [CartController::class, 'checkout']);
+    Route::post('/cart/place-order', [OrdersController::class, 'placeOrder']);
 
     // getting customer details
     // Route::get('/customers/{id}', [CustomerController::class, 'getCustomerDetails']);
