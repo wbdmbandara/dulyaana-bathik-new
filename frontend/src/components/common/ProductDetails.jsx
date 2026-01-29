@@ -3,6 +3,7 @@ import { API_URL, BACKEND_URL, formatNumber, formatCurrency } from "../../config
 import PageTitle from "./PageTitle";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "../../context/SnackbarContext";
+import { useCart } from "../../context/CartContext";
 
 function ProductDetails({ url }) {
 	const [product, setProduct] = useState(null);
@@ -15,6 +16,7 @@ function ProductDetails({ url }) {
 	const [cartSuccess, setCartSuccess] = useState(null);
 	const navigate = useNavigate();
 	const { showSnackbar } = useSnackbar();
+	const { refreshCart } = useCart();
 
 	useEffect(() => {
 		// Fetch product details using the URL
@@ -78,6 +80,8 @@ function ProductDetails({ url }) {
 		.then((data) => {
 			// setCartSuccess(data.message || "Item added to cart successfully");
 			showSnackbar(data.message || "Item added to cart successfully", "success");
+			// Refresh cart in header
+			refreshCart();
 		})
 		.catch((error) => {
 			// setCartErrors("An error occurred while adding item to cart");

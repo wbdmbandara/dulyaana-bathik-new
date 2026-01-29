@@ -1,11 +1,14 @@
 import React, { useState, useEffect, use } from "react";
-import { API_URL, BACKEND_URL, formatNumber, formatCurrency } from "../../config";
+import { API_URL, BACKEND_URL, formatNumber, formatCurrency,
+} from "../../config";
 import { Link } from "react-router-dom";
 import { useSnackbar } from "../../context/SnackbarContext";
+import { useCart } from "../../context/CartContext";
 
 function Header({ activeMenu }) {
 	const { showSnackbar } = useSnackbar();
-	const [cartItems, setCartItems] = useState([]);
+	const { cartItems, fetchCartItems, refreshCart, setCartItems } = useCart();
+	// const [cartItems, setCartItems] = useState([]); // Removed - now using context
 	// Add mobile navigation styles for React compatibility
 	React.useEffect(() => {
 		const style = document.createElement("style");
@@ -87,15 +90,15 @@ function Header({ activeMenu }) {
 				}	
 			}
 		`;
-		
+
 		// Remove existing styles if any
 		const existingStyle = document.getElementById("mobile-nav-styles");
 		if (existingStyle) {
 			existingStyle.remove();
 		}
-		
+
 		document.head.appendChild(style);
-		
+
 		// Cleanup on unmount
 		return () => {
 			const styleElement = document.getElementById("mobile-nav-styles");
@@ -110,50 +113,17 @@ function Header({ activeMenu }) {
 		const isLoggedIn = localStorage.getItem("isLoggedIn");
 		setUserLoggedIn(isLoggedIn === "true");
 	}, []);
-
 	var customerID = JSON.parse(localStorage.getItem("user"))?.id;
 
 	useEffect(() => {
-		const fetchCartItems = async () => {
-			try {
-				fetch(`${API_URL}cart`, {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${localStorage.getItem(
-							"auth_token"
-						)}`,
-					},
-					body: JSON.stringify({
-						customer_id: customerID,
-					}),
-				})
-					.then((response) => {
-						if (!response.ok) {
-							showSnackbar("Failed to fetch cart items", "error");
-							throw new Error("Failed to fetch cart items");
-						}
-
-						return response.json();
-					})
-					.then((data) => {
-						// console.log(data);
-						setCartItems(data.cart_items);
-					})
-					.catch((error) => {
-						console.error(error);
-						showSnackbar("Failed to fetch cart items", "error");
-					});
-			} catch (error) {
-				console.error("Error fetching cart items:", error);
-				showSnackbar("Error fetching cart items", "error");
-			}
-		};
+		// Fetch cart items when component mounts
 		fetchCartItems();
-	}, []);
+	}, [fetchCartItems]);
 
 	const handleRemoveItem = (itemId) => {
-		setCartItems((items) => items.filter((item) => item.item_id !== itemId));
+		setCartItems((items) =>
+			items.filter((item) => item.item_id !== itemId)
+		);
 		removeCartItem(itemId);
 		showSnackbar("Removed item from cart", "success");
 		setTimeout(() => {
@@ -353,30 +323,52 @@ function Header({ activeMenu }) {
 														<div className="cart-item-content">
 															<h6 className="cart-item-title">{item.name}</h6>
 															<div className="cart-item-meta">
-																{item.quantity} × {formatCurrency(
-																	item?.discount_price > 0
-																	? item?.discount_price
-																	: item?.item_price
+																{item.quantity}{" "}
+																×{" "}
+																{formatCurrency(
+																	item?.discount_price >
+																		0
+																		? item?.discount_price
+																		: item?.item_price
 																)}
 																<span> = </span>
 																<span className="cart-item-total">
 																	{formatCurrency(
-																		(item?.discount_price > 0
+																		(item?.discount_price >
+																		0
 																			? item?.discount_price
-																			: item?.item_price) * item.quantity
+																			: item?.item_price) *
+																			item.quantity
 																	)}
 																</span>
 															</div>
 														</div>
-														<button className="cart-item-remove" type="button" onClick={() => handleRemoveItem(item.item_id)}>
+														<button
+															className="cart-item-remove"
+															type="button"
+															onClick={() =>
+																handleRemoveItem(
+																	item.item_id
+																)
+															}
+														>
 															<i className="bi bi-x"></i>
 														</button>
 													</div>
 												))
 											) : userLoggedIn ? (
-												<p className="text-center">Your cart is empty. Start shopping now!</p>
+												<p className="text-center">
+													Your cart is empty. Start
+													shopping now!
+												</p>
 											) : (
-												<p className="text-center">Please <a href="/login?redirect=/cart">log in</a> to view your cart.</p>
+												<p className="text-center">
+													Please{" "}
+													<a href="/login?redirect=/cart">
+														log in
+													</a>{" "}
+													to view your cart.
+												</p>
 											)}
 										</div>
 									</div>
@@ -386,7 +378,16 @@ function Header({ activeMenu }) {
 												<span>Total:</span>
 												<span className="cart-total-price">
 													{formatCurrency(
-														cartItems.reduce((total, item) => total + (item?.discount_price > 0 ? item?.discount_price : item?.item_price) * item.quantity, 0)
+														cartItems.reduce(
+															(total, item) =>
+																total +
+																(item?.discount_price >
+																0
+																	? item?.discount_price
+																	: item?.item_price) *
+																	item.quantity,
+															0
+														)
 													)}
 												</span>
 											</div>
@@ -408,7 +409,7 @@ function Header({ activeMenu }) {
 									)}
 								</div>
 							</div>
-							<button 
+							<button
 								className="mobile-nav-toggle d-xl-none border-0 bg-transparent p-0"
 								type="button"
 								aria-label="Toggle navigation"
@@ -426,22 +427,44 @@ function Header({ activeMenu }) {
 					<nav id="navmenu" className="navmenu">
 						<ul>
 							<li>
-								<Link to="/" className={activeMenu === "home" ? "active" : ""}>
+								<Link
+									to="/"
+									className={
+										activeMenu === "home" ? "active" : ""
+									}
+								>
 									Home
 								</Link>
 							</li>
 							<li>
-								<Link to="/shop" className={activeMenu === "shop" ? "active" : ""}>
+								<Link
+									to="/shop"
+									className={
+										activeMenu === "shop" ? "active" : ""
+									}
+								>
 									Shop
 								</Link>
 							</li>
 							<li>
-								<Link to="/about" className={activeMenu === "about" ? "active" : ""}>
+								<Link
+									to="/about"
+									className={
+										activeMenu === "about" ? "active" : ""
+									}
+								>
 									About
 								</Link>
 							</li>
 							<li>
-								<Link to="/cart" className={activeMenu === "cart" ? "active" : ""}>Cart</Link>
+								<Link
+									to="/cart"
+									className={
+										activeMenu === "cart" ? "active" : ""
+									}
+								>
+									Cart
+								</Link>
 							</li>
 							{/* <li>
 								<Link to="/checkout" className={activeMenu === "checkout" ? "active" : ""}>Checkout</Link>

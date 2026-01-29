@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { API_URL, BACKEND_URL, formatNumber, formatCurrency, } from "./config";
+import { API_URL, BACKEND_URL, formatNumber, formatCurrency } from "./config";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import logo from "./logo.svg";
 import "./App.css";
@@ -18,6 +18,7 @@ import Profile from "./user/Profile";
 import Logout from "./Logout";
 import SessionManager from "./components/common/SessionManager";
 import { SnackbarProvider } from "./context/SnackbarContext";
+import { CartProvider } from "./context/CartContext";
 
 function App() {
 	const [loading, setLoading] = useState(true);
@@ -87,22 +88,24 @@ function App() {
 			<BrowserRouter>
 				<SessionManager>
 					<SnackbarProvider>
-						<Routes>
-							<Route path="/" element={<Home />} />
-							<Route path="/about" element={<About />} />
-							<Route path="/login" element={<Login />} />
-							<Route path="/register" element={<Register />} />
-							<Route path="/shop" element={<Shop />} />
-							<Route path="/cart" element={<Cart />} />
-							<Route path="/checkout" element={<Checkout />} />
-							<Route path="/order-details" element={<OrderDetails />} />
-							<Route
-								path="/product/:url"
-								element={<Product url={window.location.pathname} />}
-							/>
-							<Route path="/profile" element={<Profile />} />
-							<Route path="/logout" element={<Logout />} />
-						</Routes>
+						<CartProvider>
+							<Routes>
+								<Route path="/" element={<Home />} />
+								<Route path="/about" element={<About />} />
+								<Route path="/login" element={<Login />} />
+								<Route path="/register" element={<Register />} />
+								<Route path="/shop" element={<Shop />} />
+								<Route path="/cart" element={<Cart />} />
+								<Route path="/checkout" element={<Checkout />} />
+								<Route path="/order-details" element={<OrderDetails />} />
+								<Route
+									path="/product/:url" 
+									element={<Product url={window.location.pathname} />}
+								/>{" "}
+								<Route path="/profile" element={<Profile />} />
+								<Route path="/logout" element={<Logout />} />
+							</Routes>
+						</CartProvider>
 					</SnackbarProvider>
 				</SessionManager>
 			</BrowserRouter>
