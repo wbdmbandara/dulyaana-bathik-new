@@ -2964,7 +2964,8 @@ section,
   font-size: 1.25rem;
 }
 
-.best-sellers .product-badge {
+.best-sellers .product-badge,
+.product-list .product-badge {
   position: absolute;
   top: 1rem;
   left: 1rem;
@@ -2976,9 +2977,14 @@ section,
   z-index: 1;
 }
 
-.best-sellers .product-badge.new {
+.best-sellers .product-badge.new,
+.product-list .product-badge.new {
   background: var(--accent-color);
   color: var(--contrast-color);
+}
+
+.product-list .product-badge {
+  z-index: 10;
 }
 
 .best-sellers .product-badge.sale {

@@ -91,7 +91,7 @@ function ProductsList() {
 							>
 								<div className="product-card">
 									<div className="product-image">
-										<span className="badge">Sale</span>
+										<div class="product-badge new">New</div>
 										<img
 											src={
 												product.product.main_image
