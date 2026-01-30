@@ -108,6 +108,20 @@ function Header({ activeMenu }) {
 		};
 	}, []);
 
+	const applySearch = (e) => {
+		e.preventDefault();
+		var searchInputDesktop = document.getElementById("searchInputDesktop");
+		var searchInputMobile = document.getElementById("searchInputMobile");
+		var searchInput = "";
+		if(searchInputDesktop.value != ""){
+			searchInput = searchInputDesktop.value;
+		}
+		if(searchInputMobile.value != ""){
+			searchInput = searchInputMobile.value;
+		}
+		window.location.href = "/shop?search=" + searchInput;
+	}
+
 	const [userLoggedIn, setUserLoggedIn] = React.useState(false);
 	React.useEffect(() => {
 		const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -166,12 +180,16 @@ function Header({ activeMenu }) {
 						</a>
 
 						{/*Search */}
-						<form className="search-form desktop-search-form">
+						<form
+							className="search-form desktop-search-form"
+							onSubmit={applySearch}
+						>
 							<div className="input-group">
 								<input
 									type="text"
 									className="form-control"
 									placeholder="Search for Sarees..."
+									id="searchInputDesktop"
 								/>
 								<button
 									className="btn search-btn"
@@ -257,7 +275,10 @@ function Header({ activeMenu }) {
 									</div>
 									<div className="dropdown-footer">
 										{userLoggedIn ? (
-											<a href="/logout" className="btn btn-primary w-100 mb-2">
+											<a
+												href="/logout"
+												className="btn btn-primary w-100 mb-2"
+											>
 												Logout
 											</a>
 										) : (
@@ -300,26 +321,39 @@ function Header({ activeMenu }) {
 									<span className="action-text d-none d-md-inline-block">
 										Cart
 									</span>
-									<span className="badge">{cartItems.length}</span>
+									<span className="badge">
+										{cartItems.length}
+									</span>
 								</button>
 								<div className="dropdown-menu cart-dropdown-menu">
 									<div className="dropdown-header">
-										<h6>Shopping Cart ({cartItems.length})</h6>
+										<h6>
+											Shopping Cart ({cartItems.length})
+										</h6>
 									</div>
 									<div className="dropdown-body">
 										<div className="cart-items">
 											{cartItems.length > 0 ? (
 												cartItems.map((item, index) => (
-													<div className="cart-item" key={index}>
+													<div
+														className="cart-item"
+														key={index}
+													>
 														<div className="cart-item-image">
 															<img
-																src={BACKEND_URL + item.main_image || "assets/img/product/default.webp"}
+																src={
+																	BACKEND_URL +
+																		item.main_image ||
+																	"assets/img/product/default.webp"
+																}
 																alt={item.name}
 																className="img-fluid"
 															/>
 														</div>
 														<div className="cart-item-content">
-															<h6 className="cart-item-title">{item.name}</h6>
+															<h6 className="cart-item-title">
+																{item.name}
+															</h6>
 															<div className="cart-item-meta">
 																{item.quantity}{" "}
 																×{" "}
@@ -357,7 +391,10 @@ function Header({ activeMenu }) {
 											) : userLoggedIn ? (
 												<p className="text-center">
 													Your cart is empty. Start
-													<a href="/shop"> shopping now!</a>
+													<a href="/shop">
+														{" "}
+														shopping now!
+													</a>
 												</p>
 											) : (
 												<p className="text-center">
@@ -1817,12 +1854,13 @@ function Header({ activeMenu }) {
 			{/*Mobile Search Form */}
 			<div className="collapse" id="mobileSearch">
 				<div className="container">
-					<form className="search-form">
+					<form className="search-form" onSubmit={applySearch}>
 						<div className="input-group">
 							<input
 								type="text"
 								className="form-control"
 								placeholder="Search for products..."
+								id="searchInputMobile"
 							/>
 							<button className="btn search-btn" type="submit">
 								<i className="bi bi-search"></i>
