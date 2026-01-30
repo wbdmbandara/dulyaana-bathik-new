@@ -16,7 +16,6 @@ const Home = () => {
             <Header activeMenu="home"/>
 			<HomeSlider />
 			<PromoCards />
-			<CategoryCards />
 			<BestSellers />
 			<ProductsList />
 			<Footer />
