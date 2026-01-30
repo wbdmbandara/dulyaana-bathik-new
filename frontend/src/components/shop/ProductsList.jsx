@@ -8,6 +8,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "../../context/SnackbarContext";
+import { useCart } from "../../context/CartContext";
 
 function ProductsList() {
 	const location = useLocation();
@@ -19,6 +20,7 @@ function ProductsList() {
 		current_page: 1,
 	});
 	const { showSnackbar } = useSnackbar();
+	const { refreshCart } = useCart();
 	const navigate = useNavigate();
 	useEffect(() => {
 		const fetchProducts = async () => {
@@ -97,6 +99,7 @@ function ProductsList() {
 			})
 			.then((data) => {
 				showSnackbar(data.message || "Item added to cart successfully", "success");
+				refreshCart();
 			})
 			.catch((error) => {
 				showSnackbar("An error occurred while adding item to cart", "error");

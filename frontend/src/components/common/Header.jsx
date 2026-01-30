@@ -126,9 +126,7 @@ function Header({ activeMenu }) {
 		);
 		removeCartItem(itemId);
 		showSnackbar("Removed item from cart", "success");
-		setTimeout(() => {
-			window.location.reload();
-		}, 1000);
+		refreshCart();
 	};
 
 	const removeCartItem = async (itemId) => {
@@ -359,7 +357,7 @@ function Header({ activeMenu }) {
 											) : userLoggedIn ? (
 												<p className="text-center">
 													Your cart is empty. Start
-													shopping now!
+													<a href="/shop"> shopping now!</a>
 												</p>
 											) : (
 												<p className="text-center">
