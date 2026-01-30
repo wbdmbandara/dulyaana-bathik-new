@@ -3041,7 +3041,7 @@ section,
 }
 
 .best-sellers .product-rating {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 0.25rem;
   color: var(--heading-color);
@@ -3298,7 +3298,7 @@ section,
 }
 
 .product-list .product-info .product-rating {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 5px;
   font-size: 14px;
@@ -3709,7 +3709,7 @@ section,
 }
 
 .product-details .product-info-wrapper .product-meta .product-rating {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 1rem;
 }
@@ -5014,7 +5014,7 @@ section,
 }
 
 .category-product-list .product-rating-container {
-  display: flex;
+  display: none;
   align-items: center;
   margin-bottom: 1rem;
 }
@@ -7281,7 +7281,7 @@ section,
 }
 
 .search-product-list .product-rating {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 0.25rem;
   color: var(--heading-color);
