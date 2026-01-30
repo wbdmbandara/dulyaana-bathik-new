@@ -834,7 +834,7 @@ function ProductDetails({ url }) {
 								</div>
 
 								{/* Reviews Accordion */}
-								<div className="accordion-item" id="reviews">
+								<div className="accordion-item d-none" id="reviews">
 									<h2 className="accordion-header">
 										<button
 											className="accordion-button collapsed"
