@@ -66,7 +66,7 @@ function ProductsList() {
 					data-sort="original-order"
 				>
 					<div
-						class="container section-title aos-init aos-animate"
+						className="container section-title aos-init aos-animate"
 						data-aos="fade-up"
 					>
 						<h2>New Arrivals</h2>
@@ -91,7 +91,7 @@ function ProductsList() {
 							>
 								<div className="product-card">
 									<div className="product-image">
-										<div class="product-badge new">New</div>
+										<div className="product-badge new">New</div>
 										<img
 											src={
 												product.product.main_image

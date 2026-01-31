@@ -20,6 +20,7 @@ Route::middleware('api')->group(function () {
     Route::get('/getSlider', [SliderController::class, 'displaySlides']);
     Route::get('/getPromoCards', [PromoCardsController::class, 'getPromoCards']);
     Route::get('/getRecentProducts', [ItemsController::class, 'getRecentProducts']);
+    Route::get('/getBestSellersProducts', [ItemsController::class, 'getBestSellersProducts']);
     Route::get('/getProductDetails/{url}', [ItemsController::class, 'getProductDetails']);
     Route::get('/getParentCategories', [CategoryController::class, 'getParentCategories']);
     Route::get('/getMinAndMaxPrices', [ItemsController::class, 'getMinAndMaxPrices']);
