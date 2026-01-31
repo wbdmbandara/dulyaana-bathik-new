@@ -502,30 +502,30 @@ function Checkout() {
 
 				if (paymentData.method === "credit-card") {
 					paymentHTML = `
-						<p><i class="bi bi-credit-card-2-front me-2"></i> Credit Card ending in ${paymentData.cardLast4}</p>
-						<p class="text-muted">Name on card: ${paymentData.cardName}</p>
+						<p><i className="bi bi-credit-card-2-front me-2"></i> Credit Card ending in ${paymentData.cardLast4}</p>
+						<p className="text-muted">Name on card: ${paymentData.cardName}</p>
 					`;
 				} else if (paymentData.method === "paypal") {
 					paymentHTML = `
-						<p><i class="bi bi-paypal me-2"></i> PayPal</p>
+						<p><i className="bi bi-paypal me-2"></i> PayPal</p>
 					`;
 				} else if (paymentData.method === "apple-pay") {
 					paymentHTML = `
-						<p><i class="bi bi-apple me-2"></i> Apple Pay</p>
+						<p><i className="bi bi-apple me-2"></i> Apple Pay</p>
 					`;
 				} else if (paymentData.method === "bank-transfer") {
 					paymentHTML = `
-						<p><i class="bi bi-bank me-2"></i> Bank Transfer</p>
-						<p class="text-muted">Please transfer the total amount to our bank account. Your order will be processed once payment is confirmed.</p>
+						<p><i className="bi bi-bank me-2"></i> Bank Transfer</p>
+						<p className="text-muted">Please transfer the total amount to our bank account. Your order will be processed once payment is confirmed.</p>
 					`;
 				} else if (paymentData.method === "cash-on-delivery") {
 					paymentHTML = `
-						<p><i class="bi bi-cash me-2"></i> Cash on Delivery</p>
-						<p class="text-muted">Pay with cash when your order is delivered.</p>
+						<p><i className="bi bi-cash me-2"></i> Cash on Delivery</p>
+						<p className="text-muted">Pay with cash when your order is delivered.</p>
 					`;
 				} else {
 					paymentHTML = `
-						<p><i class="bi bi-wallet me-2"></i> ${
+						<p><i className="bi bi-wallet me-2"></i> ${
 							paymentData.displayName || paymentData.method
 						}</p>
 					`;
