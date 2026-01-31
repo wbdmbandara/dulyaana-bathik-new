@@ -1,10 +1,18 @@
 import { API_URL, BACKEND_URL, formatNumber, formatCurrency } from "../../config";
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "../../context/SnackbarContext";
+import { useCart } from "../../context/CartContext";
 
 function ProductsList() {
+	const location = useLocation();
+	const navigate = useNavigate();
 	const [recentProducts, setRecentProducts] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const { showSnackbar } = useSnackbar();
+	const { refreshCart } = useCart();
 
 	useEffect(() => {
 		const fetchRecentProducts = async () => {
@@ -25,6 +33,56 @@ function ProductsList() {
 
 		fetchRecentProducts();
 	}, []);
+
+	const addToCart = async (itemId, e) => {
+		e.preventDefault();
+
+		var customerID = JSON.parse(localStorage.getItem("user"))?.id;
+		if (!customerID) {
+			navigate("/login?redirect=" + window.location.pathname);
+			return;
+		}
+
+		const button = e.currentTarget;
+		button.disabled = true;
+
+		try {
+			const response = await fetch(`${API_URL}cart/add`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${localStorage.getItem(
+						"auth_token"
+					)}`,
+				},
+				body: JSON.stringify({
+					customer_id: customerID,
+					item_id: itemId,
+					quantity: 1,
+				}),
+			});
+
+			if (!response.ok) {
+				showSnackbar("Failed to add item to cart", "error");
+				throw new Error("Failed to add item to cart");
+			}
+
+			const data = await response.json();
+			showSnackbar(
+				data.message || "Item added to cart successfully",
+				"success"
+			);
+			refreshCart();
+		} catch (error) {
+			console.error("Error adding item to cart:", error);
+			showSnackbar(
+				"An error occurred while adding item to cart",
+				"error"
+			);
+		} finally {
+			button.disabled = false;
+		}
+	};
 
 	if (loading) {
 		return (
@@ -121,10 +179,10 @@ function ProductsList() {
 											className="img-fluid hover-img"
 										/>
 										<div className="product-overlay">
-											<a href="#" className="btn-cart">
+											<button className="btn btn-cart" onClick={(e) => addToCart(product.product.item_id, e)}>
 												<i className="bi bi-cart-plus"></i>{" "}
 												Add to Cart
-											</a>
+											</button>
 											<div className="product-actions">
 												<a
 													href="#"
