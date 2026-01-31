@@ -526,7 +526,7 @@ function ProductDetails({ url }) {
 										<i className="bi bi-cart-plus"></i> Add
 										to Cart
 									</button>
-									<button className="btn btn-outline-primary buy-now-btn">
+									<button className="btn btn-outline-primary buy-now-btn d-none">
 										<i className="bi bi-lightning-fill"></i>{" "}
 										Buy Now
 									</button>
@@ -539,7 +539,7 @@ function ProductDetails({ url }) {
 								</div>
 
 								{/* Delivery Options */}
-								<div className="delivery-options">
+								<div className="delivery-options d-none">
 									<div className="delivery-option">
 										<i className="bi bi-truck"></i>
 										<div>
