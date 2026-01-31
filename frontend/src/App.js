@@ -7,6 +7,7 @@ import "./App.css";
 
 import Home from "./Home";
 import About from "./About";
+import Contact from "./Contact";
 import Shop from "./Shop";
 import Product from "./Product";
 import Login from "./Login";
@@ -92,6 +93,7 @@ function App() {
 							<Routes>
 								<Route path="/" element={<Home />} />
 								<Route path="/about" element={<About />} />
+								<Route path="/contact" element={<Contact />} />
 								<Route path="/login" element={<Login />} />
 								<Route path="/register" element={<Register />} />
 								<Route path="/shop" element={<Shop />} />

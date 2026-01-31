@@ -3,6 +3,7 @@
 use App\Http\Controllers\BankDetailsController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ContactDetailsController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\FooterController;
 use App\Http\Controllers\ItemsController;
@@ -28,6 +29,7 @@ Route::middleware('api')->group(function () {
     Route::get('/getFooter', [FooterController::class, 'getFooterData']);
     Route::get('/getItems', [ItemsController::class, 'filterItems']);
     Route::get('/getItems/{}', [ItemsController::class, 'filterItems']);
+    Route::get('/getContactDetails', [ContactDetailsController::class, 'getContactDetails']);
 
     // Authentication routes (no token required)
     Route::post('/registerCustomer', [CustomerController::class, 'register']);

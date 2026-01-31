@@ -1821,7 +1821,14 @@ function Header({ activeMenu }) {
 							{/*End Products Mega Menu 2 */}
 
 							<li>
-								<a href="contact.html">Contact</a>
+								<Link
+									to="/contact"
+									className={
+										activeMenu === "contact" ? "active" : ""
+									}
+								>
+									Contact
+								</Link>
 							</li>
 						</ul>
 					</nav>
