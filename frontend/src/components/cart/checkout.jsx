@@ -1536,7 +1536,7 @@ function Checkout() {
 									</div>
 								</div>
 
-								<div className="promo-code mt-3">
+								<div className="promo-code mt-3 d-none">
 									<div className="input-group">
 										<input
 											type="text"
@@ -1553,7 +1553,7 @@ function Checkout() {
 									</div>
 								</div>
 
-								<div className="secure-checkout mt-4">
+								<div className="secure-checkout mt-4 d-none">
 									<div className="secure-checkout-header">
 										<i className="bi bi-shield-lock"></i>
 										<span>Secure Checkout</span>

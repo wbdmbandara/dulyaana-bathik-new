@@ -653,7 +653,7 @@ function FilterProduct() {
 				{/*/Color Filter Widget */}
 
 				{/* Fabric Filter Widget */}
-				<div className="brand-filter-widget widget-item">
+				<div className="brand-filter-widget widget-item d-none">
 					<h3 className="widget-title">Filter by Fabric</h3>
 
 					<div className="brand-filter-content">

@@ -349,7 +349,7 @@ function Cart() {
 								<div className="cart-actions">
 									<div className="row">
 										<div className="col-lg-6 mb-3 mb-lg-0">
-											<div className="coupon-form">
+											<div className="coupon-form d-none">
 												<div className="input-group">
 													<input
 														type="text"
@@ -366,7 +366,7 @@ function Cart() {
 											</div>
 										</div>
 										<div className="col-lg-6 text-md-end">
-											<button className="btn btn-outline-heading me-2">
+											<button className="btn btn-outline-heading me-2 d-none">
 												<i className="bi bi-arrow-clockwise"></i>{" "}
 												Update Cart
 											</button>
@@ -473,7 +473,7 @@ function Cart() {
 									</a>
 								</div>
 
-								<div className="payment-methods">
+								<div className="payment-methods d-none">
 									<p className="payment-title">We Accept</p>
 									<div className="payment-icons">
 										<i className="bi bi-credit-card"></i>
