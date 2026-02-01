@@ -31,6 +31,8 @@ Route::middleware('api')->group(function () {
     Route::get('/getItems/{}', [ItemsController::class, 'filterItems']);
     Route::get('/getContactDetails', [ContactDetailsController::class, 'getContactDetails']);
 
+    Route::post('/submitContactForm', [ContactDetailsController::class, 'submitContactForm']);
+
     // Authentication routes (no token required)
     Route::post('/registerCustomer', [CustomerController::class, 'register']);
     Route::post('/login', [CustomerController::class, 'login']);

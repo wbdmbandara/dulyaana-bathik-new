@@ -1,12 +1,19 @@
 import { API_URL, BACKEND_URL } from "../../config";
 import React, { useState, useEffect } from "react";
+import { useSnackbar } from "../../context/SnackbarContext";
 
-function PromoCards() {
-	const [promoCards, setPromoCards] = useState([]);
+function ContactDetails() {
 	const [ContactDetails, setContactDetails] = useState([]);
+	const [contactForm, setContactForm] = useState({
+		name: "",
+		email: "",
+		subject: "",
+		message: ""
+	});
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [mapLoaded, setMapLoaded] = useState(false);
+    const { showSnackbar } = useSnackbar();
 
 	useEffect(() => {
 		fetchContactDetails();
@@ -36,6 +43,47 @@ function PromoCards() {
 			setLoading(false);
 		}
 	};
+
+    const submitForm = async (e) => {
+        e.preventDefault();
+
+        if (loading) {
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const response = await fetch(`${API_URL}submitContactForm`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(contactForm),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            if (data.success) {
+                showSnackbar("Your message has been sent. Thank you!", "success");
+                setContactForm({
+                    name: "",
+                    email: "",
+                    subject: "",
+                    message: ""
+                });
+            } else {
+                throw new Error(data.message || "Failed to submit form");
+            }
+        } catch (err) {
+            console.error("Error submitting contact form:", err);
+            showSnackbar(err.message || "Failed to submit form", "error");
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
 	if (loading) {
 		return (
@@ -209,11 +257,10 @@ function PromoCards() {
 
 						<div className="col-lg-8">
 							<form
-								action="forms/contact.php"
-								method="post"
 								className="php-email-form aos-init aos-animate"
 								data-aos="fade-up"
 								data-aos-delay="200"
+								onSubmit={submitForm}
 							>
 								<div className="row gy-4">
 									<div className="col-md-6">
@@ -223,6 +270,13 @@ function PromoCards() {
 											className="form-control"
 											placeholder="Your Name"
 											required
+											value={contactForm.name}
+											onChange={(e) =>
+												setContactForm({
+													...contactForm,
+													name: e.target.value,
+												})
+											}
 										/>
 									</div>
 
@@ -233,6 +287,13 @@ function PromoCards() {
 											name="email"
 											placeholder="Your Email"
 											required
+											value={contactForm.email}
+											onChange={(e) =>
+												setContactForm({
+													...contactForm,
+													email: e.target.value,
+												})
+											}
 										/>
 									</div>
 
@@ -243,6 +304,13 @@ function PromoCards() {
 											name="subject"
 											placeholder="Subject"
 											required
+											value={contactForm.subject}
+											onChange={(e) =>
+												setContactForm({
+													...contactForm,
+													subject: e.target.value,
+												})
+											}
 										/>
 									</div>
 
@@ -253,13 +321,28 @@ function PromoCards() {
 											rows="6"
 											placeholder="Message"
 											required
+											value={contactForm.message}
+											onChange={(e) =>
+												setContactForm({
+													...contactForm,
+													message: e.target.value,
+												})
+											}
 										></textarea>
 									</div>
 
 									<div className="col-md-12 text-center">
 										<div className="loading">Loading</div>
-										<div className="error-message"></div>
-										<div className="sent-message">
+										<div
+											className="error-message d-none"
+											id="errorMessage"
+										>
+											Failed to submit form
+										</div>
+										<div
+											className="sent-message d-none"
+											id="successMessage"
+										>
 											Your message has been sent. Thank
 											you!
 										</div>
@@ -280,4 +363,4 @@ function PromoCards() {
 	);
 }
 
-export default PromoCards;
+export default ContactDetails;

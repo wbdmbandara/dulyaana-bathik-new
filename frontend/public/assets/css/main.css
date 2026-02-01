@@ -93,7 +93,7 @@ h6 {
 /* PHP Email Form Messages
 ------------------------------*/
 .php-email-form .error-message {
-  display: none;
+  /* display: none; */
   background: #df1529;
   color: #ffffff;
   text-align: left;
@@ -103,7 +103,7 @@ h6 {
 }
 
 .php-email-form .sent-message {
-  display: none;
+  /* display: none; */
   color: #ffffff;
   background: #059652;
   text-align: center;
