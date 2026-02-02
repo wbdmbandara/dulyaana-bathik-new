@@ -69,12 +69,12 @@ class OrdersController extends Controller
     public function placeOrder(Request $request)
     {
         try{
-            $customer = $request->json('customer');
-            $totals = $request->json('totals');
-            $payment = $request->json('payment');
-            $orderedItemsData = $request->json('items');
+            $customer = json_decode($request->customer, true);
+            $totals = json_decode($request->totals, true);
+            $payment = json_decode($request->payment, true);
+            $orderedItemsData = json_decode($request->items, true);
             $customerID = $orderedItemsData[0]['customer_id'];
-            $shipping = $request->json('shipping');
+            $shipping = json_decode($request->shipping, true);
             $trackingNumber = $this->generateTrackingNumber();
 
             DB::beginTransaction();
@@ -89,7 +89,7 @@ class OrdersController extends Controller
                     'total_quantity' => $totals['total_quantity'],
                     'total_amount' => $totals['subtotal'],
                     'shipping_fee' => $totals['shipping'],
-                    'discount' => $request->json('discount') ? $request->json('discount') : 0, // optional discount
+                    'discount' => 0, // optional discount
                     'final_amount' => $totals['total'],
                     'payment_method' => $payment['displayName'],
                     'note' => $request->json('note') ?? '', // optional note
@@ -98,6 +98,18 @@ class OrdersController extends Controller
 
                 // get order id
                 $orderId = $order->id;
+
+                // Handle payment slip upload
+                if ($request->hasFile('paymentSlip')) {
+                    $file = $request->file('paymentSlip');
+                    $filename = 'order_' . $order->id . '_payment_slip.' . $file->getClientOriginalExtension();
+
+                    $file->move(public_path('payment_slips'), $filename);
+
+                    $order->update([
+                        'payment_slip' => $filename
+                    ]);
+                }
 
                 // Insert ordered items
                 foreach ($orderedItemsData as $item) {

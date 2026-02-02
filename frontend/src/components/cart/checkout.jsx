@@ -375,6 +375,14 @@ function Checkout() {
 				displayName: "Bank Transfer",
 			};
 			setPaymentData(newPaymentData);
+			
+			// Check payment slip upload
+			const paymentSlip = document.getElementById("payment-slip")?.files[0];
+			if (!paymentSlip) {
+				document.getElementById("payment-slip")?.focus();
+				showSnackbar("Please upload your payment slip", "error");
+				return false;
+			}
 		} else if (paymentMethod === "cash-on-delivery") {
 			// Cash on delivery selected - no additional validation needed
 			const newPaymentData = {
@@ -572,24 +580,29 @@ function Checkout() {
 			0
 		);
 
-		const orderData = {
-			customer: customerData,
-			shipping: shippingData,
-			payment: paymentData,
-			items: checkoutItems,
-			totals: { total_quantity, subtotal, shipping, total },
-		};
-		console.log("Order Data:", orderData);
+		const formData = new FormData();
+		formData.append("customer", JSON.stringify(customerData));
+		formData.append("shipping", JSON.stringify(shippingData));
+		formData.append("payment", JSON.stringify(paymentData));
+		formData.append("items", JSON.stringify(checkoutItems));
+		formData.append("totals", JSON.stringify({ total_quantity, subtotal, shipping, total }));
+
+		const paymentSlip = document.getElementById("payment-slip")?.files[0];
+		// attach file only for bank transfer
+		if (paymentData.method === "bank-transfer" && paymentSlip) {
+			formData.append("paymentSlip", paymentSlip);
+		}
+		console.log("Order Data:", formData);
 
 		// Send API request to place order
 		fetch(`${API_URL}cart/place-order`, {
 			method: "POST",
 			headers: {
-				"Content-Type": "application/json",
-				Accept: "application/json",
+				// "Content-Type": "application/json",
+				// Accept: "application/json",
 				Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
 			},
-			body: JSON.stringify(orderData),
+			body: formData,
 		})
 			.then((response) => {
 				if (!response.ok) {
@@ -1248,11 +1261,36 @@ function Checkout() {
 												)}
 												<div className="alert alert-info mt-3">
 													<i className="bi bi-info-circle me-2"></i>
-													Please include your order
-													number as the payment
-													reference. Your order will
-													be processed once we confirm
-													the payment.
+													Please include your
+													<b> registered mobile number </b>
+													as the payment reference. Your
+													order will be processed once
+													we confirm the payment.
+												</div>
+												
+												<div className="form-group mt-4">
+													<label htmlFor="payment-slip" className="form-label">
+														Upload Payment Slip <span className="text-danger">*</span>
+													</label>
+													<input
+														type="file"
+														className="form-control"
+														id="payment-slip"
+														name="payment-slip"
+														accept="image/*,.pdf"
+														onChange={(e) => {
+															const file = e.target.files[0];
+															if (file) {
+																setPaymentData({
+																	...paymentData,
+																	paymentSlip: file
+																});
+															}
+														}}
+													/>
+													<small className="form-text text-muted">
+														Please upload a clear image or PDF of your payment slip/receipt.
+													</small>
 												</div>
 											</div>
 										</div>
@@ -1400,23 +1438,63 @@ function Checkout() {
 										</div>
 									</div>
 
-									<div className="my-4  p-3 rounded" style={{ backgroundColor: '#FFF8E1', borderLeft: '4px solid #FFA726' }}>
+									<div
+										className="my-4  p-3 rounded"
+										style={{
+											backgroundColor: "#FFF8E1",
+											borderLeft: "4px solid #FFA726",
+										}}
+									>
 										<div className="d-flex align-items-start">
-											<i className="bi bi-exclamation-triangle-fill me-2" style={{ color: '#F57C00', fontSize: '1.2rem' }}></i>
+											<i
+												className="bi bi-exclamation-triangle-fill me-2"
+												style={{
+													color: "#F57C00",
+													fontSize: "1.2rem",
+												}}
+											></i>
 											<div>
-												<p className="mb-0" style={{ color: '#E65100' }}>
-												Please note: The prices shown do not include delivery fees. Courier charges are the responsibility of the customer.
+												<p
+													className="mb-0"
+													style={{ color: "#E65100" }}
+												>
+													Please note: The prices
+													shown do not include
+													delivery fees. Courier
+													charges are the
+													responsibility of the
+													customer.
 												</p>
 											</div>
 										</div>
 									</div>
-									
-									<div className="my-4  p-3 rounded" style={{ backgroundColor: '#FFF8E1', borderLeft: '4px solid #FFA726' }}>
+
+									<div
+										className="my-4  p-3 rounded"
+										style={{
+											backgroundColor: "#FFF8E1",
+											borderLeft: "4px solid #FFA726",
+										}}
+									>
 										<div className="d-flex align-items-start">
-											<i className="bi bi-exclamation-triangle-fill me-2" style={{ color: '#F57C00', fontSize: '1.2rem' }}></i>
+											<i
+												className="bi bi-exclamation-triangle-fill me-2"
+												style={{
+													color: "#F57C00",
+													fontSize: "1.2rem",
+												}}
+											></i>
 											<div>
-												<p className="mb-0" style={{ color: '#E65100' }}>
-												කරුණාවෙන් සලකන්න: මෙහි දක්වා ඇති මිල ගණන් සඳහා කුරියර් ගාස්තු (Delivery fees) ඇතුළත් නොවේ. කුරියර් ගාස්තු පාරිභෝගිකයා (ඔබ) විසින් දැරිය යුතුය.
+												<p
+													className="mb-0"
+													style={{ color: "#E65100" }}
+												>
+													කරුණාවෙන් සලකන්න: මෙහි දක්වා
+													ඇති මිල ගණන් සඳහා කුරියර්
+													ගාස්තු (Delivery fees)
+													ඇතුළත් නොවේ. කුරියර් ගාස්තු
+													පාරිභෝගිකයා (ඔබ) විසින්
+													දැරිය යුතුය.
 												</p>
 											</div>
 										</div>
@@ -1558,12 +1636,30 @@ function Checkout() {
 									</div>
 								</div>
 
-								<div className="my-4  p-3 rounded" style={{ backgroundColor: '#FFF8E1', borderLeft: '4px solid #FFA726' }}>
+								<div
+									className="my-4  p-3 rounded"
+									style={{
+										backgroundColor: "#FFF8E1",
+										borderLeft: "4px solid #FFA726",
+									}}
+								>
 									<div className="d-flex align-items-start">
-										<i className="bi bi-exclamation-triangle-fill me-2" style={{ color: '#F57C00', fontSize: '1.2rem' }}></i>
+										<i
+											className="bi bi-exclamation-triangle-fill me-2"
+											style={{
+												color: "#F57C00",
+												fontSize: "1.2rem",
+											}}
+										></i>
 										<div>
-											<p className="mb-0" style={{ color: '#E65100' }}>
-											Please note: The prices shown do not include delivery fees. Courier charges are the responsibility of the customer.
+											<p
+												className="mb-0"
+												style={{ color: "#E65100" }}
+											>
+												Please note: The prices shown do
+												not include delivery fees.
+												Courier charges are the
+												responsibility of the customer.
 											</p>
 										</div>
 									</div>
