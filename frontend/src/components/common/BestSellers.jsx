@@ -32,7 +32,7 @@ function BestSellers() {
 					setError(data.message);
 				}
 			} catch (error) {
-				setError("Error fetching best sellers products");
+				setError("Error fetching fast moving products");
 			} finally {
 				setLoading(false);
 			}
@@ -107,7 +107,7 @@ function BestSellers() {
 									role="status"
 								>
 									<span className="visually-hidden">
-										Loading best sellers products...
+										Loading fast moving products...
 									</span>
 								</div>
 							</div>
@@ -120,11 +120,11 @@ function BestSellers() {
 
 	return (
 		<div>
-			{/* Best Sellers Section */}
+			{/* fast moving Section */}
 			<section id="best-sellers" className="best-sellers section">
 				{/* Section Title */}
 				<div className="container section-title" data-aos="fade-up">
-					<h2>Best Sellers</h2>
+					<h2>Fast Moving</h2>
 					<p>
 						Our most popular Batik sarees are selling fast. Grab
 						your favorite look before it’s gone.
@@ -256,7 +256,7 @@ function BestSellers() {
 					</div>
 				</div>
 			</section>
-			{/* /Best Sellers Section */}
+			{/* /fast moving Section */}
 		</div>
 	);
 }

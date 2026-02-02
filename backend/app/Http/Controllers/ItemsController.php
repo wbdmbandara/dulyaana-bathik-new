@@ -878,7 +878,7 @@ class ItemsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error fetching best sellers products: ' . $e->getMessage()
+                'message' => 'Error fetching fast moving products: ' . $e->getMessage()
             ], 500);
         }
     }
