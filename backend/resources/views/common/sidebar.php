@@ -50,6 +50,13 @@
       </li>
 
       <li class="nav-item">
+        <a class="nav-link <?php if($active != 'orders'){echo 'collapsed';} ?>" href="/orders">
+          <i class="bi bi-cart"></i>
+          <span>Orders</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
         <a class="nav-link <?php if($active != 'payments'){echo 'collapsed';} ?>" data-bs-target="#payments-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-credit-card"></i><span>Payments</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>

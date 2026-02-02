@@ -10,6 +10,8 @@ class OrderShipping extends Model
 
     protected $fillable = [
         'order_id',
+        'courier_name',
+        'courier_tracking_no',
         'tracking_number',
         'full_name',
         'phone_number',

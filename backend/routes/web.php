@@ -11,6 +11,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EmailSettingController;
 use App\Http\Controllers\FooterController;
 use App\Http\Controllers\ItemsController;
+use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\PromoCardsController;
 use App\Http\Controllers\SliderController;
 use App\Http\Controllers\ThemeController;
@@ -37,6 +38,10 @@ Route::post('/sarees/new', [ItemsController::class, 'store']);
 Route::get('/edit-saree/{id}', [ItemsController::class, 'edit']);
 Route::post('/sarees/update/{id}', [ItemsController::class, 'update']);
 Route::post('/sarees/delete/{id}', [ItemsController::class, 'delete']);
+
+Route::get('/orders', [OrdersController::class, 'index']);
+Route::get('/orders/view/{id}', [OrdersController::class, 'viewOrderDetails']);
+Route::post('/orders/update/{id}', [OrdersController::class, 'updateOrder']);
 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::post('/categories/new', [CategoryController::class, 'store']);

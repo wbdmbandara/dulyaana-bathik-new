@@ -13,6 +13,7 @@ use App\Models\OrderStatus;
 use App\Models\Cart;
 use App\Models\Customer;
 use App\Services\MailConfigService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
 class OrdersController extends Controller
@@ -34,6 +35,35 @@ class OrdersController extends Controller
         $this->orderStatus = $orderStatus;
         $this->cart = $cart;
         $this->customer = $customer;
+    }
+
+    // view orders in admin dashboard
+    public function index()
+    {
+        if (!Auth::check()) {
+            return redirect('/');
+        }
+        
+        $query = $this->order
+            ->leftJoin('customer', 'orders.customer_id', '=', 'customer.id')
+            ->select('orders.*', 'customer.name as customer_name', 'customer.email as email', 'customer.phone as phone');
+
+        // Search functionality
+        if (request()->has('search') && !empty(request()->get('search'))) {
+            $searchTerm = request()->get('search');
+            $query->where(function($q) use ($searchTerm) {
+            $q->where('customer.name', 'LIKE', '%' . $searchTerm . '%')
+                ->orWhere('customer.email', 'LIKE', '%' . $searchTerm . '%')
+                ->orWhere('customer.phone', 'LIKE', '%' . $searchTerm . '%')
+                ->orWhere('orders.id', 'LIKE', '%' . $searchTerm . '%')
+                ->orWhere('orders.order_date', 'LIKE', '%' . $searchTerm . '%')
+                ->orWhere('orders.payment_method', 'LIKE', '%' . $searchTerm . '%')
+                ->orWhere('orders.status', 'LIKE', '%' . $searchTerm . '%');
+            });
+        }
+
+        $response['orders'] = $query->paginate(10);
+        return view('orders', $response);
     }
 
     public function placeOrder(Request $request)
@@ -212,5 +242,86 @@ class OrdersController extends Controller
         $customer = $this->customer->find($order->customer_id);
         MailConfigService::applyMailSettings();
         Mail::to($customer->email)->send(new NewOrderMail($order, $customer));
+    }
+
+    public function viewOrderDetails($orderID)
+    {
+        $order = $this->order
+            ->leftJoin('customer', 'orders.customer_id', '=', 'customer.id')
+            ->leftJoin('order_shippings', 'orders.id', '=', 'order_shippings.order_id')
+            ->select('orders.*', 'customer.name as customer_name', 'customer.email as email', 'customer.phone as phone', 'order_shippings.address_line1', 'order_shippings.address_line2', 'order_shippings.city', 'order_shippings.state', 'order_shippings.postal_code', 'order_shippings.courier_name', 'order_shippings.courier_tracking_no')
+            ->where('orders.id', $orderID)
+            ->first();
+
+        $orderedItems = $this->orderedItems
+            ->where('order_id', $orderID)
+            ->join('items', 'ordered_items.product_id', '=', 'items.item_id')
+            ->select('ordered_items.*', 'items.name', 'items.url', 'items.main_image')
+            ->get();
+
+        if (!$order) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Order not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'order_data' => $order,
+            'ordered_items' => $orderedItems,
+        ]);
+    }
+
+    public function updateOrder(Request $request, $orderID)
+    {
+        try {
+            DB::beginTransaction();
+            
+            $order = $this->order->find($orderID);
+            $orderStatus = $order->status;
+            
+            if (!$order) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Order not found',
+                ], 404);
+            }
+            
+            // Update order details
+            $order->update([
+                'status' => $request->input('status'),
+                'admin_note' => $request->input('notes'),
+            ]);
+            
+            // Update order shipping details
+            $this->orderShipping->where('order_id', $orderID)->update([
+                'courier_name' => $request->input('courier_name'),
+                'courier_tracking_no' => $request->input('tracking_number'),
+            ]);
+            
+            // Insert order status history if status changed
+            if ($request->input('status') !== $orderStatus) {
+                $this->orderStatus->create([
+                    'order_id' => $orderID,
+                    'status' => $request->input('status'),
+                    'changed_user_id' => Auth::id(),
+                ]);
+            }
+            
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Order updated successfully',
+            ], 200);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating order: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

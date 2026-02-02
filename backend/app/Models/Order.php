@@ -19,7 +19,9 @@ class Order extends Model
         'discount',
         'final_amount',
         'payment_method',
+        'payment_slip',
         'note',
         'status',
+        'admin_note',
     ];
 }
