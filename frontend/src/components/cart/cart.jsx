@@ -198,7 +198,7 @@ function Cart() {
 				: item?.item_price) * item.quantity,
 		0
 	);
-	const shipping = 4.99; // Default shipping
+	const shipping = 0; // Default shipping
 	const total = subtotal + shipping;
 
 	return (
@@ -398,7 +398,7 @@ function Cart() {
 									</span>
 								</div>
 
-								<div className="summary-item shipping-item">
+								<div className="summary-item shipping-item d-none">
 									<span className="summary-label">Shipping</span>
 									<div className="shipping-options">
 										<div className="form-check text-end">

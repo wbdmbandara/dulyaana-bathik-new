@@ -176,7 +176,7 @@ function Checkout() {
 		0
 	);
 
-	const shipping = 4.99; // Default shipping
+	const shipping = 0; // Default shipping
 	const total = subtotal + shipping;
 
 	// Validation functions for each step
@@ -1526,7 +1526,7 @@ function Checkout() {
 										<span>Subtotal</span>
 										<span>{formatCurrency(subtotal)}</span>
 									</div>
-									<div className="order-shipping d-flex justify-content-between">
+									<div className="order-shipping d-flex justify-content-between d-none">
 										<span>Shipping</span>
 										<span>{formatCurrency(shipping)}</span>
 									</div>
