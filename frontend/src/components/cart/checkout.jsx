@@ -1400,6 +1400,28 @@ function Checkout() {
 										</div>
 									</div>
 
+									<div className="my-4  p-3 rounded" style={{ backgroundColor: '#FFF8E1', borderLeft: '4px solid #FFA726' }}>
+										<div className="d-flex align-items-start">
+											<i className="bi bi-exclamation-triangle-fill me-2" style={{ color: '#F57C00', fontSize: '1.2rem' }}></i>
+											<div>
+												<p className="mb-0" style={{ color: '#E65100' }}>
+												Please note: The prices shown do not include delivery fees. Courier charges are the responsibility of the customer.
+												</p>
+											</div>
+										</div>
+									</div>
+									
+									<div className="my-4  p-3 rounded" style={{ backgroundColor: '#FFF8E1', borderLeft: '4px solid #FFA726' }}>
+										<div className="d-flex align-items-start">
+											<i className="bi bi-exclamation-triangle-fill me-2" style={{ color: '#F57C00', fontSize: '1.2rem' }}></i>
+											<div>
+												<p className="mb-0" style={{ color: '#E65100' }}>
+												කරුණාවෙන් සලකන්න: මෙහි දක්වා ඇති මිල ගණන් සඳහා කුරියර් ගාස්තු (Delivery fees) ඇතුළත් නොවේ. කුරියර් ගාස්තු පාරිභෝගිකයා (ඔබ) විසින් දැරිය යුතුය.
+												</p>
+											</div>
+										</div>
+									</div>
+
 									<div className="form-check mt-4">
 										<input
 											className="form-check-input"
@@ -1533,6 +1555,17 @@ function Checkout() {
 									<div className="order-total d-flex justify-content-between">
 										<span>Total</span>
 										<span>{formatCurrency(total)}</span>
+									</div>
+								</div>
+
+								<div className="my-4  p-3 rounded" style={{ backgroundColor: '#FFF8E1', borderLeft: '4px solid #FFA726' }}>
+									<div className="d-flex align-items-start">
+										<i className="bi bi-exclamation-triangle-fill me-2" style={{ color: '#F57C00', fontSize: '1.2rem' }}></i>
+										<div>
+											<p className="mb-0" style={{ color: '#E65100' }}>
+											Please note: The prices shown do not include delivery fees. Courier charges are the responsibility of the customer.
+											</p>
+										</div>
 									</div>
 								</div>
 

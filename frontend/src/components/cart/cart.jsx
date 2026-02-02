@@ -459,6 +459,17 @@ function Cart() {
 									</span>
 								</div>
 
+								<div className="my-4  p-3 rounded" style={{ backgroundColor: '#FFF8E1', borderLeft: '4px solid #FFA726' }}>
+									<div className="d-flex align-items-start">
+										<i className="bi bi-exclamation-triangle-fill me-2" style={{ color: '#F57C00', fontSize: '1.2rem' }}></i>
+										<div>
+											<p className="mb-0" style={{ color: '#E65100' }}>
+											Please note: The prices shown do not include delivery fees. Courier charges are the responsibility of the customer.
+											</p>
+										</div>
+									</div>
+								</div>
+								
 								<div className="checkout-button">
 									<a href="/checkout" className="btn btn-accent w-100">
 										Proceed to Checkout{" "}
