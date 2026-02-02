@@ -72,7 +72,7 @@
                                     <input type="text" class="form-control" id="price" name="price" required value="<?= old('price', $product['price']) ?>">
                                 </div>
                                 <div class="col-4">
-                                    <label for="discount_price" class="form-label">Discount Price</label>
+                                    <label for="discount_price" class="form-label">Discounted Price</label>
                                     <input type="text" class="form-control" id="discount_price" name="discount_price" value="<?= old('discount_price', $product['discount_price']) ?>">
                                 </div>
                                 <div class="col-4">

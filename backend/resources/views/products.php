@@ -67,7 +67,7 @@
                                 <th scope="col">Description</th>
                                 <th scope="col">Quantity</th>
                                 <th scope="col">Price</th>
-                                <th scope="col">Discount Price</th>
+                                <th scope="col">Discounted Price</th>
                                 <th scope="col">Actions</th>
                             </tr>
                         </thead>
