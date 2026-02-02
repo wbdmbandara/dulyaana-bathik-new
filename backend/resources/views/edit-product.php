@@ -1,19 +1,19 @@
 <?php
     include_once 'common/header.php';
-    setTitle('Edit Saree');
+    setTitle('Edit Product');
     include_once 'common/topbar.php';
     include_once 'common/sidebar.php';
-    setActiveMenuItem('sarees', 'sarees');
+    setActiveMenuItem('products', 'products');
 ?>
 
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>Sarees</h1>
+            <h1>Products</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/">Home</a></li>
-                    <li class="breadcrumb-item active">Edit Saree</li>
+                    <li class="breadcrumb-item active">Edit Product</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -22,12 +22,12 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center border-bottom mb-3 pb-1">
-                        <h5 class="card-title mb-0">Edit Saree</h5>
-                        <a href="/sarees" class="btn btn-primary">View All Sarees</a>
+                        <h5 class="card-title mb-0">Edit Product</h5>
+                        <a href="/products" class="btn btn-primary">View All Products</a>
                     </div>
 
-                    <!-- Edit Saree Form -->
-                    <form action="/sarees/update/<?= $saree['item_id'] ?>" method="post" enctype="multipart/form-data" class="row" id="editSareeForm">
+                    <!-- Edit Product Form -->
+                    <form action="/products/update/<?= $product['item_id'] ?>" method="post" enctype="multipart/form-data" class="row" id="editProductForm">
                         <!-- Success/Error Messages -->
                         <?php if(session('success')): ?>
                             <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
@@ -60,24 +60,24 @@
                         <div class="col-md-6">
                             <div class="mb-2">
                                 <label for="name" class="form-label">Title</label>
-                                <input type="text" class="form-control" id="name" name="name" required value="<?= old('name', $saree['name']) ?>">
+                                <input type="text" class="form-control" id="name" name="name" required value="<?= old('name', $product['name']) ?>">
                             </div>
                             <div class="mb-2">
                                 <label for="description" class="form-label">Description</label>
-                                <textarea class="form-control" id="description" name="description" rows="3" required><?= old('description', $saree['description']) ?></textarea>
+                                <textarea class="form-control" id="description" name="description" rows="3" required><?= old('description', $product['description']) ?></textarea>
                             </div>
                             <div class="row mb-2">
                                 <div class="col-4">
                                     <label for="price" class="form-label">Price</label>
-                                    <input type="text" class="form-control" id="price" name="price" required value="<?= old('price', $saree['price']) ?>">
+                                    <input type="text" class="form-control" id="price" name="price" required value="<?= old('price', $product['price']) ?>">
                                 </div>
                                 <div class="col-4">
                                     <label for="discount_price" class="form-label">Discount Price</label>
-                                    <input type="text" class="form-control" id="discount_price" name="discount_price" value="<?= old('discount_price', $saree['discount_price']) ?>">
+                                    <input type="text" class="form-control" id="discount_price" name="discount_price" value="<?= old('discount_price', $product['discount_price']) ?>">
                                 </div>
                                 <div class="col-4">
                                     <label for="quantity" class="form-label">Quantity</label>
-                                    <input type="number" class="form-control" id="quantity" name="quantity" required value="<?= old('quantity', $saree['quantity']) ?>">
+                                    <input type="number" class="form-control" id="quantity" name="quantity" required value="<?= old('quantity', $product['quantity']) ?>">
                                 </div>
                             </div>
                             <div class="row mb-2">
@@ -87,7 +87,7 @@
                                         <option value="" selected disabled>Select Category</option>
                                         <?php
                                         foreach ($categories as $category) {
-                                            $selected = (old('category', $saree['category']) == $category['id']) ? 'selected' : '';
+                                            $selected = (old('category', $product['category']) == $category['id']) ? 'selected' : '';
                                             echo '<option value="' . htmlspecialchars($category['id']) . '" ' . $selected . '>' . htmlspecialchars($category['cat_name']) . '</option>';
                                         }
                                         ?>
@@ -97,69 +97,69 @@
                                     <label for="status" class="form-label">Status</label>
                                     <select class="form-select" id="status" name="status" required>
                                         <option value="" hidden>Select Status</option>
-                                        <option value="active" <?= old('status', $saree['status']) == 'active' ? 'selected' : '' ?>>Active</option>
-                                        <option value="inactive" <?= old('status', $saree['status']) == 'inactive' ? 'selected' : '' ?>>Inactive</option>
+                                        <option value="active" <?= old('status', $product['status']) == 'active' ? 'selected' : '' ?>>Active</option>
+                                        <option value="inactive" <?= old('status', $product['status']) == 'inactive' ? 'selected' : '' ?>>Inactive</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="row mb-2 d-none">
                                 <div class="col-6">
                                     <label for="fabric" class="form-label">Fabric</label>
-                                    <input type="text" class="form-control" id="fabric" name="fabric" value="<?= old('fabric', $saree['fabric']) ?>">
+                                    <input type="text" class="form-control" id="fabric" name="fabric" value="<?= old('fabric', $product['fabric']) ?>">
                                 </div>
                                 <div class="col-6">
                                     <label for="pattern" class="form-label">Pattern</label>
-                                    <input type="text" class="form-control" id="pattern" name="pattern" value="<?= old('pattern', $saree['pattern']) ?>">
+                                    <input type="text" class="form-control" id="pattern" name="pattern" value="<?= old('pattern', $product['pattern']) ?>">
                                 </div>
                             </div>
                             <div class="mb-2 d-none">
                                 <label for="saree_work" class="form-label">Saree Work</label>
-                                <input type="text" class="form-control" id="saree_work" name="saree_work" value="<?= old('saree_work', $saree['saree_work']) ?>">
+                                <input type="text" class="form-control" id="saree_work" name="saree_work" value="<?= old('saree_work', $product['saree_work']) ?>">
                             </div>
                             <div class="row mb-2 d-none">
                                 <div class="col-4">
                                     <label for="saree_length" class="form-label">Saree Length</label>
-                                    <input type="text" class="form-control" id="saree_length" name="saree_length" value="<?= old('saree_length', $saree['saree_length']) ?>">
+                                    <input type="text" class="form-control" id="saree_length" name="saree_length" value="<?= old('saree_length', $product['saree_length']) ?>">
                                 </div>
                                 <div class="col-4">
                                     <label for="blouse_length" class="form-label">Blouse Length</label>
-                                    <input type="text" class="form-control" id="blouse_length" name="blouse_length" value="<?= old('blouse_length', $saree['blouse_length']) ?>">
+                                    <input type="text" class="form-control" id="blouse_length" name="blouse_length" value="<?= old('blouse_length', $product['blouse_length']) ?>">
                                 </div>
                                 <div class="col-4">
                                     <label for="weight" class="form-label">Weight</label>
-                                    <input type="text" class="form-control" id="weight" name="weight" value="<?= old('weight', $saree['weight']) ?>">
+                                    <input type="text" class="form-control" id="weight" name="weight" value="<?= old('weight', $product['weight']) ?>">
                                 </div>
                             </div>
                             <div class="mb-2 d-none">
                                 <label for="set_contents" class="form-label">Set Contents</label>
-                                <input type="text" class="form-control" id="set_contents" name="set_contents" value="<?= old('set_contents', $saree['set_contents']) ?>">
+                                <input type="text" class="form-control" id="set_contents" name="set_contents" value="<?= old('set_contents', $product['set_contents']) ?>">
                             </div>
                             <div class="mb-2 d-none">
                                 <label for="occasion" class="form-label">Occasion</label>
-                                <input type="text" class="form-control" id="occasion" name="occasion" value="<?= old('occasion', $saree['occasion']) ?>">
+                                <input type="text" class="form-control" id="occasion" name="occasion" value="<?= old('occasion', $product['occasion']) ?>">
                             </div>
                             <div class="mb-2 d-none">
                                 <label for="wash_care" class="form-label">Wash Care</label>
-                                <input type="text" class="form-control" id="wash_care" name="wash_care" value="<?= old('wash_care', $saree['wash_care']) ?>">
+                                <input type="text" class="form-control" id="wash_care" name="wash_care" value="<?= old('wash_care', $product['wash_care']) ?>">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-2">
                                 <label for="url" class="form-label">URL Slug</label>
-                                <input type="text" class="form-control" id="url" name="url" required value="<?= old('url', $saree['url']) ?>">
+                                <input type="text" class="form-control" id="url" name="url" required value="<?= old('url', $product['url']) ?>">
                             </div>
                             <div class="mb-2">
                                 <label for="mainImage" class="form-label">Main Image</label>
-                                <?php if(!empty($saree['main_image']) && file_exists(public_path($saree['main_image']))): ?>
+                                <?php if(!empty($product['main_image']) && file_exists(public_path($product['main_image']))): ?>
                                     <div class="mb-2" id="existingImageContainer">
                                         <p class="text-muted small">Current image:</p>
-                                        <img src="/<?= $saree['main_image'] ?>" alt="Current Image" class="img-fluid mb-2" style="max-height: 300px;">
+                                        <img src="/<?= $product['main_image'] ?>" alt="Current Image" class="img-fluid mb-2" style="max-height: 300px;">
                                         <br>
                                         <div class="d-flex justify-content-center">
                                             <button type="button" class="btn btn-danger btn-sm" onclick="removeExistingImage()">Remove Current Image</button>
                                         </div>
                                     </div>
-                                    <input type="hidden" name="existing_main_image" value="<?= $saree['main_image'] ?>">
+                                    <input type="hidden" name="existing_main_image" value="<?= $product['main_image'] ?>">
                                 <?php elseif(session()->has('temp_image') && file_exists(public_path(session('temp_image')))): ?>
                                     <div class="mb-2" id="existingImageContainer">
                                         <p class="text-muted small">Current image:</p>
@@ -283,8 +283,8 @@
                             </div>
                         </div>
                         <div class="text-center mt-3">
-                            <a href="/sarees" class="btn btn-warning">Back to Sarees</a>
-                            <button type="submit" class="btn btn-success">Update Saree</button>
+                            <a href="/products" class="btn btn-warning">Back to Products</a>
+                            <button type="submit" class="btn btn-success">Update Product</button>
                         </div>
                     </form>
 

@@ -31,13 +31,13 @@ Route::get('/users/{id}', [UserController::class, 'show']);
 Route::post('/users/update/{id}', [UserController::class, 'update']);
 Route::post('/users/delete/{id}', [UserController::class, 'delete']);
 
-Route::get('/sarees', [ItemsController::class, 'index']);
-Route::get('/new-saree', [ItemsController::class, 'create']);
-Route::get('/sarees/details/{id}', [ItemsController::class, 'getDetails']);
-Route::post('/sarees/new', [ItemsController::class, 'store']);
-Route::get('/edit-saree/{id}', [ItemsController::class, 'edit']);
-Route::post('/sarees/update/{id}', [ItemsController::class, 'update']);
-Route::post('/sarees/delete/{id}', [ItemsController::class, 'delete']);
+Route::get('/products', [ItemsController::class, 'index']);
+Route::get('/new-product', [ItemsController::class, 'create']);
+Route::get('/products/details/{id}', [ItemsController::class, 'getDetails']);
+Route::post('/products/new', [ItemsController::class, 'store']);
+Route::get('/edit-product/{id}', [ItemsController::class, 'edit']);
+Route::post('/products/update/{id}', [ItemsController::class, 'update']);
+Route::post('/products/delete/{id}', [ItemsController::class, 'delete']);
 
 Route::get('/orders', [OrdersController::class, 'index']);
 Route::get('/orders/view/{id}', [OrdersController::class, 'viewOrderDetails']);

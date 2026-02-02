@@ -1,19 +1,19 @@
 <?php
     include_once 'common/header.php';
-    setTitle('New Saree');
+    setTitle('New Product');
     include_once 'common/topbar.php';
     include_once 'common/sidebar.php';
-    setActiveMenuItem('sarees', 'new-saree');
+    setActiveMenuItem('products', 'new-product');
 ?>
 
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>Sarees</h1>
+            <h1>Products</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/">Home</a></li>
-                    <li class="breadcrumb-item active">New Saree</li>
+                    <li class="breadcrumb-item active">New Product</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -22,12 +22,12 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center border-bottom mb-3 pb-1">
-                        <h5 class="card-title mb-0">Add New Saree</h5>
-                        <a href="/sarees" class="btn btn-primary">View All Sarees</a>
+                        <h5 class="card-title mb-0">Add New Product</h5>
+                        <a href="/products" class="btn btn-primary">View All Products</a>
                     </div>
 
-                    <!-- New Saree Form -->
-                    <form action="/sarees/new" method="post" enctype="multipart/form-data" class="row" id="newSareeForm">
+                    <!-- New Product Form -->
+                    <form action="/products/new" method="post" enctype="multipart/form-data" class="row" id="newProductForm">
                         <!-- Success/Error Messages -->
                         <?php if(session('success')): ?>
                             <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
@@ -230,7 +230,7 @@
                         </div>
                         <div class="text-center mt-3">
                             <button type="reset" class="btn btn-warning">Reset</button>
-                            <button type="submit" class="btn btn-success">Add Saree</button>
+                            <button type="submit" class="btn btn-success">Add Product</button>
                         </div>
                     </form>
 

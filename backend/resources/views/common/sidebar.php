@@ -13,18 +13,18 @@
       </li><!-- End Dashboard Nav -->
 
       <li class="nav-item">
-        <a class="nav-link <?php if($active != 'sarees'){echo 'collapsed';} ?>" data-bs-target="#sarees-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-layout-text-window-reverse"></i><span>Sarees</span><i class="bi bi-chevron-down ms-auto"></i>
+        <a class="nav-link <?php if($active != 'products'){echo 'collapsed';} ?>" data-bs-target="#products-nav" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-layout-text-window-reverse"></i><span>Products</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
-        <ul id="sarees-nav" class="nav-content <?php if($active != 'sarees'){echo 'collapse';} ?>" data-bs-parent="#sidebar-nav">
+        <ul id="products-nav" class="nav-content <?php if($active != 'products'){echo 'collapse';} ?>" data-bs-parent="#sidebar-nav">
           <li>
-            <a href="/sarees" class="<?php if($subMenu == 'sarees'){echo 'active';} ?>">
-              <i class="bi bi-circle"></i><span>Sarees</span>
+            <a href="/products" class="<?php if($subMenu == 'products'){echo 'active';} ?>">
+              <i class="bi bi-circle"></i><span>Products</span>
             </a>
           </li>
           <li>
-            <a href="/new-saree" class="<?php if($subMenu == 'new-saree'){echo 'active';} ?>">
-              <i class="bi bi-circle"></i><span>New Saree</span>
+            <a href="/new-product" class="<?php if($subMenu == 'new-product'){echo 'active';} ?>">
+              <i class="bi bi-circle"></i><span>New Product</span>
             </a>
           </li>
           <li>

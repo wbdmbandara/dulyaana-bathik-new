@@ -1,19 +1,19 @@
 <?php
     include_once 'common/header.php';
-    setTitle('Sarees');
+    setTitle('Products');
     include_once 'common/topbar.php';
     include_once 'common/sidebar.php';
-    setActiveMenuItem('sarees', 'sarees');
+    setActiveMenuItem('products', 'products');
 ?>
 
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>Sarees</h1>
+            <h1>Products</h1>
                 <nav>
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="/">Home</a></li>
-                        <li class="breadcrumb-item active">Sarees</li>
+                        <li class="breadcrumb-item active">Products</li>
                     </ol>
                 </nav>
         </div><!-- End Page Title -->
@@ -39,11 +39,11 @@
                     <?php endif; ?>
 
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Manage Sarees</h5>
-                        <a href="/new-saree" class="btn btn-primary">Add New Saree</a>
+                        <h5 class="card-title mb-0">Manage Products</h5>
+                        <a href="/new-product" class="btn btn-primary">Add New Product</a>
                     </div>
 
-                    <!-- Search Saree -->
+                    <!-- Search product -->
                     <form action="" method="GET" class="mt-3">
                         <div class="input-group mb-2">
                             <input type="text" class="form-control" name="search" placeholder="Search by Title, Category or Description" value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
@@ -56,7 +56,7 @@
                         </div>
                     </form>
 
-                    <!-- sarees table -->
+                    <!-- products table -->
                     <table class="table table-striped table-bordered mt-3">
                         <thead>
                             <tr class="text-center">
@@ -73,47 +73,47 @@
                         </thead>
                         <tbody>
                             <?php
-                                foreach ($sarees as $index => $saree): ?>
+                                foreach ($products as $index => $product): ?>
                                     <tr>
                                         <th class="text-center" scope="row"><?= $index + 1 ?></th>
                                         <td class="text-center">
-                                            <img src="<?= htmlspecialchars($saree['main_image']) ?>" alt="" class="img-fluid" style="max-height: 50px;" onclick="viewSareeImage('<?= htmlspecialchars($saree['name']) ?>', '<?= htmlspecialchars($saree['main_image']) ?>')">
+                                            <img src="<?= htmlspecialchars($product['main_image']) ?>" alt="" class="img-fluid" style="max-height: 50px;" onclick="viewProductImage('<?= htmlspecialchars($product['name']) ?>', '<?= htmlspecialchars($product['main_image']) ?>')">
                                         </td>
-                                        <td><?= htmlspecialchars($saree['name']) ?></td>
-                                        <td><?= htmlspecialchars($saree['category_name']) ?></td>
-                                        <td><?= htmlspecialchars($saree['description']) ?></td>
-                                        <td class="text-center"><?= htmlspecialchars($saree['quantity']) ?></td>
-                                        <td class="text-center"><?= htmlspecialchars($saree['price']) ?></td>
-                                        <td class="text-center"><?= htmlspecialchars($saree['discount_price']) ?></td>
+                                        <td><?= htmlspecialchars($product['name']) ?></td>
+                                        <td><?= htmlspecialchars($product['category_name']) ?></td>
+                                        <td><?= htmlspecialchars($product['description']) ?></td>
+                                        <td class="text-center"><?= htmlspecialchars($product['quantity']) ?></td>
+                                        <td class="text-center"><?= htmlspecialchars($product['price']) ?></td>
+                                        <td class="text-center"><?= htmlspecialchars($product['discount_price']) ?></td>
                                         <td class="text-center gap-2">
-                                            <a href="<?= env('FRONTEND_URL') ?>/product/<?= $saree['url'] ?>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-info"><i class="bi bi-box-arrow-up-right"></i></a>
-                                            <a href="/edit-saree/<?= $saree['item_id'] ?>" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
-                                            <button class="btn btn-sm btn-danger deletebtn" onclick="deleteSaree(<?= $saree['item_id'] . ',\'' . $saree['name'] . '\'' ?>)"><i class="bi bi-trash"></i></button>
+                                            <a href="<?= env('FRONTEND_URL') ?>/product/<?= $product['url'] ?>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-info"><i class="bi bi-box-arrow-up-right"></i></a>
+                                            <a href="/edit-product/<?= $product['item_id'] ?>" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
+                                            <button class="btn btn-sm btn-danger deletebtn" onclick="deleteProduct(<?= $product['item_id'] . ',\'' . $product['name'] . '\'' ?>)"><i class="bi bi-trash"></i></button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
                         </tbody>
                     </table>
-                    <!-- End sarees table -->
+                    <!-- End products table -->
 
-                    <?= $sarees->appends(request()->query())->links('custom-pagination') ?>
+                    <?= $products->appends(request()->query())->links('custom-pagination') ?>
                 </div>
             </div>
         </section>
 
     </main><!-- End #main -->
 
-    <!-- viewSareeImage -->
-    <div class="modal fade" id="viewSareeImage" tabindex="-1" aria-labelledby="viewSareeImageLabel" aria-hidden="true">
+    <!-- viewProductImage -->
+    <div class="modal fade" id="viewProductImage" tabindex="-1" aria-labelledby="viewProductImageLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="viewSareeImageLabel">Saree Details</h5>
+                    <h5 class="modal-title" id="viewProductImageLabel">Product Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div id="sareeDetailsContent">
-                        <!-- Saree details will be loaded here via AJAX -->
+                    <div id="productDetailsContent">
+                        <!-- Product details will be loaded here via AJAX -->
                         <div class="text-center">
                             <div class="spinner-border" role="status">
                                 <span class="visually-hidden">Loading...</span>
@@ -133,9 +133,9 @@
 ?>
 
 <script>
-    function deleteSaree(sareeId, sareeTitle) {
+    function deleteProduct(productId, productTitle) {
         Swal.fire({
-            title: `Are you sure you want to delete this saree: ${sareeTitle}?`,
+            title: `Are you sure you want to delete this product: ${productTitle}?`,
             text: "This action cannot be undone.",
             icon: 'warning',
             showCancelButton: true,
@@ -144,8 +144,8 @@
             confirmButtonText: 'Yes, Delete!'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Send AJAX request to delete saree
-                fetch(`/sarees/delete/${sareeId}`, {
+                // Send AJAX request to delete product
+                fetch(`/products/delete/${productId}`, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '<?= csrf_token() ?>',
@@ -158,7 +158,7 @@
                         Swal.fire({
                             icon: 'success',
                             title: 'Deleted!',
-                            text: data.message || 'Saree has been deleted.',
+                            text: data.message || 'Product has been deleted.',
                             timer: 6000,
                             showConfirmButton: false
                         });
@@ -170,7 +170,7 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: data.message || 'Failed to delete saree.'
+                            text: data.message || 'Failed to delete product.'
                         });
                     }
                 })
@@ -186,16 +186,16 @@
         });
     }
 
-    // viewSareeImage
-    function viewSareeImage(sareeName, sareeImageUrl) {
-        const modalTitle = document.getElementById('viewSareeImageLabel');
-        const modalBody = document.getElementById('sareeDetailsContent');
+    // viewProductImage
+    function viewProductImage(productName, productImageUrl) {
+        const modalTitle = document.getElementById('viewProductImageLabel');
+        const modalBody = document.getElementById('productDetailsContent');
 
-        modalTitle.textContent = sareeName + ' - Image Preview';
+        modalTitle.textContent = productName + ' - Image Preview';
         modalBody.innerHTML = `<div class="text-center">
-                                    <img src="${sareeImageUrl}" alt="${sareeName}" class="img-fluid" style="max-height: 400px;">
+                                    <img src="${productImageUrl}" alt="${productName}" class="img-fluid" style="max-height: 400px;">
                                </div>`;
-        const viewSareeModal = new bootstrap.Modal(document.getElementById('viewSareeImage'));
-        viewSareeModal.show();
+        const viewProductModal = new bootstrap.Modal(document.getElementById('viewProductImage'));
+        viewProductModal.show();
     }
 </script>

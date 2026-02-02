@@ -51,8 +51,8 @@ class ItemsController extends Controller
             $query->where('items.quantity', '>', 0);
         }
 
-        $response['sarees'] = $query->paginate(10);
-        return view('sarees', $response);
+        $response['products'] = $query->paginate(10);
+        return view('products', $response);
     }
 
     public function create()
@@ -88,7 +88,7 @@ class ItemsController extends Controller
         }
         // session(['success' => "Test success message"]);
         $response['categories'] = Categories::all();
-        return view('new-saree', $response);
+        return view('new-product', $response);
     }
 
     public function store(Request $request)
@@ -111,7 +111,7 @@ class ItemsController extends Controller
                 }
                 
                 $tempImageName = 'temp_main_' . time() . '.' . $mainImageFile->getClientOriginalExtension();
-                $tempPath = public_path('assets/sarees/temp');
+                $tempPath = public_path('assets/products/temp');
                 
                 // Ensure directory exists
                 if (!file_exists($tempPath)) {
@@ -119,7 +119,7 @@ class ItemsController extends Controller
                 }
                 
                 $mainImageFile->move($tempPath, $tempImageName);
-                session(['temp_image' => 'assets/sarees/temp/' . $tempImageName]);
+                session(['temp_image' => 'assets/products/temp/' . $tempImageName]);
             }
 
             // Handle existing additional images from session (for validation error redisplay)
@@ -140,7 +140,7 @@ class ItemsController extends Controller
                 foreach ($additionalImages as $index => $image) {
                     if ($image->isValid()) {
                         $tempImageName = 'temp_additional_' . time() . '_' . $index . '.' . $image->getClientOriginalExtension();
-                        $tempPath = public_path('assets/sarees/temp');
+                        $tempPath = public_path('assets/products/temp');
                         
                         // Ensure directory exists
                         if (!file_exists($tempPath)) {
@@ -148,7 +148,7 @@ class ItemsController extends Controller
                         }
                         
                         $image->move($tempPath, $tempImageName);
-                        $newAdditionalImagePaths[] = 'assets/sarees/temp/' . $tempImageName;
+                        $newAdditionalImagePaths[] = 'assets/products/temp/' . $tempImageName;
                     }
                 }
             }
@@ -177,7 +177,7 @@ class ItemsController extends Controller
                 foreach ($videos as $index => $video) {
                     if ($video->isValid()) {
                         $tempVideoName = 'temp_video_' . time() . '_' . $index . '.' . $video->getClientOriginalExtension();
-                        $tempPath = public_path('assets/sarees/temp');
+                        $tempPath = public_path('assets/products/temp');
                         
                         // Ensure directory exists
                         if (!file_exists($tempPath)) {
@@ -185,7 +185,7 @@ class ItemsController extends Controller
                         }
                         
                         $video->move($tempPath, $tempVideoName);
-                        $newVideoPaths[] = 'assets/sarees/temp/' . $tempVideoName;
+                        $newVideoPaths[] = 'assets/products/temp/' . $tempVideoName;
                     }
                 }
             }
@@ -245,9 +245,9 @@ class ItemsController extends Controller
                 $fullTempPath = public_path($tempImagePath);
                 if (file_exists($fullTempPath)) {
                     $imageName = $validatedData['url'] . '.' . pathinfo($tempImagePath, PATHINFO_EXTENSION);
-                    $destinationPath = public_path('assets/sarees/' . $imageName);
+                    $destinationPath = public_path('assets/products/' . $imageName);
                     rename($fullTempPath, $destinationPath);
-                    $validatedData['main_image'] = 'assets/sarees/' . $imageName;
+                    $validatedData['main_image'] = 'assets/products/' . $imageName;
                     session()->forget('temp_image');
                 }
             } else {
@@ -268,9 +268,9 @@ class ItemsController extends Controller
                     $fullTempPath = public_path($tempImagePath);
                     if (file_exists($fullTempPath)) {
                         $imageName = $validatedData['url'] . '_' . $index . '.' . pathinfo($tempImagePath, PATHINFO_EXTENSION);
-                        $destinationPath = public_path('assets/sarees/' . $imageName);
+                        $destinationPath = public_path('assets/products/' . $imageName);
                         rename($fullTempPath, $destinationPath);
-                        $additionalImagePaths[] = 'assets/sarees/' . $imageName;
+                        $additionalImagePaths[] = 'assets/products/' . $imageName;
                     }
                 }
                 
@@ -295,7 +295,7 @@ class ItemsController extends Controller
                 $videoPaths = [];
                 
                 // Ensure videos directory exists
-                $videosDir = public_path('assets/sarees/videos');
+                $videosDir = public_path('assets/products/videos');
                 if (!file_exists($videosDir)) {
                     mkdir($videosDir, 0755, true);
                 }
@@ -304,9 +304,9 @@ class ItemsController extends Controller
                     $fullTempPath = public_path($tempVideoPath);
                     if (file_exists($fullTempPath)) {
                         $videoName = $validatedData['url'] . '_video_' . $index . '.' . pathinfo($tempVideoPath, PATHINFO_EXTENSION);
-                        $destinationPath = public_path('assets/sarees/videos/' . $videoName);
+                        $destinationPath = public_path('assets/products/videos/' . $videoName);
                         rename($fullTempPath, $destinationPath);
-                        $videoPaths[] = 'assets/sarees/videos/' . $videoName;
+                        $videoPaths[] = 'assets/products/videos/' . $videoName;
                     }
                 }
                 
@@ -349,7 +349,7 @@ class ItemsController extends Controller
             }
 
             // Clean up temp directory
-            $tempDir = public_path('assets/sarees/temp');
+            $tempDir = public_path('assets/products/temp');
             if (is_dir($tempDir)) {
                 $files = glob($tempDir . '/*');
                 foreach ($files as $file) {
@@ -399,12 +399,12 @@ class ItemsController extends Controller
             return redirect()->back()->with('error', 'Item not found.');
         }
 
-        $response['saree'] = $item;
+        $response['product'] = $item;
         $response['categories'] = Categories::all();
         $response['additional_images'] = $this->itemImages->where('item_id', $id)->pluck('image_path')->toArray();
         $response['videos'] = $this->itemVideos->where('item_id', $id)->where('video_type', 'local')->pluck('video_url')->toArray();
         $response['youtube_videos'] = $this->itemVideos->where('item_id', $id)->where('video_type', 'youtube')->pluck('video_url')->toArray();
-        return view('edit-saree', $response);
+        return view('edit-product', $response);
     }
 
     public function update(Request $request, $id)
@@ -438,7 +438,7 @@ class ItemsController extends Controller
                 }
                 
                 $tempImageName = 'temp_main_' . time() . '.' . $mainImageFile->getClientOriginalExtension();
-                $tempPath = public_path('assets/sarees/temp');
+                $tempPath = public_path('assets/products/temp');
                 
                 // Ensure directory exists
                 if (!file_exists($tempPath)) {
@@ -446,7 +446,7 @@ class ItemsController extends Controller
                 }
                 
                 $mainImageFile->move($tempPath, $tempImageName);
-                session(['temp_image' => 'assets/sarees/temp/' . $tempImageName]);
+                session(['temp_image' => 'assets/products/temp/' . $tempImageName]);
             } else {
                 // If no new main image uploaded, keep existing main image path in session for redisplay
                 session(['temp_image' => $item->main_image]);
@@ -470,7 +470,7 @@ class ItemsController extends Controller
                 foreach ($additionalImages as $index => $image) {
                     if ($image->isValid()) {
                         $tempImageName = 'temp_additional_' . time() . '_' . $index . '.' . $image->getClientOriginalExtension();
-                        $tempPath = public_path('assets/sarees/temp');
+                        $tempPath = public_path('assets/products/temp');
                         
                         // Ensure directory exists
                         if (!file_exists($tempPath)) {
@@ -478,7 +478,7 @@ class ItemsController extends Controller
                         }
                         
                         $image->move($tempPath, $tempImageName);
-                        $newAdditionalImagePaths[] = 'assets/sarees/temp/' . $tempImageName;
+                        $newAdditionalImagePaths[] = 'assets/products/temp/' . $tempImageName;
                     }
                 }
                 session(['temp_additional_images' => $newAdditionalImagePaths]);
@@ -502,7 +502,7 @@ class ItemsController extends Controller
                 foreach ($videos as $index => $video) {
                     if ($video->isValid()) {
                         $tempVideoName = 'temp_video_' . time() . '_' . $index . '.' . $video->getClientOriginalExtension();
-                        $tempPath = public_path('assets/sarees/temp');
+                        $tempPath = public_path('assets/products/temp');
 
                         // Ensure directory exists
                         if (!file_exists($tempPath)) {
@@ -510,7 +510,7 @@ class ItemsController extends Controller
                         }
 
                         $video->move($tempPath, $tempVideoName);
-                        $newVideoPaths[] = 'assets/sarees/temp/' . $tempVideoName;
+                        $newVideoPaths[] = 'assets/products/temp/' . $tempVideoName;
                     }
                 }
                 session(['temp_videos' => $newVideoPaths]);
@@ -554,12 +554,12 @@ class ItemsController extends Controller
             if (session()->has('temp_image')) {
                 $tempImagePath = session('temp_image');
                 $fullTempPath = public_path($tempImagePath);
-                if (file_exists($fullTempPath) && strpos($tempImagePath, 'assets/sarees/temp/') === 0) {
+                if (file_exists($fullTempPath) && strpos($tempImagePath, 'assets/products/temp/') === 0) {
                     // New main image uploaded, move it to permanent location
                     $imageName = $validatedData['url'] . '.' . pathinfo($tempImagePath, PATHINFO_EXTENSION);
-                    $destinationPath = public_path('assets/sarees/' . $imageName);
+                    $destinationPath = public_path('assets/products/' . $imageName);
                     rename($fullTempPath, $destinationPath);
-                    $validatedData['main_image'] = 'assets/sarees/' . $imageName;
+                    $validatedData['main_image'] = 'assets/products/' . $imageName;
                 } else {
                     // No new image, keep existing path
                     $validatedData['main_image'] = $item->main_image;
@@ -578,11 +578,11 @@ class ItemsController extends Controller
                 
                 foreach ($tempAdditionalImages as $index => $tempImagePath) {
                     $fullTempPath = public_path($tempImagePath);
-                    if (file_exists($fullTempPath) && strpos($tempImagePath, 'assets/sarees/temp/') === 0) {
+                    if (file_exists($fullTempPath) && strpos($tempImagePath, 'assets/products/temp/') === 0) {
                         $imageName = $validatedData['url'] . '_' . $index . '.' . pathinfo($tempImagePath, PATHINFO_EXTENSION);
-                        $destinationPath = public_path('assets/sarees/' . $imageName);
+                        $destinationPath = public_path('assets/products/' . $imageName);
                         rename($fullTempPath, $destinationPath);
-                        $newAdditionalImagePaths[] = 'assets/sarees/' . $imageName;
+                        $newAdditionalImagePaths[] = 'assets/products/' . $imageName;
                     } elseif (file_exists($fullTempPath)) {
                         // Existing image, keep its path
                         $newAdditionalImagePaths[] = $tempImagePath;
@@ -614,18 +614,18 @@ class ItemsController extends Controller
                 $newVideoPaths = [];
                 
                 // Ensure videos directory exists
-                $videosDir = public_path('assets/sarees/videos');
+                $videosDir = public_path('assets/products/videos');
                 if (!file_exists($videosDir)) {
                     mkdir($videosDir, 0755, true);
                 }
                 
                 foreach ($tempVideos as $index => $tempVideoPath) {
                     $fullTempPath = public_path($tempVideoPath);
-                    if (file_exists($fullTempPath) && strpos($tempVideoPath, 'assets/sarees/temp/') === 0) {
+                    if (file_exists($fullTempPath) && strpos($tempVideoPath, 'assets/products/temp/') === 0) {
                         $videoName = $validatedData['url'] . '_video_' . time() . '_' . $index . '.' . pathinfo($tempVideoPath, PATHINFO_EXTENSION);
-                        $destinationPath = public_path('assets/sarees/videos/' . $videoName);
+                        $destinationPath = public_path('assets/products/videos/' . $videoName);
                         rename($fullTempPath, $destinationPath);
-                        $newVideoPaths[] = 'assets/sarees/videos/' . $videoName;
+                        $newVideoPaths[] = 'assets/products/videos/' . $videoName;
                     } elseif (file_exists($fullTempPath)) {
                         // Existing video, keep its path
                         $newVideoPaths[] = $tempVideoPath;
@@ -674,7 +674,7 @@ class ItemsController extends Controller
             }
 
             // Clean up temp directory
-            $tempDir = public_path('assets/sarees/temp');
+            $tempDir = public_path('assets/products/temp');
             if (is_dir($tempDir)) {
                 $files = glob($tempDir . '/*');
                 foreach ($files as $file) {

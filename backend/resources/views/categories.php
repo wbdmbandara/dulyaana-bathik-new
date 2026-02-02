@@ -3,7 +3,7 @@
     setTitle('Categories');
     include_once 'common/topbar.php';
     include_once 'common/sidebar.php';
-    setActiveMenuItem('sarees', 'categories');
+    setActiveMenuItem('products', 'categories');
 ?>
 
     <main id="main" class="main">
