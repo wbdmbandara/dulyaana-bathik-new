@@ -278,7 +278,7 @@
                     modalContent.innerHTML = `
                         <div class="container-fluid">
                             <!-- Order Header -->
-                            <div class="row mb-4">
+                            <div class="row mb-2">
                                 <div class="col-md-6">
                                     <h6 class="text-muted mb-2">Order Information</h6>
                                     <p class="mb-1"><strong>Order ID:</strong> #${order.id}</p>
@@ -297,10 +297,14 @@
 
                             <!-- Shipping Address -->
                             ${order.address_line1 ? `
-                            <div class="row mb-4">
-                                <div class="col-12">
-                                    <h6 class="text-muted mb-2">Shipping Address</h6>
-                                    <p class="mb-0">${order.address_line1}${order.address_line2 ? ', ' + order.address_line2 : ''}, ${order.city}, ${order.state} ${order.postal_code}</p>
+                            <div class="row mb-3 border-top pt-2">
+                                <div class="col-6">
+                                <h6 class="text-muted mb-2">Shipping Details</h6>
+                                <p class="mb-1"><strong>Full Name:</strong> ${order.shipping_full_name}</p>
+                                <p class="mb-1"><strong>Phone Number:</strong> ${order.shipping_phone_number}</p>
+                                </div>
+                                <div class="col-6">
+                                    <p class="mb-0"><strong>Shipping Address:</strong> ${order.address_line1}${order.address_line2 ? ', <br>' + order.address_line2 : ''}, <br> ${order.city}, ${order.state} <br> ${order.postal_code}</p>
                                 </div>
                             </div>
                             ` : ''}
@@ -464,7 +468,7 @@
                     <input type="hidden" name="_token" value="<?= csrf_token() ?>">
                     
                     <!-- Order Header -->
-                    <div class="row mb-4">
+                    <div class="row mb-2">
                         <div class="col-md-6">
                         <h6 class="text-muted mb-2">Order Information</h6>
                         <p class="mb-1"><strong>Order ID:</strong> #${order.id}</p>
@@ -475,6 +479,89 @@
                         <p class="mb-1"><strong>Name:</strong> ${order.customer_name}</p>
                         <p class="mb-1"><strong>Email:</strong> ${order.email}</p>
                         <p class="mb-1"><strong>Phone:</strong> ${order.phone}</p>
+                        </div>
+                    </div>
+
+                    <!-- Shipping Address -->
+                    ${order.address_line1 ? `
+                    <div class="row mb-3 border-top pt-2">
+                        <div class="col-6">
+                        <h6 class="text-muted mb-2">Shipping Details</h6>
+                        <p class="mb-1"><strong>Full Name:</strong> ${order.shipping_full_name}</p>
+                        <p class="mb-1"><strong>Phone Number:</strong> ${order.shipping_phone_number}</p>
+                        </div>
+                        <div class="col-6">
+                            <p class="mb-0"><strong>ShippingAddress:</strong> ${order.address_line1}${order.address_line2 ? ', <br>' + order.address_line2 : ''}, <br> ${order.city}, ${order.state} <br> ${order.postal_code}</p>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <!-- Order Items -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                        <h6 class="text-muted mb-3">Order Items (${order.items_count} item(s), ${order.total_quantity} qty)</h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                <th>#</th>
+                                <th>Item</th>
+                                <th class="text-center">Quantity</th>
+                                <th class="text-end">Unit Price</th>
+                                <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${items.map((item, index) => `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${item.name}</td>
+                                    <td class="text-center">${item.quantity}</td>
+                                    <td class="text-end">${currencyFormat(item.price)}</td>
+                                    <td class="text-end">${currencyFormat(item.value)}</td>
+                                </tr>
+                                `).join('')}
+                            </tbody>
+                            </table>
+                        </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="row">
+                        <div class="col-md-6 offset-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                            <td><strong>Subtotal:</strong></td>
+                            <td class="text-end">${currencyFormat(order.total_amount)}</td>
+                            </tr>
+                            ${parseFloat(order.discount) > 0 ? `
+                            <tr>
+                            <td><strong>Discount:</strong></td>
+                            <td class="text-end text-danger">- ${currencyFormat(order.discount)}</td>
+                            </tr>
+                            ` : ''}
+                            <tr class="table-light">
+                            <td><strong>Total Amount:</strong></td>
+                            <td class="text-end"><strong>${currencyFormat(order.final_amount)}</strong></td>
+                            </tr>
+                            <tr>
+                            <td><strong>Payment Method:</strong></td>
+                            <td class="text-end">${order.payment_method}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Payment Status:</strong></td>
+                                <td class="text-end text-capitalize">${order.payment_status}</td>
+                            </tr>
+                            ${order.payment_method.toLowerCase() === 'bank transfer' && order.payment_slip ? `
+                                <tr>
+                                    <td><strong>Payment Slip:</strong></td>
+                                    <td class="text-end">
+                                        <button type="button" class="btn btn-secondary" onclick="viewPaymentSlip('${order.payment_slip}', '${order.payment_status}')">View Payment Slip</button>
+                                    </td>
+                                </tr>
+                            ` : ''}
+                        </table>
                         </div>
                     </div>
 
@@ -505,85 +592,6 @@
                             <input type="text" class="form-control" id="trackingNumber" name="tracking_number" 
                                value="${order.courier_tracking_no || ''}" placeholder="Enter Courier tracking number">
                         </div>
-                        </div>
-                    </div>
-
-                    <!-- Shipping Address -->
-                    ${order.address_line1 ? `
-                    <div class="row mb-4">
-                        <div class="col-12">
-                        <h6 class="text-muted mb-2">Shipping Address</h6>
-                        <p class="mb-0">${order.address_line1}${order.address_line2 ? ', ' + order.address_line2 : ''}, ${order.city}, ${order.state} ${order.postal_code}</p>
-                        </div>
-                    </div>
-                    ` : ''}
-
-                    <!-- Order Items -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                        <h6 class="text-muted mb-3">Order Items (${order.items_count} item(s), ${order.total_quantity} qty)</h6>
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-sm">
-                            <thead class="table-light">
-                                <tr>
-                                <th>#</th>
-                                <th>Item</th>
-                                <th class="text-center">Quantity</th>
-                                <th class="text-end">Unit Price</th>
-                                <th class="text-end">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${items.map((item, index) => `
-                                <tr>
-                                    <td>${index + 1}</td>
-                                    <td>${item.name}</td>
-                                    <td class="text-center">${item.quantity}</td>
-                                    <td class="text-end">Rs. ${parseFloat(item.price).toFixed(2)}</td>
-                                    <td class="text-end">Rs. ${parseFloat(item.value).toFixed(2)}</td>
-                                </tr>
-                                `).join('')}
-                            </tbody>
-                            </table>
-                        </div>
-                        </div>
-                    </div>
-
-                    <!-- Order Summary -->
-                    <div class="row">
-                        <div class="col-md-6 offset-md-6">
-                        <table class="table table-sm">
-                            <tr>
-                            <td><strong>Subtotal:</strong></td>
-                            <td class="text-end">Rs. ${parseFloat(order.total_amount).toFixed(2)}</td>
-                            </tr>
-                            ${parseFloat(order.discount) > 0 ? `
-                            <tr>
-                            <td><strong>Discount:</strong></td>
-                            <td class="text-end text-danger">- Rs. ${parseFloat(order.discount).toFixed(2)}</td>
-                            </tr>
-                            ` : ''}
-                            <tr class="table-light">
-                            <td><strong>Total Amount:</strong></td>
-                            <td class="text-end"><strong>Rs. ${parseFloat(order.final_amount).toFixed(2)}</strong></td>
-                            </tr>
-                            <tr>
-                            <td><strong>Payment Method:</strong></td>
-                            <td class="text-end">${order.payment_method}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Payment Status:</strong></td>
-                                <td class="text-end text-capitalize">${order.payment_status}</td>
-                            </tr>
-                            ${order.payment_method.toLowerCase() === 'bank transfer' && order.payment_slip ? `
-                                <tr>
-                                    <td><strong>Payment Slip:</strong></td>
-                                    <td class="text-end">
-                                        <button type="button" class="btn btn-secondary" onclick="viewPaymentSlip('${order.payment_slip}', '${order.payment_status}')">View Payment Slip</button>
-                                    </td>
-                                </tr>
-                            ` : ''}
-                        </table>
                         </div>
                     </div>
 

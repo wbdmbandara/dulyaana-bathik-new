@@ -307,7 +307,7 @@ class OrdersController extends Controller
         $order = $this->order
             ->leftJoin('customer', 'orders.customer_id', '=', 'customer.id')
             ->leftJoin('order_shippings', 'orders.id', '=', 'order_shippings.order_id')
-            ->select('orders.*', 'customer.name as customer_name', 'customer.email as email', 'customer.phone as phone', 'order_shippings.address_line1', 'order_shippings.address_line2', 'order_shippings.city', 'order_shippings.state', 'order_shippings.postal_code', 'order_shippings.courier_name', 'order_shippings.courier_tracking_no')
+            ->select('orders.*', 'customer.name as customer_name', 'customer.email as email', 'customer.phone as phone', 'order_shippings.address_line1', 'order_shippings.address_line2', 'order_shippings.city', 'order_shippings.state', 'order_shippings.postal_code', 'order_shippings.courier_name', 'order_shippings.courier_tracking_no', 'order_shippings.full_name as shipping_full_name', 'order_shippings.phone_number as shipping_phone_number')
             ->where('orders.id', $orderID)
             ->first();
 
