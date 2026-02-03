@@ -63,11 +63,10 @@
                                 <th scope="col">Order ID</th>
                                 <th scope="col">Date</th>
                                 <th scope="col">Customer</th>
-                                <th scope="col">Email</th>
+                                <th scope="col" class="d-none">Email</th>
                                 <th scope="col">Contact No</th>
                                 <th scope="col">Total Value</th>
-                                <!-- <th scope="col">Shipping</th> -->
-                                <th scope="col">Payment Method</th>
+                                <th scope="col">Payment Details</th>
                                 <th scope="col">Status</th>
                                 <th scope="col">Actions</th>
                             </tr>
@@ -75,17 +74,86 @@
                         <tbody>
                             <?php
                                 foreach ($orders as $index => $order): ?>
+                                    <?php
+                                        // Payment Status
+                                        $pmtStatus = strtolower($order['payment_status']);
+                                        $pmtBgColor = 'transparent';
+                                        $pmtIcon = '';
+                                        switch ($pmtStatus) {
+                                            case 'pending':
+                                                $pmtBgColor = '#fff3cd'; // Light yellow
+                                                $pmtIcon = '<i class="me-2 bi bi-clock"></i>';
+                                                break;
+                                            case 'completed':
+                                                $pmtBgColor = '#d1e7dd'; // Light green
+                                                $pmtIcon = '<i class="me-2 bi bi-check-circle"></i>';
+                                                break;
+                                            case 'failed':
+                                                $pmtBgColor = '#f8d7da'; // Light red
+                                                $pmtIcon = '<i class="me-2 bi bi-x-circle"></i>';
+                                                break;
+                                            case 'refunded':
+                                                $pmtBgColor = '#cce5ff'; // Light blue
+                                                $pmtIcon = '<i class="me-2 bi bi-arrow-counterclockwise"></i>';
+                                                break;
+                                            default:
+                                                $pmtBgColor = 'transparent';
+                                        }
+
+                                        // Payment Method Abbreviation
+                                        $paymentMethod = htmlspecialchars($order['payment_method']);
+                                        if($paymentMethod == 'Bank Transfer') {
+                                            $paymentMethod = 'Bank Trans.';
+                                        }else if($paymentMethod == 'Cash on Delivery') {
+                                            $paymentMethod = 'COD';
+                                        }else {
+                                            $paymentMethod = 'N/A';
+                                        }
+
+                                        // Order Status BG
+                                        $orderStatus = htmlspecialchars($order['status']);
+                                        $orderStatusBg = '';
+                                        $orderStatusTxtColor = '';
+                                        switch (strtolower($orderStatus)) {
+                                            case 'pending':
+                                                $orderStatusBg = '#fff3cd';
+                                                // $orderStatusTxtColor = '#856404';
+                                                break;
+                                            case 'completed':
+                                                $orderStatusBg = '#d1e7dd';
+                                                $orderStatusTxtColor = '#0f5132';
+                                                break;
+                                            case 'cancelled':
+                                                $orderStatusBg = '#f8d7da';
+                                                $orderStatusTxtColor = '#721c24';
+                                                break;
+                                            case 'processing':
+                                                $orderStatusBg = '#cce5ff';
+                                                $orderStatusTxtColor = '#000000';
+                                                break;
+                                            case 'shipped':
+                                                $orderStatusBg = '#0d6efd';
+                                                $orderStatusTxtColor = '#ffffff';
+                                                break;
+                                            default:
+                                                $orderStatusBg = '#6c757d';
+                                                $orderStatusTxtColor = '#000000';
+                                        }
+                                    ?>
                                     <tr>
                                         <th class="text-center" scope="row"><?= $index + 1 ?></th>
                                         <td class="text-center"><?= htmlspecialchars($order['id']) ?></td>
                                         <td class="text-center"><?= htmlspecialchars($order['order_date']) ?></td>
                                         <td><?= htmlspecialchars($order['customer_name']) ?></td>
-                                        <td style="max-width: 200px; word-wrap: break-word; white-space: normal;"><?= htmlspecialchars($order['email']) ?></td>
+                                        <td style="max-width: 200px; word-wrap: break-word; white-space: normal; display:none;"><?= htmlspecialchars($order['email']) ?></td>
                                         <td><?= htmlspecialchars($order['phone']) ?></td>
                                         <td class="text-center"><?= number_format($order['final_amount'], 2) ?></td>
-                                        <!-- <td class="text-center"><?= htmlspecialchars($order['shipping']) ?></td> -->
-                                        <td class="text-center"><?= htmlspecialchars($order['payment_method']) ?></td>
-                                        <td class="text-center text-capitalize"><?= htmlspecialchars($order['status']) ?></td>
+                                        <td class="text-center" style="background-color: <?= $pmtBgColor ?>;">
+                                            <?= $pmtIcon ?><?= $paymentMethod ?>
+                                        </td>
+                                        <td class="text-center text-capitalize" style="background-color: <?= $orderStatusBg ?>; color: <?= $orderStatusTxtColor ?>;">
+                                            <?= htmlspecialchars($order['status']) ?>
+                                        </td>
                                         <td class="text-center gap-2">
                                             <button class="btn btn-sm btn-primary" onclick="viewOrder(<?= $order['id'] ?>)"><i class="bi bi-eye"></i></button>
                                             <button class="btn btn-sm btn-warning" onclick="editOrder(<?= $order['id'] ?>)"><i class="bi bi-pencil"></i></button>
