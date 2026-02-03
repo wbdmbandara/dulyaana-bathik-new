@@ -70,6 +70,12 @@ class OrdersController extends Controller
             });
         }
 
+        // Filter by status
+        if (request()->has('status') && !empty(request()->get('status'))) {
+            $statusFilter = request()->get('status');
+            $query->where('orders.status', $statusFilter);
+        }
+        
         $response['orders'] = $query->paginate(10);
         return view('orders', $response);
     }

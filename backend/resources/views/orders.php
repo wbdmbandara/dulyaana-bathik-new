@@ -43,12 +43,19 @@
                     </div>
 
                     <!-- Search Orders -->
-                    <form action="" method="GET" class="mt-3">
+                    <form action="" method="GET">
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control" name="search" placeholder="Search by Customer Name, Phone No, Email, Order Date, Payment Method or Order Status" value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
-                            <div class="input-group-text">
-                                <input class="form-check-input mt-0" type="checkbox" name="hide_zero_qty" id="hideZeroQty" value="1" <?= isset($_GET['hide_zero_qty']) && $_GET['hide_zero_qty'] == '1' ? 'checked' : '' ?>>
-                                <label class="form-check-label ms-1" for="hideZeroQty">Hide zero qty</label>
+                            <input type="text" class="form-control" name="search" placeholder="Search by Customer Name, Phone No, Email, Order Date, or Payment Method" value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
+                            <div class="input-group-text p-0">
+                                <!-- order status select -->
+                                <select class="form-select" name="status">
+                                    <option value="">All Statuses</option>
+                                    <option value="pending" <?= (isset($_GET['status']) && $_GET['status'] == 'pending') ? 'selected' : '' ?>>Pending</option>
+                                    <option value="processing" <?= (isset($_GET['status']) && $_GET['status'] == 'processing') ? 'selected' : '' ?>>Processing</option>
+                                    <option value="shipped" <?= (isset($_GET['status']) && $_GET['status'] == 'shipped') ? 'selected' : '' ?>>Shipped</option>
+                                    <option value="completed" <?= (isset($_GET['status']) && $_GET['status'] == 'completed') ? 'selected' : '' ?>>Completed</option>
+                                    <option value="cancelled" <?= (isset($_GET['status']) && $_GET['status'] == 'cancelled') ? 'selected' : '' ?>>Cancelled</option>
+                                </select>
                             </div>
                             <button class="btn btn-primary" type="submit">Search</button>
                             <button type="button" class="btn btn-danger" onclick="location.href='?search='">Reset</button>
