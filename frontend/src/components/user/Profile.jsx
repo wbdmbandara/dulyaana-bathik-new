@@ -1,10 +1,11 @@
-import { API_URL, BACKEND_URL } from "../../config";
+import { API_URL, BACKEND_URL, formatNumber, formatCurrency } from "../../config";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Profile() {
 	const [user, setUser] = useState(null);
 	const [addresses, setAddresses] = useState([]);
+	const [orders, setOrders] = useState([]);
 	const [newAddress, setNewAddress] = useState(null);
 	const [editingAddress, setEditingAddress] = useState(null);
 	const [formErrors, setFormErrors] = useState({});
@@ -34,12 +35,37 @@ function Profile() {
 		}
 	};
 
+	const fetchMyOrders = async (id) => {
+		try {
+			const response = await fetch(
+				`${API_URL}my-orders?customer_id=${id}`,
+				{
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${localStorage.getItem(
+							"token"
+						)}`,
+					},
+				}
+			);
+			if (!response.ok) {
+				throw new Error("Failed to fetch orders");
+			}
+			const data = await response.json();
+			setOrders(data.orders);
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
 	useEffect(() => {
 		const storedUser = localStorage.getItem("user");
 		if (storedUser) {
 			setActiveTab(window.location.search.split("?")[1] || "profile");
 			setUser(JSON.parse(storedUser));
 			fetchAddresses(JSON.parse(storedUser).id);
+			fetchMyOrders(JSON.parse(storedUser).id);
 		} else {
 			navigate("/login");
 		}
@@ -185,39 +211,39 @@ function Profile() {
 
 	// Delete address handler
 	const handleDeleteAddress = async (addressId) => {
-        const modalId = `deleteModal${addressId}`;
-        const modalElement = document.getElementById(modalId);
-        const modal = new window.bootstrap.Modal(modalElement);
-        modal.show();
+		const modalId = `deleteModal${addressId}`;
+		const modalElement = document.getElementById(modalId);
+		const modal = new window.bootstrap.Modal(modalElement);
+		modal.show();
 
-        // Wait for user confirmation
-        const confirmBtn = modalElement.querySelector('.btn-confirm-delete');
-        const cancelBtn = modalElement.querySelector('.btn-cancel-delete');
-        
-        const result = await new Promise((resolve) => {
-            const handleConfirm = () => {
-                cleanup();
-                resolve({ isConfirmed: true });
-            };
-            
-            const handleCancel = () => {
-                cleanup();
-                resolve({ isConfirmed: false });
-            };
-            
-            const cleanup = () => {
-                confirmBtn.removeEventListener('click', handleConfirm);
-                cancelBtn.removeEventListener('click', handleCancel);
-                modal.hide();
-            };
-            
-            confirmBtn.addEventListener('click', handleConfirm);
-            cancelBtn.addEventListener('click', handleCancel);
-        });
+		// Wait for user confirmation
+		const confirmBtn = modalElement.querySelector(".btn-confirm-delete");
+		const cancelBtn = modalElement.querySelector(".btn-cancel-delete");
 
-        if (!result.isConfirmed) {
-            return;
-        }
+		const result = await new Promise((resolve) => {
+			const handleConfirm = () => {
+				cleanup();
+				resolve({ isConfirmed: true });
+			};
+
+			const handleCancel = () => {
+				cleanup();
+				resolve({ isConfirmed: false });
+			};
+
+			const cleanup = () => {
+				confirmBtn.removeEventListener("click", handleConfirm);
+				cancelBtn.removeEventListener("click", handleCancel);
+				modal.hide();
+			};
+
+			confirmBtn.addEventListener("click", handleConfirm);
+			cancelBtn.addEventListener("click", handleCancel);
+		});
+
+		if (!result.isConfirmed) {
+			return;
+		}
 
 		try {
 			const response = await fetch(
@@ -363,10 +389,15 @@ function Profile() {
 									>
 										<i className="bi bi-box-seam"></i>
 										<span>Orders</span>
-										<span className="badge">1</span>
+										<span className="badge">
+											{orders.length ? orders.length : 0}
+										</span>
 									</button>
 								</li>
-								<li className="nav-item d-none" role="presentation">
+								<li
+									className="nav-item d-none"
+									role="presentation"
+								>
 									<button
 										className={
 											activeTab === "wishlist"
@@ -409,7 +440,10 @@ function Profile() {
 										<span>Payment methods</span>
 									</button>
 								</li>
-								<li className="nav-item d-none" role="presentation">
+								<li
+									className="nav-item d-none"
+									role="presentation"
+								>
 									<button
 										className={
 											activeTab === "reviews"
@@ -449,7 +483,10 @@ function Profile() {
 										<span>Addresses</span>
 									</button>
 								</li>
-								<li className="nav-item d-none" role="presentation">
+								<li
+									className="nav-item d-none"
+									role="presentation"
+								>
 									<button
 										className={
 											activeTab === "notifications"
@@ -713,7 +750,7 @@ function Profile() {
 							<div
 								className={
 									activeTab === "orders"
-										? "tab-pane fade show active"
+										? "tab-pane fade active show"
 										: "tab-pane fade"
 								}
 								id="orders"
@@ -835,866 +872,56 @@ function Profile() {
 								</div>
 
 								<div className="orders-table">
-									<div className="table-header">
-										<div className="row">
-											<div className="col-md-3">
-												<div className="sort-header">
-													Order #
-												</div>
-											</div>
-											<div className="col-md-3">
-												<div className="sort-header">
-													Order date
-													<i className="bi bi-arrow-down-up"></i>
-												</div>
-											</div>
-											<div className="col-md-3">
-												<div className="sort-header">
-													Status
-												</div>
-											</div>
-											<div className="col-md-3">
-												<div className="sort-header">
-													Total
-													<i className="bi bi-arrow-down-up"></i>
-												</div>
-											</div>
-										</div>
-									</div>
-
-									<div className="order-items">
-										{/* Order Item 1 */}
-										<div className="order-item">
-											<div className="row align-items-center">
-												<div className="col-md-3">
-													<div className="order-id">
-														78A6431D409
-													</div>
-												</div>
-												<div className="col-md-3">
-													<div className="order-date">
-														02/15/2025
-													</div>
-												</div>
-												<div className="col-md-3">
-													<div className="order-status in-progress">
-														<span className="status-dot"></span>
-														<span>In progress</span>
-													</div>
-												</div>
-												<div className="col-md-3">
-													<div className="order-total">
-														$2,105.90
-													</div>
-												</div>
-											</div>
-											<div className="order-products">
-												<div className="product-thumbnails">
-													<img
-														src="assets/img/product/product-1.webp"
-														alt="Product"
-														className="product-thumb"
-														loading="lazy"
-													/>
-													<img
-														src="assets/img/product/product-2.webp"
-														alt="Product"
-														className="product-thumb"
-														loading="lazy"
-													/>
-													<img
-														src="assets/img/product/product-3.webp"
-														alt="Product"
-														className="product-thumb"
-														loading="lazy"
-													/>
-												</div>
-												<button
-													type="button"
-													className="order-details-link"
-													data-bs-toggle="collapse"
-													data-bs-target="#orderDetails1"
-													aria-expanded="false"
-													aria-controls="orderDetails1"
-												>
-													<i className="bi bi-chevron-down"></i>
-												</button>
-											</div>
-											<div
-												className="collapse order-details"
-												id="orderDetails1"
-											>
-												<div className="order-details-content">
-													<div className="order-details-header">
-														<h5>Order Details</h5>
-														<div className="order-info">
-															<div className="info-item">
-																<span className="info-label">
-																	Order Date:
-																</span>
-																<span className="info-value">
-																	02/15/2025
-																</span>
+									<table className="table table-hover">
+										<thead>
+											<tr className="text-center">
+												<th>Order ID</th>
+												<th>Order date</th>
+												<th>Status</th>
+												<th>Payment Details</th>
+												<th>Total</th>
+												<th>View Order</th>
+											</tr>
+										</thead>
+										<tbody>
+											{orders && orders.length > 0 ? (
+												orders.map((order, index) => (
+													<tr key={order.id || index}>
+														<td className="text-center">{order.id}</td>
+														<td className="text-center">{order.order_date}</td>
+														<td className="text-center">
+															<div className={`order-status ${order.status.toLowerCase().replace(' ', '-')}`}>
+																<span className="status-dot"></span>
+																<span className="text-capitalize">{order.status}</span>
 															</div>
-															<div className="info-item">
-																<span className="info-label">
-																	Payment
-																	Method:
-																</span>
-																<span className="info-value">
-																	Credit Card
-																	(**** 4589)
-																</span>
-															</div>
-														</div>
-													</div>
-													<div className="order-items-list">
-														<div className="order-item-detail">
-															<div className="item-image">
-																<img
-																	src="assets/img/product/product-1.webp"
-																	alt="Product"
-																	loading="lazy"
-																/>
-															</div>
-															<div className="item-info">
-																<h6>
-																	Lorem ipsum
-																	dolor sit
-																	amet
-																</h6>
-																<div className="item-meta">
-																	<span className="item-sku">
-																		SKU:
-																		PRD-001
-																	</span>
-																	<span className="item-qty">
-																		Qty: 1
-																	</span>
-																</div>
-															</div>
-															<div className="item-price">
-																$899.99
-															</div>
-														</div>
-														<div className="order-item-detail">
-															<div className="item-image">
-																<img
-																	src="assets/img/product/product-2.webp"
-																	alt="Product"
-																	loading="lazy"
-																/>
-															</div>
-															<div className="item-info">
-																<h6>
-																	Consectetur
-																	adipiscing
-																	elit
-																</h6>
-																<div className="item-meta">
-																	<span className="item-sku">
-																		SKU:
-																		PRD-002
-																	</span>
-																	<span className="item-qty">
-																		Qty: 2
-																	</span>
-																</div>
-															</div>
-															<div className="item-price">
-																$599.95
-															</div>
-														</div>
-														<div className="order-item-detail">
-															<div className="item-image">
-																<img
-																	src="assets/img/product/product-3.webp"
-																	alt="Product"
-																	loading="lazy"
-																/>
-															</div>
-															<div className="item-info">
-																<h6>
-																	Sed do
-																	eiusmod
-																	tempor
-																</h6>
-																<div className="item-meta">
-																	<span className="item-sku">
-																		SKU:
-																		PRD-003
-																	</span>
-																	<span className="item-qty">
-																		Qty: 1
-																	</span>
-																</div>
-															</div>
-															<div className="item-price">
-																$129.99
-															</div>
-														</div>
-													</div>
-													<div className="order-summary">
-														<div className="summary-row">
-															<span>
-																Subtotal:
-															</span>
-															<span>
-																$1,929.93
-															</span>
-														</div>
-														<div className="summary-row">
-															<span>
-																Shipping:
-															</span>
-															<span>$15.99</span>
-														</div>
-														<div className="summary-row">
-															<span>Tax:</span>
-															<span>$159.98</span>
-														</div>
-														<div className="summary-row total">
-															<span>Total:</span>
-															<span>
-																$2,105.90
-															</span>
-														</div>
-													</div>
-													<div className="shipping-info">
-														<div className="shipping-address">
-															<h6>
-																Shipping Address
-															</h6>
-															<p>
-																123 Main Street
-																<br />
-																Apt 4B
-																<br />
-																New York, NY
-																10001
-																<br />
-																United States
-															</p>
-														</div>
-														<div className="shipping-method">
-															<h6>
-																Shipping Method
-															</h6>
-															<p>
-																Express Delivery
-																(2-3 business
-																days)
-															</p>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-										{/* End Order Item */}
-
-										{/* Order Item 2 */}
-										<div className="order-item">
-											<div className="row align-items-center">
-												<div className="col-md-3">
-													<div className="order-id">
-														47H76G09F33
-													</div>
-												</div>
-												<div className="col-md-3">
-													<div className="order-date">
-														12/10/2024
-													</div>
-												</div>
-												<div className="col-md-3">
-													<div className="order-status delivered">
-														<span className="status-dot"></span>
-														<span>Delivered</span>
-													</div>
-												</div>
-												<div className="col-md-3">
-													<div className="order-total">
-														$360.75
-													</div>
-												</div>
-											</div>
-											<div className="order-products">
-												<div className="product-thumbnails">
-													<img
-														src="assets/img/product/product-4.webp"
-														alt="Product"
-														className="product-thumb"
-														loading="lazy"
-													/>
-												</div>
-												<button
-													type="button"
-													className="order-details-link"
-													data-bs-toggle="collapse"
-													data-bs-target="#orderDetails2"
-													aria-expanded="false"
-													aria-controls="orderDetails2"
-												>
-													<i className="bi bi-chevron-down"></i>
-												</button>
-											</div>
-											<div
-												className="collapse order-details"
-												id="orderDetails2"
-											>
-												<div className="order-details-content">
-													<div className="order-details-header">
-														<h5>Order Details</h5>
-														<div className="order-info">
-															<div className="info-item">
-																<span className="info-label">
-																	Order Date:
-																</span>
-																<span className="info-value">
-																	12/10/2024
-																</span>
-															</div>
-															<div className="info-item">
-																<span className="info-label">
-																	Payment
-																	Method:
-																</span>
-																<span className="info-value">
-																	Credit Card
-																	(**** 7821)
-																</span>
-															</div>
-														</div>
-													</div>
-													<div className="order-items-list">
-														<div className="order-item-detail">
-															<div className="item-image">
-																<img
-																	src="assets/img/product/product-4.webp"
-																	alt="Product"
-																	loading="lazy"
-																/>
-															</div>
-															<div className="item-info">
-																<h6>
-																	Ut enim ad
-																	minim veniam
-																</h6>
-																<div className="item-meta">
-																	<span className="item-sku">
-																		SKU:
-																		PRD-004
-																	</span>
-																	<span className="item-qty">
-																		Qty: 1
-																	</span>
-																</div>
-															</div>
-															<div className="item-price">
-																$329.99
-															</div>
-														</div>
-													</div>
-													<div className="order-summary">
-														<div className="summary-row">
-															<span>
-																Subtotal:
-															</span>
-															<span>$329.99</span>
-														</div>
-														<div className="summary-row">
-															<span>
-																Shipping:
-															</span>
-															<span>$9.99</span>
-														</div>
-														<div className="summary-row">
-															<span>Tax:</span>
-															<span>$20.77</span>
-														</div>
-														<div className="summary-row total">
-															<span>Total:</span>
-															<span>$360.75</span>
-														</div>
-													</div>
-													<div className="shipping-info">
-														<div className="shipping-address">
-															<h6>
-																Shipping Address
-															</h6>
-															<p>
-																123 Main Street
-																<br />
-																Apt 4B
-																<br />
-																New York, NY
-																10001
-																<br />
-																United States
-															</p>
-														</div>
-														<div className="shipping-method">
-															<h6>
-																Shipping Method
-															</h6>
-															<p>
-																Standard
-																Shipping (5-7
-																business days)
-															</p>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-										{/* End Order Item */}
-
-										{/* Order Item 3 */}
-										<div className="order-item">
-											<div className="row align-items-center">
-												<div className="col-md-3">
-													<div className="order-id">
-														502TR872W2
-													</div>
-												</div>
-												<div className="col-md-3">
-													<div className="order-date">
-														11/05/2024
-													</div>
-												</div>
-												<div className="col-md-3">
-													<div className="order-status delivered">
-														<span className="status-dot"></span>
-														<span>Delivered</span>
-													</div>
-												</div>
-												<div className="col-md-3">
-													<div className="order-total">
-														$4,268.00
-													</div>
-												</div>
-											</div>
-											<div className="order-products">
-												<div className="product-thumbnails">
-													<img
-														src="assets/img/product/product-5.webp"
-														alt="Product"
-														className="product-thumb"
-														loading="lazy"
-													/>
-													<img
-														src="assets/img/product/product-6.webp"
-														alt="Product"
-														className="product-thumb"
-														loading="lazy"
-													/>
-													<img
-														src="assets/img/product/product-7.webp"
-														alt="Product"
-														className="product-thumb"
-														loading="lazy"
-													/>
-													<span className="more-products">
-														+3
-													</span>
-												</div>
-												<button
-													type="button"
-													className="order-details-link"
-													data-bs-toggle="collapse"
-													data-bs-target="#orderDetails3"
-													aria-expanded="false"
-													aria-controls="orderDetails3"
-												>
-													<i className="bi bi-chevron-down"></i>
-												</button>
-											</div>
-											<div
-												className="collapse order-details"
-												id="orderDetails3"
-											>
-												<div className="order-details-content">
-													<div className="order-details-header">
-														<h5>Order Details</h5>
-														<div className="order-info">
-															<div className="info-item">
-																<span className="info-label">
-																	Order Date:
-																</span>
-																<span className="info-value">
-																	11/05/2024
-																</span>
-															</div>
-															<div className="info-item">
-																<span className="info-label">
-																	Payment
-																	Method:
-																</span>
-																<span className="info-value">
-																	Credit Card
-																	(**** 4589)
-																</span>
-															</div>
-														</div>
-													</div>
-													<div className="order-items-list">
-														<div className="order-item-detail">
-															<div className="item-image">
-																<img
-																	src="assets/img/product/product-5.webp"
-																	alt="Product"
-																	loading="lazy"
-																/>
-															</div>
-															<div className="item-info">
-																<h6>
-																	Quis nostrud
-																	exercitation
-																</h6>
-																<div className="item-meta">
-																	<span className="item-sku">
-																		SKU:
-																		PRD-005
-																	</span>
-																	<span className="item-qty">
-																		Qty: 2
-																	</span>
-																</div>
-															</div>
-															<div className="item-price">
-																$1,299.99
-															</div>
-														</div>
-														<div className="order-item-detail">
-															<div className="item-image">
-																<img
-																	src="assets/img/product/product-6.webp"
-																	alt="Product"
-																	loading="lazy"
-																/>
-															</div>
-															<div className="item-info">
-																<h6>
-																	Ullamco
-																	laboris nisi
-																</h6>
-																<div className="item-meta">
-																	<span className="item-sku">
-																		SKU:
-																		PRD-006
-																	</span>
-																	<span className="item-qty">
-																		Qty: 1
-																	</span>
-																</div>
-															</div>
-															<div className="item-price">
-																$799.99
-															</div>
-														</div>
-														<div className="order-item-detail">
-															<div className="item-image">
-																<img
-																	src="assets/img/product/product-7.webp"
-																	alt="Product"
-																	loading="lazy"
-																/>
-															</div>
-															<div className="item-info">
-																<h6>
-																	Aliquip ex
-																	ea commodo
-																</h6>
-																<div className="item-meta">
-																	<span className="item-sku">
-																		SKU:
-																		PRD-007
-																	</span>
-																	<span className="item-qty">
-																		Qty: 3
-																	</span>
-																</div>
-															</div>
-															<div className="item-price">
-																$449.99
-															</div>
-														</div>
-														<div className="order-item-detail">
-															<div className="item-image">
-																<img
-																	src="assets/img/product/product-8.webp"
-																	alt="Product"
-																	loading="lazy"
-																/>
-															</div>
-															<div className="item-info">
-																<h6>
-																	Duis aute
-																	irure dolor
-																</h6>
-																<div className="item-meta">
-																	<span className="item-sku">
-																		SKU:
-																		PRD-008
-																	</span>
-																	<span className="item-qty">
-																		Qty: 1
-																	</span>
-																</div>
-															</div>
-															<div className="item-price">
-																$249.99
-															</div>
-														</div>
-													</div>
-													<div className="order-summary">
-														<div className="summary-row">
-															<span>
-																Subtotal:
-															</span>
-															<span>
-																$3,899.94
-															</span>
-														</div>
-														<div className="summary-row">
-															<span>
-																Shipping:
-															</span>
-															<span>$29.99</span>
-														</div>
-														<div className="summary-row">
-															<span>Tax:</span>
-															<span>$338.07</span>
-														</div>
-														<div className="summary-row total">
-															<span>Total:</span>
-															<span>
-																$4,268.00
-															</span>
-														</div>
-													</div>
-													<div className="shipping-info">
-														<div className="shipping-address">
-															<h6>
-																Shipping Address
-															</h6>
-															<p>
-																456 Business Ave
-																<br />
-																Suite 200
-																<br />
-																San Francisco,
-																CA 94107
-																<br />
-																United States
-															</p>
-														</div>
-														<div className="shipping-method">
-															<h6>
-																Shipping Method
-															</h6>
-															<p>
-																Premium Delivery
-																(1-2 business
-																days)
-															</p>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-										{/* End Order Item */}
-
-										{/* Order Item 4 */}
-										<div className="order-item">
-											<div className="row align-items-center">
-												<div className="col-md-3">
-													<div className="order-id">
-														34VB5540K83
-													</div>
-												</div>
-												<div className="col-md-3">
-													<div className="order-date">
-														09/22/2024
-													</div>
-												</div>
-												<div className="col-md-3">
-													<div className="order-status canceled">
-														<span className="status-dot"></span>
-														<span>Canceled</span>
-													</div>
-												</div>
-												<div className="col-md-3">
-													<div className="order-total">
-														$987.50
-													</div>
-												</div>
-											</div>
-											<div className="order-products">
-												<div className="product-thumbnails">
-													<img
-														src="assets/img/product/product-8.webp"
-														alt="Product"
-														className="product-thumb"
-														loading="lazy"
-													/>
-													<img
-														src="assets/img/product/product-9.webp"
-														alt="Product"
-														className="product-thumb"
-														loading="lazy"
-													/>
-												</div>
-												<button
-													type="button"
-													className="order-details-link"
-													data-bs-toggle="collapse"
-													data-bs-target="#orderDetails4"
-													aria-expanded="false"
-													aria-controls="orderDetails4"
-												>
-													<i className="bi bi-chevron-down"></i>
-												</button>
-											</div>
-											<div
-												className="collapse order-details"
-												id="orderDetails4"
-											>
-												<div className="order-details-content">
-													<div className="order-details-header">
-														<h5>Order Details</h5>
-														<div className="order-info">
-															<div className="info-item">
-																<span className="info-label">
-																	Order Date:
-																</span>
-																<span className="info-value">
-																	09/22/2024
-																</span>
-															</div>
-															<div className="info-item">
-																<span className="info-label">
-																	Payment
-																	Method:
-																</span>
-																<span className="info-value">
-																	Credit Card
-																	(**** 7821)
-																</span>
-															</div>
-														</div>
-													</div>
-													<div className="order-items-list">
-														<div className="order-item-detail">
-															<div className="item-image">
-																<img
-																	src="assets/img/product/product-8.webp"
-																	alt="Product"
-																	loading="lazy"
-																/>
-															</div>
-															<div className="item-info">
-																<h6>
-																	In
-																	reprehenderit
-																	in voluptate
-																</h6>
-																<div className="item-meta">
-																	<span className="item-sku">
-																		SKU:
-																		PRD-008
-																	</span>
-																	<span className="item-qty">
-																		Qty: 1
-																	</span>
-																</div>
-															</div>
-															<div className="item-price">
-																$499.99
-															</div>
-														</div>
-														<div className="order-item-detail">
-															<div className="item-image">
-																<img
-																	src="assets/img/product/product-9.webp"
-																	alt="Product"
-																	loading="lazy"
-																/>
-															</div>
-															<div className="item-info">
-																<h6>
-																	Velit esse
-																	cillum
-																	dolore
-																</h6>
-																<div className="item-meta">
-																	<span className="item-sku">
-																		SKU:
-																		PRD-009
-																	</span>
-																	<span className="item-qty">
-																		Qty: 1
-																	</span>
-																</div>
-															</div>
-															<div className="item-price">
-																$399.99
-															</div>
-														</div>
-													</div>
-													<div className="order-summary">
-														<div className="summary-row">
-															<span>
-																Subtotal:
-															</span>
-															<span>$899.98</span>
-														</div>
-														<div className="summary-row">
-															<span>
-																Shipping:
-															</span>
-															<span>$12.99</span>
-														</div>
-														<div className="summary-row">
-															<span>Tax:</span>
-															<span>$74.53</span>
-														</div>
-														<div className="summary-row total">
-															<span>Total:</span>
-															<span>$987.50</span>
-														</div>
-													</div>
-													<div className="shipping-info">
-														<div className="shipping-address">
-															<h6>
-																Shipping Address
-															</h6>
-															<p>
-																123 Main Street
-																<br />
-																Apt 4B
-																<br />
-																New York, NY
-																10001
-																<br />
-																United States
-															</p>
-														</div>
-														<div className="shipping-method">
-															<h6>
-																Shipping Method
-															</h6>
-															<p>
-																Standard
-																Shipping (5-7
-																business days)
-															</p>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-										{/* End Order Item */}
-									</div>
+														</td>
+														<td className="text-center">{order.payment_method}</td>
+														<td className="text-center">{formatCurrency(order.final_amount)}</td>
+														<td className="text-center">
+															<a
+																href={`/order-details?order_id=${order.id}`}
+																className="btn btn-view-order"
+															>
+																<i
+																	className="bi bi-eye"
+																	style={{
+																		marginRight: "5px",
+																	}}
+																></i>
+																View
+															</a>
+														</td>
+													</tr>
+												))
+											) : (
+												<tr>
+													<td colSpan="5" className="text-center">
+														No orders found.
+													</td>
+												</tr>
+											)}
+										</tbody>
+									</table>
 
 									<div className="pagination-container">
 										<nav aria-label="Orders pagination">
@@ -2850,50 +2077,55 @@ function Profile() {
 								</div>
 
 								{/* Delete Address Confirmation Modal */}
-								{addresses && addresses.map((address) => (
-									<div
-										key={`modal-${address.id}`}
-										className="modal fade"
-										id={`deleteModal${address.id}`}
-										tabIndex="-1"
-										aria-labelledby={`deleteModalLabel${address.id}`}
-										aria-hidden="true"
-									>
-										<div className="modal-dialog">
-											<div className="modal-content">
-												<div className="modal-header">
-													<h5 className="modal-title" id={`deleteModalLabel${address.id}`}>
-														Delete Address
-													</h5>
-													<button
-														type="button"
-														className="btn-close"
-														data-bs-dismiss="modal"
-														aria-label="Close"
-													></button>
-												</div>
-												<div className="modal-body">
-													Are you sure you want to delete this address?
-												</div>
-												<div className="modal-footer">
-													<button
-														type="button"
-														className="btn btn-secondary btn-cancel-delete"
-														data-bs-dismiss="modal"
-													>
-														Cancel
-													</button>
-													<button
-														type="button"
-														className="btn btn-danger btn-confirm-delete"
-													>
-														Delete
-													</button>
+								{addresses &&
+									addresses.map((address) => (
+										<div
+											key={`modal-${address.id}`}
+											className="modal fade"
+											id={`deleteModal${address.id}`}
+											tabIndex="-1"
+											aria-labelledby={`deleteModalLabel${address.id}`}
+											aria-hidden="true"
+										>
+											<div className="modal-dialog">
+												<div className="modal-content">
+													<div className="modal-header">
+														<h5
+															className="modal-title"
+															id={`deleteModalLabel${address.id}`}
+														>
+															Delete Address
+														</h5>
+														<button
+															type="button"
+															className="btn-close"
+															data-bs-dismiss="modal"
+															aria-label="Close"
+														></button>
+													</div>
+													<div className="modal-body">
+														Are you sure you want to
+														delete this address?
+													</div>
+													<div className="modal-footer">
+														<button
+															type="button"
+															className="btn btn-secondary btn-cancel-delete"
+															data-bs-dismiss="modal"
+														>
+															Cancel
+														</button>
+														<button
+															type="button"
+															className="btn btn-danger btn-confirm-delete"
+														>
+															Delete
+														</button>
+													</div>
 												</div>
 											</div>
 										</div>
-									</div>
-								))}
+									))}
 
 								<div className="addresses-list">
 									{successMsg.submit && (

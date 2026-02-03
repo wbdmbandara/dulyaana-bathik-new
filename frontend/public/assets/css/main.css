@@ -13080,3 +13080,21 @@ div .prod-category{
   letter-spacing: 0.03em;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
+.btn-view-order{
+  background-color: var(--accent-color);
+  color: var(--contrast-color);
+  border: none;
+  border-radius: 0.5rem;
+  text-align: center;
+  padding: 0.625rem 1rem;
+  font-weight: 500;
+  display: block;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+.btn-view-order:hover{
+  background-color: color-mix(in srgb, var(--accent-color), transparent 20%);
+  color: var(--contrast-color);
+  transform: translateY(-2px);
+}

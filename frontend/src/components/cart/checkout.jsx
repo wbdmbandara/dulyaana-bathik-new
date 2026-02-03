@@ -1618,10 +1618,10 @@ function Checkout() {
 							</div>
 
 							<div className="order-summary-content">
-								<div className="order-items">
+								<div className="checkout-order-items">
 									{checkoutItems.map((item, index) => (
-										<div className="order-item" key={index}>
-											<div className="order-item-image">
+										<div className="checkout-order-item" key={index}>
+											<div className="checkout-order-item-image">
 												<img
 													src={
 														BACKEND_URL +
@@ -1631,9 +1631,9 @@ function Checkout() {
 													className="img-fluid"
 												/>
 											</div>
-											<div className="order-item-details">
+											<div className="checkout-order-item-details">
 												<h4>{item.name}</h4>
-												<div className="order-item-price">
+												<div className="checkout-order-item-price">
 													<span className="quantity">
 														{item.quantity} ×
 													</span>

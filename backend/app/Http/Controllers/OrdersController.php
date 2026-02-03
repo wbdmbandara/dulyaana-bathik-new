@@ -409,4 +409,18 @@ class OrdersController extends Controller
             ], 500);
         }
     }
+
+    public function myOrders(Request $request)
+    {
+        $customerID = $request->customer_id;
+        $orders = $this->order
+            ->where('customer_id', $customerID)
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'orders' => $orders,
+        ]);
+    }
 }
