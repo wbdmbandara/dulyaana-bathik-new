@@ -13,9 +13,11 @@ use App\Models\OrderStatus;
 use App\Models\PaymentStatus;
 use App\Models\Cart;
 use App\Models\Customer;
+use App\Models\CustomerAddress;
 use App\Services\MailConfigService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use PhpParser\JsonDecoder;
 
 class OrdersController extends Controller
 {
@@ -27,8 +29,9 @@ class OrdersController extends Controller
     protected $paymentStatus;
     protected $cart;
     protected $customer;
+    protected $customerAddresses;
 
-    public function __construct(Items $items, Order $order, OrderedItems $orderedItems, OrderShipping $orderShipping, OrderStatus $orderStatus, PaymentStatus $paymentStatus, Cart $cart, Customer $customer)
+    public function __construct(Items $items, Order $order, OrderedItems $orderedItems, OrderShipping $orderShipping, OrderStatus $orderStatus, PaymentStatus $paymentStatus, Cart $cart, Customer $customer, CustomerAddress $customerAddresses)
     {
         $this->items = $items;
         $this->order = $order;
@@ -38,6 +41,7 @@ class OrdersController extends Controller
         $this->paymentStatus = $paymentStatus;
         $this->cart = $cart;
         $this->customer = $customer;
+        $this->customerAddresses = $customerAddresses;
     }
 
     // view orders in admin dashboard
@@ -79,6 +83,8 @@ class OrdersController extends Controller
             $orderedItemsData = json_decode($request->items, true);
             $customerID = $orderedItemsData[0]['customer_id'];
             $shipping = json_decode($request->shipping, true);
+            $saveAddress = json_decode($request->saveAddress, true);
+            $isDefaultAddress = json_decode($request->isDefaultAddress, true);
             $trackingNumber = $this->generateTrackingNumber();
 
             DB::beginTransaction();
@@ -168,9 +174,39 @@ class OrdersController extends Controller
                     'order_id' => $orderId,
                     'payment_status' => 'pending',
                 ]);
-                
+
                 // Clear Cart
                 $this->cart->where('customer_id', $customerID)->delete();
+
+                // Save address if required
+                if ($saveAddress == true) {
+                    if($isDefaultAddress == true) {
+                        // Set all other addresses to not default
+                        $this->customerAddresses->where('customer_id', $customerID)->update(['is_default' => 0]);
+                        $isDefaultAddress = 1;
+                    }else{
+                        $isDefaultAddress = 0;
+                    }
+                    $this->customerAddresses->create([
+                        'customer_id' => $customerID,
+                        'full_name' => $shipping['fullName'],
+                        'phone_number' => $shipping['phoneNumber'],
+                        'address_line1' => $shipping['addressLine1'],
+                        'address_line2' => $shipping['addressLine2'] ?? '',
+                        'city' => $shipping['city'],
+                        'state' => $shipping['state'],
+                        'postal_code' => $shipping['postalCode'],
+                        'is_default' => $isDefaultAddress,
+                        'type' => 'shipping',
+                        'label' => $shipping['addressLabel'] ?? 'Home',
+                    ]);
+                }
+
+                // Update customer info
+                $this->customer->where('id', $customerID)->update([
+                    'name' => $customer['name'],
+                    'phone' => $customer['phone'],
+                ]);
 
                 DB::commit();
 

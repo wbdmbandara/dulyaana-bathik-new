@@ -22,6 +22,8 @@ function Checkout() {
 	});
 	const [bankDetails, setBankDetails] = useState([]);
 	const [addresses, setAddresses] = useState([]);
+	const [saveAddress, setSaveAddress] = useState(false);
+	const [isDefaultAddress, setIsDefaultAddress] = useState(false);
 	const [currentStep, setCurrentStep] = useState(1);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const { showSnackbar } = useSnackbar();
@@ -295,6 +297,8 @@ function Checkout() {
 			state,
 			postalCode,
 			addressLabel,
+			saveAddress,
+			isDefaultAddress,
 		});
 		return true;
 	};
@@ -592,6 +596,8 @@ function Checkout() {
 		const formData = new FormData();
 		formData.append("customer", JSON.stringify(customerData));
 		formData.append("shipping", JSON.stringify(shippingData));
+		formData.append("saveAddress", JSON.stringify(saveAddress));
+		formData.append("isDefaultAddress", JSON.stringify(isDefaultAddress));
 		formData.append("payment", JSON.stringify(paymentData));
 		formData.append("items", JSON.stringify(checkoutItems));
 		formData.append(
@@ -767,6 +773,7 @@ function Checkout() {
 											id="email"
 											placeholder="Your Email"
 											required=""
+											readOnly
 											value={customerData?.email || ""}
 											onChange={(e) =>
 												setCustomerData({
@@ -1106,6 +1113,10 @@ function Checkout() {
 											type="checkbox"
 											id="save-address"
 											name="save-address"
+											checked={saveAddress}
+											onChange={(e) =>
+												setSaveAddress(e.target.checked)
+											}
 										/>
 										<label
 											className="form-check-label"
@@ -1120,6 +1131,12 @@ function Checkout() {
 											type="checkbox"
 											id="is-default"
 											name="is-default"
+											checked={isDefaultAddress}
+											onChange={(e) =>
+												setIsDefaultAddress(
+													e.target.checked
+												)
+											}
 										/>
 										<label
 											className="form-check-label"
