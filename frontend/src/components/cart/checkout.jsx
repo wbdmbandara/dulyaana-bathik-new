@@ -53,7 +53,10 @@ function Checkout() {
 				})
 					.then((response) => {
 						if (!response.ok) {
-							showSnackbar("Failed to fetch checkout items", "error");
+							showSnackbar(
+								"Failed to fetch checkout items",
+								"error"
+							);
 							throw new Error("Failed to fetch checkout items");
 						}
 
@@ -63,7 +66,10 @@ function Checkout() {
 						// console.log(data);
 						// if cart is empty, redirect to shop page
 						if (data.cart_items.length === 0) {
-							showSnackbar("Your cart is empty. Please add items to proceed to checkout.", "info");
+							showSnackbar(
+								"Your cart is empty. Please add items to proceed to checkout.",
+								"info"
+							);
 							navigate("/shop");
 							return;
 						}
@@ -87,7 +93,9 @@ function Checkout() {
 			try {
 				const response = await fetch(`${API_URL}user/profile`, {
 					headers: {
-						Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+						Authorization: `Bearer ${localStorage.getItem(
+							"auth_token"
+						)}`,
 					},
 				});
 				if (response.success === false || !response.ok) {
@@ -375,9 +383,10 @@ function Checkout() {
 				displayName: "Bank Transfer",
 			};
 			setPaymentData(newPaymentData);
-			
+
 			// Check payment slip upload
-			const paymentSlip = document.getElementById("payment-slip")?.files[0];
+			const paymentSlip =
+				document.getElementById("payment-slip")?.files[0];
 			if (!paymentSlip) {
 				document.getElementById("payment-slip")?.focus();
 				showSnackbar("Please upload your payment slip", "error");
@@ -585,7 +594,10 @@ function Checkout() {
 		formData.append("shipping", JSON.stringify(shippingData));
 		formData.append("payment", JSON.stringify(paymentData));
 		formData.append("items", JSON.stringify(checkoutItems));
-		formData.append("totals", JSON.stringify({ total_quantity, subtotal, shipping, total }));
+		formData.append(
+			"totals",
+			JSON.stringify({ total_quantity, subtotal, shipping, total })
+		);
 
 		const paymentSlip = document.getElementById("payment-slip")?.files[0];
 		// attach file only for bank transfer
@@ -1262,15 +1274,24 @@ function Checkout() {
 												<div className="alert alert-info mt-3">
 													<i className="bi bi-info-circle me-2"></i>
 													Please include your
-													<b> registered mobile number </b>
-													as the payment reference. Your
-													order will be processed once
-													we confirm the payment.
+													<b>
+														{" "}
+														registered mobile number{" "}
+													</b>
+													as the payment reference.
+													Your order will be processed
+													once we confirm the payment.
 												</div>
-												
+
 												<div className="form-group mt-4">
-													<label htmlFor="payment-slip" className="form-label">
-														Upload Payment Slip <span className="text-danger">*</span>
+													<label
+														htmlFor="payment-slip"
+														className="form-label"
+													>
+														Upload Payment Slip{" "}
+														<span className="text-danger">
+															*
+														</span>
 													</label>
 													<input
 														type="file"
@@ -1279,17 +1300,22 @@ function Checkout() {
 														name="payment-slip"
 														accept="image/*,.pdf"
 														onChange={(e) => {
-															const file = e.target.files[0];
+															const file =
+																e.target
+																	.files[0];
 															if (file) {
 																setPaymentData({
 																	...paymentData,
-																	paymentSlip: file
+																	paymentSlip:
+																		file,
 																});
 															}
 														}}
 													/>
 													<small className="form-text text-muted">
-														Please upload a clear image or PDF of your payment slip/receipt.
+														Please upload a clear
+														image or PDF of your
+														payment slip/receipt.
 													</small>
 												</div>
 											</div>
@@ -1724,30 +1750,42 @@ function Checkout() {
 								></button>
 							</div>
 							<div className="modal-body">
+								<p>Last Updated: February 2026</p>
 								<p>
-									Lorem ipsum dolor sit amet, consectetur
-									adipiscing elit. Nullam in dui mauris.
-									Vivamus hendrerit arcu sed erat molestie
-									vehicula. Sed auctor neque eu tellus rhoncus
-									ut eleifend nibh porttitor. Ut in nulla
-									enim. Phasellus molestie magna non est
-									bibendum non venenatis nisl tempor.
+									Welcome to <strong>Dulyaana Bathik</strong>. By completing
+									your purchase, you agree to the following
+									terms:
 								</p>
 								<p>
-									Suspendisse in orci enim. Vivamus hendrerit
-									arcu sed erat molestie vehicula. Sed auctor
-									neque eu tellus rhoncus ut eleifend nibh
-									porttitor. Ut in nulla enim. Phasellus
-									molestie magna non est bibendum non
-									venenatis nisl tempor.
+									<strong>Pricing & Payments:</strong> Prices
+									listed on the website represent the product
+									cost only. We currently accept Cash on
+									Delivery (COD) and Bank Transfers.
 								</p>
 								<p>
-									Suspendisse in orci enim. Vivamus hendrerit
-									arcu sed erat molestie vehicula. Sed auctor
-									neque eu tellus rhoncus ut eleifend nibh
-									porttitor. Ut in nulla enim. Phasellus
-									molestie magna non est bibendum non
-									venenatis nisl tempor.
+									<strong>Payment Responsibility:</strong> For
+									bank transfers, customers are responsible
+									for ensuring funds are transferred
+									accurately to the account details provided.
+								</p>
+								<p>
+									<strong>Delivery Charges:</strong> Please
+									note that product prices do not include
+									delivery fees. All courier charges are the
+									responsibility of the customer and will be
+									calculated or collected based on your
+									location.
+								</p>
+								<p>
+									<strong>Product Authenticity:</strong> As
+									our sarees are authentic Bathik, slight
+									variations in color and pattern are a
+									hallmark of the handcrafted process.
+								</p>
+								<p>
+									<strong>Future Updates:</strong> We reserve
+									the right to introduce an integrated payment
+									gateway at any time.
 								</p>
 							</div>
 							<div className="modal-footer">
@@ -1787,29 +1825,26 @@ function Checkout() {
 								></button>
 							</div>
 							<div className="modal-body">
+								<h6>Your Privacy Matters</h6>
 								<p>
-									Lorem ipsum dolor sit amet, consectetur
-									adipiscing elit. Nullam in dui mauris.
-									Vivamus hendrerit arcu sed erat molestie
-									vehicula. Sed auctor neque eu tellus rhoncus
-									ut eleifend nibh porttitor. Ut in nulla
-									enim.
+									At <strong>Dulyaana Bathik</strong>, we value the trust you place in us. Here is how we handle your information:
 								</p>
 								<p>
-									Suspendisse in orci enim. Vivamus hendrerit
-									arcu sed erat molestie vehicula. Sed auctor
-									neque eu tellus rhoncus ut eleifend nibh
-									porttitor. Ut in nulla enim. Phasellus
-									molestie magna non est bibendum non
-									venenatis nisl tempor.
+									<strong>Data Collection:</strong> We collect essential details provided during checkout, such as your name, contact number, and delivery address.
 								</p>
 								<p>
-									Suspendisse in orci enim. Vivamus hendrerit
-									arcu sed erat molestie vehicula. Sed auctor
-									neque eu tellus rhoncus ut eleifend nibh
-									porttitor. Ut in nulla enim. Phasellus
-									molestie magna non est bibendum non
-									venenatis nisl tempor.
+									<strong>Usage:</strong> Your data is used strictly for:
+								</p>
+								<ul>
+									<li>Processing and delivering your orders.</li>
+									<li>Internal business analytics to improve our collection.</li>
+									<li>Sending you exclusive promotions and offers (you may opt-out at any time).</li>
+								</ul>
+								<p>
+									<strong>Data Sharing:</strong> We do not sell your data to third parties. Information is only shared with our courier partners to ensure your saree reaches you.
+								</p>
+								<p>
+									<strong>Security:</strong> We take reasonable steps to protect your personal information from unauthorized access.
 								</p>
 							</div>
 							<div className="modal-footer">
