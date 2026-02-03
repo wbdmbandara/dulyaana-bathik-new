@@ -249,6 +249,21 @@
         function viewOrder(orderId) {
             const modal = new bootstrap.Modal(document.getElementById('viewOrderModal'));
             const modalContent = document.getElementById('orderDetailsContent');
+            const modalTitle = document.getElementById('viewOrderModalLabel');
+            const modalFooter = document.querySelector('#viewOrderModal .modal-footer');
+            
+            // Update modal title
+            modalTitle.innerHTML = '<i class="bi bi-receipt"></i> Order Details';
+
+            // Reset modal footer
+            modalFooter.innerHTML = `
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Close
+                </button>
+                <button type="button" class="btn btn-primary">
+                    <i class="bi bi-printer"></i> Print
+                </button>
+            `;
             
             // Show loading state
             modalContent.innerHTML = `
