@@ -598,17 +598,33 @@
                 modal.hide();
                 
                 // Show success message and reload page
-                alert('Order updated successfully!');
-                location.reload();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Order updated successfully!',
+                    timer: 5000,
+                    showConfirmButton: false
+                });
+                setTimeout(() => {
+                    location.reload();
+                }, 5000);
             } else {
-                alert(data.message || 'Failed to update order.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'Failed to update order.'
+                });
                 saveButton.disabled = false;
                 saveButton.innerHTML = originalText;
             }
             })
             .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while updating the order.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred while updating the order.'
+            });
             saveButton.disabled = false;
             saveButton.innerHTML = originalText;
             });
