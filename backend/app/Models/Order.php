@@ -22,6 +22,7 @@ class Order extends Model
         'payment_slip',
         'note',
         'status',
+        'payment_status',
         'admin_note',
     ];
 }

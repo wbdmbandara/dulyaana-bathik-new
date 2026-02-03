@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\OrderedItems;
 use App\Models\OrderShipping;
 use App\Models\OrderStatus;
+use App\Models\PaymentStatus;
 use App\Models\Cart;
 use App\Models\Customer;
 use App\Services\MailConfigService;
@@ -23,16 +24,18 @@ class OrdersController extends Controller
     protected $orderedItems;
     protected $orderShipping;
     protected $orderStatus;
+    protected $paymentStatus;
     protected $cart;
     protected $customer;
 
-    public function __construct(Items $items, Order $order, OrderedItems $orderedItems, OrderShipping $orderShipping, OrderStatus $orderStatus, Cart $cart, Customer $customer)
+    public function __construct(Items $items, Order $order, OrderedItems $orderedItems, OrderShipping $orderShipping, OrderStatus $orderStatus, PaymentStatus $paymentStatus, Cart $cart, Customer $customer)
     {
         $this->items = $items;
         $this->order = $order;
         $this->orderedItems = $orderedItems;
         $this->orderShipping = $orderShipping;
         $this->orderStatus = $orderStatus;
+        $this->paymentStatus = $paymentStatus;
         $this->cart = $cart;
         $this->customer = $customer;
     }
@@ -160,6 +163,12 @@ class OrdersController extends Controller
                     'status' => 'pending',
                 ]);
 
+                // Insert initial payment status
+                $this->paymentStatus->create([
+                    'order_id' => $orderId,
+                    'payment_status' => 'pending',
+                ]);
+                
                 // Clear Cart
                 $this->cart->where('customer_id', $customerID)->delete();
 
@@ -293,6 +302,7 @@ class OrdersController extends Controller
             
             $order = $this->order->find($orderID);
             $orderStatus = $order->status;
+            $paymentStatus = $order->payment_status;
             
             if (!$order) {
                 return response()->json([
@@ -304,6 +314,7 @@ class OrdersController extends Controller
             // Update order details
             $order->update([
                 'status' => $request->input('status'),
+                'payment_status' => $request->input('payment_status'),
                 'admin_note' => $request->input('notes'),
             ]);
             
@@ -318,6 +329,15 @@ class OrdersController extends Controller
                 $this->orderStatus->create([
                     'order_id' => $orderID,
                     'status' => $request->input('status'),
+                    'changed_user_id' => Auth::id(),
+                ]);
+            }
+
+            // Insert payment status history if payment status changed
+            if ($request->input('payment_status') !== $paymentStatus) {
+                $this->paymentStatus->create([
+                    'order_id' => $orderID,
+                    'payment_status' => $request->input('payment_status'),
                     'changed_user_id' => Auth::id(),
                 ]);
             }

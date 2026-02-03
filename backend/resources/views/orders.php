@@ -503,17 +503,40 @@
                             <td><strong>Payment Method:</strong></td>
                             <td class="text-end">${order.payment_method}</td>
                             </tr>
+                            <tr>
+                                <td><strong>Payment Status:</strong></td>
+                                <td class="text-end text-capitalize">${order.payment_status}</td>
+                            </tr>
+                            ${order.payment_method.toLowerCase() === 'bank transfer' && order.payment_slip ? `
+                                <tr>
+                                    <td><strong>Payment Slip:</strong></td>
+                                    <td class="text-end">
+                                        <button type="button" class="btn btn-secondary" onclick="viewPaymentSlip('${order.payment_slip}', '${order.payment_status}')">View Payment Slip</button>
+                                    </td>
+                                </tr>
+                            ` : ''}
                         </table>
                         </div>
                     </div>
 
                     <!-- Notes -->
                     <div class="row mt-3">
-                        <div class="col-12">
+                        <div class="col-8">
                         <div class="mb-3">
                             <label for="orderNotes" class="form-label"><strong>Notes</strong></label>
                             <textarea class="form-control" id="orderNotes" name="notes" rows="3" placeholder="Add notes about this order">${order.admin_note || ''}</textarea>
                         </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="mb-3">
+                                <label for="paymentStatus" class="form-label"><strong>Payment Status</strong></label>
+                                <select class="form-select" id="paymentStatus" name="payment_status">
+                                    <option value="pending" ${order.payment_status === 'pending' ? 'selected' : ''}>Pending</option>
+                                    <option value="completed" ${order.payment_status === 'completed' ? 'selected' : ''}>Completed</option>
+                                    <option value="failed" ${order.payment_status === 'failed' ? 'selected' : ''}>Failed</option>
+                                    <option value="refunded" ${order.payment_status === 'refunded' ? 'selected' : ''}>Refunded</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     </form>
@@ -626,7 +649,7 @@
                     `;
                 }
             }
-            
+
             // Update payment status display
             const paymentStatusDisplay = document.getElementById('paymentStatusDisplay');
             paymentStatusDisplay.innerHTML = `<strong>Payment Status:</strong> <span class="text-capitalize">${paymentStatus}</span>`;
