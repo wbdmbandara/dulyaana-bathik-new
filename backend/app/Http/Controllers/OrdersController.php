@@ -75,7 +75,7 @@ class OrdersController extends Controller
             $statusFilter = request()->get('status');
             $query->where('orders.status', $statusFilter);
         }
-        
+
         $response['orders'] = $query->paginate(10);
         return view('orders', $response);
     }
@@ -246,21 +246,31 @@ class OrdersController extends Controller
         return strtoupper(uniqid('DBTRK-'));
     }
 
-    public function orderDetails()
+    public function orderDetails(Request $request, $orderID)
     {
-        $orderID = request()->route('id');
-        $order = $this->order->find($orderID);
-        $orderedItems = $this->orderedItems
-            ->where('order_id', $orderID)
-            ->join('items', 'ordered_items.product_id', '=', 'items.item_id')
-            ->select('ordered_items.*', 'items.name', 'items.url', 'items.main_image')
-            ->get();
+        // $orderID = request()->route('id');
+        $customerID = $request->customer_id;
+        $order = $this->order->where('id', $orderID)->where('customer_id', $customerID)->first();
+
         if (!$order) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Order not found',
             ], 404);
         }
+
+        if ($order->customer_id != $customerID) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized access to order details',
+            ], 403);
+        }
+
+        $orderedItems = $this->orderedItems
+            ->where('order_id', $orderID)
+            ->join('items', 'ordered_items.product_id', '=', 'items.item_id')
+            ->select('ordered_items.*', 'items.name', 'items.url', 'items.main_image')
+            ->get();
 
         return response()->json([
             'status' => 'success',

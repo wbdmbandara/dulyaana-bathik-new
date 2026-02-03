@@ -48,7 +48,7 @@ Route::middleware('api')->group(function () {
     Route::post('/cart/checkout', [CartController::class, 'checkout']);
     Route::post('/cart/place-order', [OrdersController::class, 'placeOrder']);
 
-    Route::get('/order-details/{id}', [OrdersController::class, 'orderDetails']);
+    Route::post('/order-details/{id}', [OrdersController::class, 'orderDetails']);
     Route::get('/order-confirmation/{id}', [OrdersController::class, 'orderConfirmation']);
 
     // getting customer details

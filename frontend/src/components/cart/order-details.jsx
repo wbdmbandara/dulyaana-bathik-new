@@ -37,23 +37,25 @@ function OrderDetails() {
 		const fetchOrderItems = async () => {
 			try {
 				fetch(`${API_URL}order-details/${orderID}`, {
-					method: "GET",
+					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
 						Authorization: `Bearer ${localStorage.getItem(
 							"auth_token"
 						)}`,
 					},
+					body: JSON.stringify({ customer_id: customerID }),
 				})
 					.then((response) => {
 						if (!response.ok) {
-							showSnackbar(
-								"Failed to fetch order items",
-								"error"
-							);
-							throw new Error("Failed to fetch order items");
+							return response.json().then((data) => {
+								showSnackbar(
+									data.message || "Failed to fetch order details",
+									"error"
+								);
+								throw new Error("Failed to fetch order details");
+							});
 						}
-
 						return response.json();
 					})
 					.then((data) => {
@@ -62,11 +64,11 @@ function OrderDetails() {
 					})
 					.catch((error) => {
 						console.error(error);
-						showSnackbar("Failed to fetch order items", "error");
+						// showSnackbar("Failed to fetch order details", "error");
 					});
 			} catch (error) {
-				console.error("Error fetching order items:", error);
-				showSnackbar("Error fetching order items", "error");
+				// console.error("Error fetching order details:", error);
+				showSnackbar("Error fetching order details", "error");
 			}
 		};
 		fetchOrderItems();
