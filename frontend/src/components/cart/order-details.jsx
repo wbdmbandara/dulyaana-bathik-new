@@ -15,19 +15,16 @@ function OrderDetails() {
 	const [orderedItems, setOrderedItems] = useState([]);
 	const { showSnackbar } = useSnackbar();
 
-	// Get order ID from URL
+	// Get order ID from URL and check authentication
 	useEffect(() => {
 		const queryParams = new URLSearchParams(window.location.search);
 		const orderId = queryParams.get("order_id");
 		if (orderId) {
 			setOrderID(orderId);
-		}
-	}, []);
-
-	useEffect(() => {
-		const storedUser = localStorage.getItem("user");
-		if (!storedUser) {
-			navigate("/login?redirect=/order-details?order_id=" + orderID);
+			const storedUser = localStorage.getItem("user");
+			if (!storedUser) {
+				navigate("/login?redirect=/order-details?order_id=" + orderId);
+			}
 		}
 	}, []);
 
@@ -296,7 +293,7 @@ function OrderDetails() {
 										</span>
 									</div>
 
-									<div className="summary-item shipping-item">
+									<div className="summary-item shipping-item d-none">
 										<span className="summary-label">
 											Shipping
 										</span>
