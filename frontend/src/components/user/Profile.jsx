@@ -1,4 +1,9 @@
-import { API_URL, BACKEND_URL, formatNumber, formatCurrency } from "../../config";
+import {
+	API_URL,
+	BACKEND_URL,
+	formatNumber,
+	formatCurrency,
+} from "../../config";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -14,6 +19,10 @@ function Profile() {
 	const [activeTab, setActiveTab] = useState(
 		window.location.search.split("?")[1] || "profile"
 	);
+
+	// Pagination state for orders
+	const [currentPage, setCurrentPage] = useState(1);
+	const [ordersPerPage] = useState(5); // Show 5 orders per page
 
 	const fetchAddresses = async (id) => {
 		try {
@@ -269,7 +278,6 @@ function Profile() {
 			console.error(error);
 		}
 	};
-
 	// Make address default handler
 	const handleMakeDefault = async (addressId) => {
 		try {
@@ -295,6 +303,66 @@ function Profile() {
 			setFormErrors({ submit: error.message });
 			console.error(error);
 		}
+	};
+
+	// Pagination logic for orders
+	const indexOfLastOrder = currentPage * ordersPerPage;
+	const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+	const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
+	const totalPages = Math.ceil(orders.length / ordersPerPage);
+
+	// Change page
+	const paginate = (pageNumber) => {
+		setCurrentPage(pageNumber);
+		// Scroll to top of orders section
+		const ordersSection = document.querySelector(".orders-table");
+		if (ordersSection) {
+			ordersSection.scrollIntoView({
+				behavior: "smooth",
+				block: "start",
+			});
+		}
+	};
+
+	// Generate page numbers array
+	const getPageNumbers = () => {
+		const pageNumbers = [];
+		const maxVisiblePages = 5;
+
+		if (totalPages <= maxVisiblePages) {
+			// Show all pages if total is less than max visible
+			for (let i = 1; i <= totalPages; i++) {
+				pageNumbers.push(i);
+			}
+		} else {
+			// Show smart pagination with ellipsis
+			if (currentPage <= 3) {
+				// Show first 5 pages
+				for (let i = 1; i <= 5; i++) {
+					pageNumbers.push(i);
+				}
+				pageNumbers.push("...");
+				pageNumbers.push(totalPages);
+			} else if (currentPage >= totalPages - 2) {
+				// Show last 5 pages
+				pageNumbers.push(1);
+				pageNumbers.push("...");
+				for (let i = totalPages - 4; i <= totalPages; i++) {
+					pageNumbers.push(i);
+				}
+			} else {
+				// Show pages around current page
+				pageNumbers.push(1);
+				pageNumbers.push("...");
+				for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+					pageNumbers.push(i);
+				}
+				pageNumbers.push("...");
+				pageNumbers.push(totalPages);
+			}
+		}
+
+		return pageNumbers;
 	};
 
 	return (
@@ -869,10 +937,9 @@ function Profile() {
 											</div>
 										</div>
 									</div>
-								</div>
-
-								<div className="orders-table">
-									<table className="table table-hover">
+								</div>{" "}
+								<div className="orders-table table-responsive aos-init aos-animate">
+									<table className="table table-bordered table-hover">
 										<thead>
 											<tr className="text-center">
 												<th>Order ID</th>
@@ -884,83 +951,200 @@ function Profile() {
 											</tr>
 										</thead>
 										<tbody>
-											{orders && orders.length > 0 ? (
-												orders.map((order, index) => (
-													<tr key={order.id || index}>
-														<td className="text-center">{order.id}</td>
-														<td className="text-center">{order.order_date}</td>
-														<td className="text-center">
-															<div className={`order-status ${order.status.toLowerCase().replace(' ', '-')}`}>
-																<span className="status-dot"></span>
-																<span className="text-capitalize">{order.status}</span>
-															</div>
-														</td>
-														<td className="text-center">{order.payment_method}</td>
-														<td className="text-center">{formatCurrency(order.final_amount)}</td>
-														<td className="text-center">
-															<a
-																href={`/order-details?order_id=${order.id}`}
-																className="btn btn-view-order"
-															>
-																<i
-																	className="bi bi-eye"
-																	style={{
-																		marginRight: "5px",
-																	}}
-																></i>
-																View
-															</a>
-														</td>
-													</tr>
-												))
+											{currentOrders &&
+											currentOrders.length > 0 ? (
+												currentOrders.map(
+													(order, index) => (
+														<tr
+															key={
+																order.id ||
+																index
+															}
+														>
+															<td className="text-center">
+																{order.id}
+															</td>
+															<td className="text-center">
+																{
+																	order.order_date
+																}
+															</td>
+															<td className="text-center">
+																<div
+																	className={`order-status ${order.status
+																		.toLowerCase()
+																		.replace(
+																			" ",
+																			"-"
+																		)}`}
+																>
+																	<span className="status-dot"></span>
+																	<span className="text-capitalize">
+																		{
+																			order.status
+																		}
+																	</span>
+																</div>
+															</td>
+															<td className="text-center">
+																{
+																	order.payment_method
+																}
+															</td>
+															<td className="text-center">
+																{formatCurrency(
+																	order.final_amount
+																)}
+															</td>
+															<td className="text-center p-1">
+																<a
+																	href={`/order-details?order_id=${order.id}`}
+																	className="btn btn-view-order"
+																>
+																	<i
+																		className="bi bi-eye"
+																		style={{
+																			marginRight:
+																				"5px",
+																		}}
+																	></i>
+																	View
+																</a>
+															</td>
+														</tr>
+													)
+												)
 											) : (
 												<tr>
-													<td colSpan="5" className="text-center">
-														No orders found.
+													<td
+														colSpan="6"
+														className="text-center"
+													>
+														{orders.length === 0
+															? "No orders found."
+															: "No orders on this page."}
 													</td>
 												</tr>
 											)}
 										</tbody>
 									</table>
 
-									<div className="pagination-container">
-										<nav aria-label="Orders pagination">
-											<ul className="pagination">
-												<li className="page-item active">
-													<a
-														className="page-link"
-														href="#"
-													>
-														1
-													</a>
-												</li>
-												<li className="page-item">
-													<a
-														className="page-link"
-														href="#"
-													>
-														2
-													</a>
-												</li>
-												<li className="page-item">
-													<a
-														className="page-link"
-														href="#"
-													>
-														3
-													</a>
-												</li>
-												<li className="page-item">
-													<a
-														className="page-link"
-														href="#"
-													>
-														4
-													</a>
-												</li>
-											</ul>
-										</nav>
-									</div>
+									{/* Dynamic Pagination */}
+									{orders.length > ordersPerPage && (
+										<div>
+											<div className="pagination-container pt-2 pb-0">
+												<nav aria-label="Orders pagination">
+													<ul className="pagination">
+														{/* Previous Button */}
+														<li
+															className={`page-item ${
+																currentPage ===
+																1
+																	? "disabled"
+																	: ""
+															}`}
+														>
+															<button
+																className="page-link"
+																onClick={() =>
+																	paginate(
+																		currentPage -
+																			1
+																	)
+																}
+																disabled={
+																	currentPage ===
+																	1
+																}
+																aria-label="Previous"
+															>
+																<i className="bi bi-chevron-left"></i>
+															</button>
+														</li>
+
+														{/* Page Numbers */}
+														{getPageNumbers().map(
+															(page, index) =>
+																page ===
+																"..." ? (
+																	<li
+																		key={`ellipsis-${index}`}
+																		className="page-item disabled"
+																	>
+																		<span className="page-link">
+																			...
+																		</span>
+																	</li>
+																) : (
+																	<li
+																		key={
+																			page
+																		}
+																		className={`page-item ${
+																			currentPage ===
+																			page
+																				? "active"
+																				: ""
+																		}`}
+																	>
+																		<button
+																			className="page-link"
+																			onClick={() =>
+																				paginate(
+																					page
+																				)
+																			}
+																		>
+																			{
+																				page
+																			}
+																		</button>
+																	</li>
+																)
+														)}
+
+														{/* Next Button */}
+														<li
+															className={`page-item ${
+																currentPage ===
+																totalPages
+																	? "disabled"
+																	: ""
+															}`}
+														>
+															<button
+																className="page-link"
+																onClick={() =>
+																	paginate(
+																		currentPage +
+																			1
+																	)
+																}
+																disabled={
+																	currentPage ===
+																	totalPages
+																}
+																aria-label="Next"
+															>
+																<i className="bi bi-chevron-right"></i>
+															</button>
+														</li>
+													</ul>
+												</nav>
+											</div>
+
+											{/* Pagination Info */}
+											<div className="pagination-info pb-3">
+												Showing {indexOfFirstOrder + 1}{" "}
+												to{" "}
+												{Math.min(
+													indexOfLastOrder,
+													orders.length
+												)}{" "}
+												of {orders.length} orders
+											</div>
+										</div>
+									)}
 								</div>
 							</div>
 

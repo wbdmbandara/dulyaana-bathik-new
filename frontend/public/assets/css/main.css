@@ -7574,7 +7574,7 @@ section,
   background-color: var(--surface-color);
   border-radius: 12px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .account .profile-content .orders-table .table-header {
@@ -7894,7 +7894,7 @@ section,
 }
 
 .account .profile-content .orders-table .pagination-container {
-  padding: 1rem 1.5rem;
+  padding: 1rem 1rem;
   display: flex;
   justify-content: center;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
@@ -13087,7 +13087,7 @@ div .prod-category{
   border: none;
   border-radius: 0.5rem;
   text-align: center;
-  padding: 0.625rem 1rem;
+  padding: 0.25rem 0.5rem;
   font-weight: 500;
   display: block;
   align-items: center;
@@ -13097,4 +13097,9 @@ div .prod-category{
   background-color: color-mix(in srgb, var(--accent-color), transparent 20%);
   color: var(--contrast-color);
   transform: translateY(-2px);
+}
+.pagination-info{
+  font-size: 0.9rem;
+  margin-top: 0;
+  text-align: center;
 }
