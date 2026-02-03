@@ -317,3 +317,7 @@
   }
 
 })();
+
+function currencyFormat(amount) {
+  return 'Rs. ' + parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}

@@ -136,6 +136,42 @@
         </div>
     </div>
 
+    <!-- View Payment Slip Modal -->
+    <div class="modal fade" id="viewPaymentSlipModal" tabindex="-1" aria-labelledby="viewPaymentSlipModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="viewPaymentSlipModalLabel">
+                        <i class="bi bi-file-earmark-image"></i> Payment Slip
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="paymentSlipContent">
+                        <!-- Payment slip will be loaded here via AJAX -->
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2 text-muted">Loading payment slip...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between align-items-center">
+                    <div id="paymentStatusDisplay"></div>
+                    <div>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle"></i> Close
+                        </button>
+                        <button type="button" class="btn btn-primary" id="downloadPaymentSlipBtn">
+                            <i class="bi bi-download"></i> Download
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <?php
     include_once 'common/footer.php';
 ?>
@@ -222,8 +258,8 @@
                                                         <td>${index + 1}</td>
                                                         <td>${item.name}</td>
                                                         <td class="text-center">${item.quantity}</td>
-                                                        <td class="text-end">Rs. ${parseFloat(item.price).toFixed(2)}</td>
-                                                        <td class="text-end">Rs. ${parseFloat(item.value).toFixed(2)}</td>
+                                                        <td class="text-end">${currencyFormat(item.price)}</td>
+                                                        <td class="text-end">${currencyFormat(item.value)}</td>
                                                     </tr>
                                                 `).join('')}
                                             </tbody>
@@ -257,22 +293,34 @@
                                     <table class="table table-sm">
                                         <tr>
                                             <td><strong>Subtotal:</strong></td>
-                                            <td class="text-end">Rs. ${parseFloat(order.total_amount).toFixed(2)}</td>
+                                            <td class="text-end">${currencyFormat(order.total_amount)}</td>
                                         </tr>
                                         ${parseFloat(order.discount) > 0 ? `
                                         <tr>
                                             <td><strong>Discount:</strong></td>
-                                            <td class="text-end text-danger">- Rs. ${parseFloat(order.discount).toFixed(2)}</td>
+                                            <td class="text-end text-danger">- ${currencyFormat(order.discount)}</td>
                                         </tr>
                                         ` : ''}
                                         <tr class="table-light">
                                             <td><strong>Total Amount:</strong></td>
-                                            <td class="text-end"><strong>Rs. ${parseFloat(order.final_amount).toFixed(2)}</strong></td>
+                                            <td class="text-end"><strong>${currencyFormat(order.final_amount)}</strong></td>
                                         </tr>
                                         <tr>
                                             <td><strong>Payment Method:</strong></td>
                                             <td class="text-end">${order.payment_method}</td>
                                         </tr>
+                                        <tr>
+                                            <td><strong>Payment Status:</strong></td>
+                                            <td class="text-end text-capitalize">${order.payment_status}</td>
+                                        </tr>
+                                        ${order.payment_method.toLowerCase() === 'bank transfer' && order.payment_slip ? `
+                                            <tr>
+                                                <td><strong>Payment Slip:</strong></td>
+                                                <td class="text-end">
+                                                    <button type="button" class="btn btn-secondary" onclick="viewPaymentSlip('${order.payment_slip}', '${order.payment_status}')">View Payment Slip</button>
+                                                </td>
+                                            </tr>
+                                        ` : ''}
                                     </table>
                                 </div>
                             </div>
@@ -542,4 +590,59 @@
             saveButton.innerHTML = originalText;
             });
         }
+
+        function viewPaymentSlip(paymentSlip, paymentStatus) {
+            // Open the payment slip modal
+            const modal = new bootstrap.Modal(document.getElementById('viewPaymentSlipModal'));
+            const modalContent = document.getElementById('paymentSlipContent');
+
+            if (!paymentSlip) {
+                modalContent.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                <i class="bi bi-exclamation-triangle"></i> Payment slip not found.
+                </div>
+                `;
+            } else {
+                // Load payment slip into modal if image
+                if (paymentSlip.endsWith('.jpg') || paymentSlip.endsWith('.png') || paymentSlip.endsWith('.jpeg')) {
+                    modalContent.innerHTML = `
+                        <div class="text-center">
+                            <img src="/payment_slips/${paymentSlip}" alt="Payment Slip" class="img-fluid" style="max-height: 500px;">
+                        </div>
+                    `;
+                }
+                else if (paymentSlip.endsWith('.pdf')) {
+                    modalContent.innerHTML = `
+                        <div class="text-center">
+                            <iframe src="/payment_slips/${paymentSlip}" alt="Payment Slip" class="img-fluid" style="width: 100%; height: 500px;"></iframe>
+                        </div>
+                    `;
+                }
+                else {
+                    modalContent.innerHTML = `
+                        <div class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i> Invalid payment slip format.
+                        </div>
+                    `;
+                }
+            }
+            
+            // Update payment status display
+            const paymentStatusDisplay = document.getElementById('paymentStatusDisplay');
+            paymentStatusDisplay.innerHTML = `<strong>Payment Status:</strong> <span class="text-capitalize">${paymentStatus}</span>`;
+
+            modal.show();
+        }
+
+        // Download Payment Slip
+        const downloadPaymentSlipBtn = document.getElementById('downloadPaymentSlipBtn');
+        downloadPaymentSlipBtn.addEventListener('click', function() {
+            const paymentSlip = document.getElementById('paymentSlipContent').querySelector('img, iframe').src;
+            const link = document.createElement('a');
+            link.href = paymentSlip;
+            link.download = paymentSlip.split('/').pop();
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
     </script>

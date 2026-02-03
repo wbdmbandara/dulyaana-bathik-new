@@ -46,7 +46,8 @@ class OrdersController extends Controller
         
         $query = $this->order
             ->leftJoin('customer', 'orders.customer_id', '=', 'customer.id')
-            ->select('orders.*', 'customer.name as customer_name', 'customer.email as email', 'customer.phone as phone');
+            ->select('orders.*', 'customer.name as customer_name', 'customer.email as email', 'customer.phone as phone')
+            ->orderBy('orders.id', 'desc');
 
         // Search functionality
         if (request()->has('search') && !empty(request()->get('search'))) {
