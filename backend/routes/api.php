@@ -38,6 +38,7 @@ Route::middleware('api')->group(function () {
     Route::post('/registerCustomer', [CustomerController::class, 'register']);
     Route::post('/login', [CustomerController::class, 'login']);
     Route::post('/customers/{id}', [CustomerController::class, 'update']);
+    Route::post('/forgot-password', [CustomerController::class, 'forgotPassword']);
     // Route::post('/admin/login', [UserController::class, 'login']); // Admin login route
 
     // cart operations

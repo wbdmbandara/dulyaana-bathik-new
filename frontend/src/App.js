@@ -11,6 +11,7 @@ import Contact from "./Contact";
 import Shop from "./Shop";
 import Product from "./Product";
 import Login from "./Login";
+import ForgotPassword from "./ForgotPassword";
 import Cart from "./Cart";
 import Checkout from "./Checkout";
 import OrderDetails from "./OrderDetails";
@@ -100,6 +101,7 @@ function App() {
 								<Route path="/cart" element={<Cart />} />
 								<Route path="/checkout" element={<Checkout />} />
 								<Route path="/order-details" element={<OrderDetails />} />
+								<Route path="/forgot-password" element={<ForgotPassword />} />
 								<Route
 									path="/product/:url" 
 									element={<Product url={window.location.pathname} />}

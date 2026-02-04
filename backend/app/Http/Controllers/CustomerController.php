@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ResetPasswordMail;
 use App\Mail\WelcomeMail;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
@@ -283,12 +284,30 @@ class CustomerController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function forgotPassword(Request $request)
     {
-        //
+        // find customer using email
+        $customer = $this->customer->where('email', $request->json('email'))->first();
+
+        if (!$customer) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Customer not found'
+            ], 404);
+        }
+
+        // generate reset token
+        $token = bin2hex(random_bytes(16));
+        $customer->pw_reset_token = $token;
+        $customer->save();
+
+        // send reset email
+        Mail::to($customer->email)->send(new ResetPasswordMail($customer));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Reset password email sent'
+        ]);
     }
 
     /**
