@@ -65,19 +65,30 @@ function Login() {
 									id="section-header"
 								>
 									<h2>Login</h2>
-									{new URLSearchParams(
-										window.location.search
-									).get("registered") === "success" ? (
-										<p className="alert alert-success">
-											Registration successful! Please log
-											in to continue shopping.
-										</p>
-									) : (
-										<p>
-											Welcome back! Please enter your
-											details
-										</p>
-									)}
+									{(() => {
+										const params = new URLSearchParams(window.location.search);
+										const registered = params.get("registered") === "success";
+										const pwReset = params.get("pw-reset") === "success";
+										if (registered) {
+											return (
+												<p className="alert alert-success">
+													Registration successful! Please log in to continue shopping.
+												</p>
+											);
+										} else if (pwReset) {
+											return (
+												<p className="alert alert-success">
+													Password reset successful! Please log in with your new password.
+												</p>
+											);
+										} else {
+											return (
+												<p>
+													Welcome back! Please enter your details
+												</p>
+											);
+										}
+									})()}
 								</div>
 
 								{errors.length > 0 && (

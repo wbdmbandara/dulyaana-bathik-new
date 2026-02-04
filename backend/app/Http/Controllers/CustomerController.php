@@ -349,6 +349,56 @@ class CustomerController extends Controller
         }
     }
 
+    public function getCustomerEmail(Request $request){
+        // get token from url query string
+        $token = $request->query('token');
+
+        // find customer using token
+        $customer = $this->customer->where('pw_reset_token', $token)->first();
+
+        if (!$customer) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired token'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'email' => $customer->email
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        // Validate the incoming data
+        $request->validate([
+            'token'    => 'required',
+            'email'    => 'required|email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        // Find customer by token
+        $customer = Customer::where('pw_reset_token', $request->token)->first();
+
+        if (!$customer) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired reset token.'
+            ], 404);
+        }
+
+        // Update and Clear Token
+        $customer->password = bcrypt($request->password);
+        $customer->pw_reset_token = null; 
+        $customer->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password reset successfully'
+        ]);
+    }
+
     /**
      * Remove the specified resource from storage.
      */

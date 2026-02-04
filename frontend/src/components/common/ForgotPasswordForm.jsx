@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 function ForgotPassword() {
 	const [email, setEmail] = useState("");
 	const [errors, setErrors] = useState([]);
+	const [successMsg, setSuccessMsg] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const navigate = useNavigate();
 	let redirectPath = "/profile";
@@ -30,16 +31,19 @@ function ForgotPassword() {
 
 		try {
 			// post email to forgot-password
-            const response = await fetch(
-                `${API_URL}forgot-password`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ email }),
-                }
-            );
+			const response = await fetch(`${API_URL}forgot-password`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ email }),
+			});
+			// display success or error messages
+			if (response.ok) {
+				setSuccessMsg(["Reset password email sent. Check your inbox"]);
+			} else {
+				setErrors(["An unexpected error occurred. Please try again."]);
+			}
 		} catch (error) {
 			console.error("Forgot password failed:", error);
 			setErrors(["An unexpected error occurred. Please try again."]);
@@ -82,6 +86,19 @@ function ForgotPassword() {
 										<ul>
 											{errors.map((error, index) => (
 												<li key={index}>{error}</li>
+											))}
+										</ul>
+									</div>
+								)}
+
+								{successMsg.length > 0 && (
+									<div
+										className="success alert alert-success"
+										id="success"
+									>
+										<ul>
+											{successMsg.map((msg, index) => (
+												<li key={index}>{msg}</li>
 											))}
 										</ul>
 									</div>

@@ -27,8 +27,8 @@ class ResetPasswordMail extends Mailable
                     ->view('emails.reset_password')
                     ->with([
                         'name' => $this->customer->name,
-                        'resetLink' => env('APP_URL') . '/reset-password?token=' . $this->customer->pw_reset_token,
-                        'actionUrl' => env('APP_URL'),
+                        'resetLink' => env('FRONTEND_URL') . '/reset-password?token=' . $this->customer->pw_reset_token,
+                        'actionUrl' => env('FRONTEND_URL'),
                         'year' => date('Y'),
                     ]);
     }

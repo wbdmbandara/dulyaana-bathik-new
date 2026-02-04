@@ -22,6 +22,7 @@ class Customer extends Authenticatable
         'password',
         'subscribed_to_newsletter',
         'last_login',
+        'pw_reset_token',
     ];
 
     protected $hidden = [
