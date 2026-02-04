@@ -284,7 +284,9 @@ function ProductDetails({ url }) {
 								<div className="product-meta">
 									<div className="d-flex justify-content-between align-items-center mb-3">
 										<span className="product-category">
-											{product.category_name}
+											<a href={`/shop?category=${product.category_slug}`}>
+												{product.category_name}
+											</a>
 										</span>
 										<div className="product-share">
 											<button

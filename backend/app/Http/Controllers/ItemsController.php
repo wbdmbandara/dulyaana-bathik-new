@@ -779,7 +779,7 @@ class ItemsController extends Controller
 
             $item = $this->item
                 ->leftJoin('item_category as category', 'items.category', '=', 'category.id')
-                ->select('items.*', 'category.cat_name as category_name')
+                ->select('items.*', 'category.cat_name as category_name', 'category.cat_slug as category_slug')
                 ->where('items.url', $url)
                 ->first();
 

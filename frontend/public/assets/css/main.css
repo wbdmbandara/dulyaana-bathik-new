@@ -2864,10 +2864,12 @@ section,
   border-radius: 12px;
   overflow: hidden;
   transition: transform 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
 .best-sellers .product-card:hover {
   transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .best-sellers .product-card:hover .product-overlay {
