@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\ResetPasswordMail;
+use App\Mail\ResetPasswordSuccessMail;
 use App\Mail\WelcomeMail;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
@@ -392,6 +393,9 @@ class CustomerController extends Controller
         $customer->password = bcrypt($request->password);
         $customer->pw_reset_token = null; 
         $customer->save();
+
+        // send success email
+        Mail::to($customer->email)->send(new ResetPasswordSuccessMail($customer));
 
         return response()->json([
             'success' => true,
