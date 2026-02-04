@@ -23,6 +23,7 @@ Route::middleware('api')->group(function () {
     Route::get('/getRecentProducts', [ItemsController::class, 'getRecentProducts']);
     Route::get('/getBestSellersProducts', [ItemsController::class, 'getBestSellersProducts']);
     Route::get('/getProductDetails/{url}', [ItemsController::class, 'getProductDetails']);
+    Route::get('/getRelatedProducts/{url}', [ItemsController::class, 'getRelatedProducts']);
     Route::get('/getParentCategories', [CategoryController::class, 'getParentCategories']);
     Route::get('/getMinAndMaxPrices', [ItemsController::class, 'getMinAndMaxPrices']);
     Route::get('/getFabricList', [ItemsController::class, 'getFabricList']);

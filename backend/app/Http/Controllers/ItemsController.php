@@ -809,6 +809,59 @@ class ItemsController extends Controller
         }
     }
 
+    public function getRelatedProducts(Request $request, $url)
+    {
+        try {
+            if (!$url) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product URL is required.'
+                ], 400);
+            }
+
+            $item = $this->item->where('url', $url)->first();
+
+            if (!$item) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product not found.'
+                ], 404);
+            }
+
+            $relatedProducts = $this->item
+                ->leftJoin('item_category as category', 'items.category', '=', 'category.id')
+                ->select('items.*', 'category.cat_name as category_name', 'category.cat_slug as category_slug')
+                ->where('items.category', $item->category)
+                ->where('items.quantity', '>', 0)
+                ->where('items.status', 'active')
+                ->orderBy('items.sold_qty', 'desc')
+                ->limit(4)
+                ->get();
+            
+            $response = [];
+            foreach ($relatedProducts as $item) {
+                $additionalImages = $this->itemImages->where('item_id', $item->item_id)->pluck('image_path')->toArray();
+                $videos = $this->itemVideos->where('item_id', $item->item_id)->pluck('video_url')->toArray();
+
+                $response[] = [
+                    'product' => $item,
+                    'additional_images' => $additionalImages,
+                    'videos' => $videos
+                ];
+            }
+            
+            return response()->json([
+                'success' => true,
+                'products' => $response
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching related products: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function getRecentProducts(Request $request)
     {
         try {
