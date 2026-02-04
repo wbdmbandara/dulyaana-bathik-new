@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "../../context/SnackbarContext";
 import { useCart } from "../../context/CartContext";
 
-function RelatedProducts({url}) {
+function RelatedProducts({ url }) {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const [relatedProducts, setRelatedProducts] = useState([]);
@@ -22,8 +22,10 @@ function RelatedProducts({url}) {
 	useEffect(() => {
 		const fetchRelatedProducts = async () => {
 			try {
-                var productUrl = url.split("/")[2];
-				const response = await fetch(`${API_URL}getRelatedProducts/${productUrl}`);
+				var productUrl = url.split("/")[2];
+				const response = await fetch(
+					`${API_URL}getRelatedProducts/${productUrl}`
+				);
 				const data = await response.json();
 				if (data.success) {
 					setRelatedProducts(data.products);
@@ -119,143 +121,165 @@ function RelatedProducts({url}) {
 
 	return (
 		<div>
-			{/* related products Section */}
-			<section id="best-sellers" className="best-sellers section">
-				{/* Section Title */}
-				<div className="container section-title" data-aos="fade-up">
-					<h2>Related Collections</h2>
-					<p>
-						Explore other authentic Batik sarees from the Dulyaana
-						collection that we think you’ll love.
-					</p>
-				</div>
-				{/* End Section Title */}
+			{relatedProducts.length > 0 && (
+				<>
+					{/* related products Section */}
+					<section id="best-sellers" className="best-sellers section">
+						{/* Section Title */}
+						<div
+							className="container section-title"
+							data-aos="fade-up"
+						>
+							<h2>Related Collections</h2>
+							<p>
+								Explore other authentic Batik sarees from the
+								Dulyaana collection that we think you’ll love.
+							</p>
+						</div>
+						{/* End Section Title */}
 
-				<div
-					className="container"
-					data-aos="fade-up"
-					data-aos-delay="100"
-				>
-					<div className="row g-4">
-						{relatedProducts.map((item, index) => (
-							<div
-								className="col-6 col-lg-3"
-								key={item.product.item_id}
-							>
-								<div
-									className="product-card"
-									data-aos="zoom-in"
-								>
-									<div className="product-image">
-										<img
-											src={`${BACKEND_URL}${item.product.main_image}`}
-											className="main-image img-fluid"
-											alt={item.product.name}
-										/>
-										{item.additional_images.length > 0 && (
-											<img
-												src={`${BACKEND_URL}${item.additional_images[0]}`}
-												className="hover-image img-fluid"
-												alt={`${item.product.name} Variant`}
-											/>
-										)}
-										<div className="product-overlay">
-											<div className="product-actions">
-												<a
-													className="action-btn"
-													data-bs-toggle="tooltip"
-													title="View"
-													href={`/product/${item.product.url}`}
-												>
-													<i className="bi bi-eye"></i>
-												</a>
+						<div
+							className="container"
+							data-aos="fade-up"
+							data-aos-delay="100"
+						>
+							<div className="row g-4">
+								{relatedProducts.map((item, index) => (
+									<div
+										className="col-6 col-lg-3"
+										key={item.product.item_id}
+									>
+										<div
+											className="product-card"
+											data-aos="zoom-in"
+										>
+											<div className="product-image">
+												<img
+													src={`${BACKEND_URL}${item.product.main_image}`}
+													className="main-image img-fluid"
+													alt={item.product.name}
+												/>
+												{item.additional_images.length >
+													0 && (
+													<img
+														src={`${BACKEND_URL}${item.additional_images[0]}`}
+														className="hover-image img-fluid"
+														alt={`${item.product.name} Variant`}
+													/>
+												)}
+												<div className="product-overlay">
+													<div className="product-actions">
+														<a
+															className="action-btn"
+															data-bs-toggle="tooltip"
+															title="View"
+															href={`/product/${item.product.url}`}
+														>
+															<i className="bi bi-eye"></i>
+														</a>
 
-												<button
-													type="button"
-													className="action-btn"
-													data-bs-toggle="tooltip"
-													title="Add to Cart"
-													onClick={(e) =>
-														addToCart(
+														<button
+															type="button"
+															className="action-btn"
+															data-bs-toggle="tooltip"
+															title="Add to Cart"
+															onClick={(e) =>
+																addToCart(
+																	item.product
+																		.item_id,
+																	e
+																)
+															}
+														>
+															<i className="bi bi-cart-plus"></i>
+														</button>
+													</div>
+												</div>
+												<div className="product-badge sale">
+													{Math.round(
+														((item.product?.price -
 															item.product
-																.item_id,
-															e
-														)
-													}
-												>
-													<i className="bi bi-cart-plus"></i>
-												</button>
+																?.discount_price) /
+															item.product
+																?.price) *
+															100
+													)}
+													% Off
+												</div>
 											</div>
-										</div>
-										<div className="product-badge sale">
-											{Math.round(
-												((item.product?.price -
-													item.product
-														?.discount_price) /
-													item.product?.price) *
-													100
-											)}
-											% Off
-										</div>
-									</div>
-									<div className="product-details">
-										<div className="product-category">
-											<a
-												href={`/shop?category=${item.product.category_slug}`}
-											>
-												{item.product.category_name}
-											</a>
-										</div>
-										<h4 className="product-title">
-											<a
-												href={`/product/${item.product.url}`}
-											>
-												{item.product.name}
-											</a>
-										</h4>
-										<div className="product-meta">
-											<div className="product-price">
-												{item.product.discount_price &&
-												parseFloat(
-													item.product.discount_price
-												) <
-													parseFloat(
-														item.product.price
-													) ? (
-													<>
-														{formatCurrency(
+											<div className="product-details">
+												<div className="product-category">
+													<a
+														href={`/shop?category=${item.product.category_slug}`}
+													>
+														{
+															item.product
+																.category_name
+														}
+													</a>
+												</div>
+												<h4 className="product-title">
+													<a
+														href={`/product/${item.product.url}`}
+													>
+														{item.product.name}
+													</a>
+												</h4>
+												<div className="product-meta">
+													<div className="product-price">
+														{item.product
+															.discount_price &&
+														parseFloat(
 															item.product
 																.discount_price
-														)}
-														<span className="original-price">
-															{formatCurrency(
+														) <
+															parseFloat(
 																item.product
 																	.price
-															)}
+															) ? (
+															<>
+																{formatCurrency(
+																	item.product
+																		.discount_price
+																)}
+																<span className="original-price">
+																	{formatCurrency(
+																		item
+																			.product
+																			.price
+																	)}
+																</span>
+															</>
+														) : (
+															formatCurrency(
+																item.product
+																	.price
+															)
+														)}
+													</div>
+													<div className="product-rating">
+														<i className="bi bi-star-fill"></i>
+														4.8{" "}
+														<span>
+															(
+															{
+																item.product
+																	.sold_qty
+															}
+															)
 														</span>
-													</>
-												) : (
-													formatCurrency(
-														item.product.price
-													)
-												)}
-											</div>
-											<div className="product-rating">
-												<i className="bi bi-star-fill"></i>
-												4.8{" "}
-												<span>
-													({item.product.sold_qty})
-												</span>
+													</div>
+												</div>
 											</div>
 										</div>
 									</div>
-								</div>
+								))}
 							</div>
-						))}
-					</div>
-				</div>
-			</section>
-			{/* /related products Section */}
+						</div>
+					</section>
+					{/* /related products Section */}
+				</>
+			)}
 		</div>
 	);
 }

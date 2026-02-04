@@ -834,6 +834,7 @@ class ItemsController extends Controller
                 ->where('items.category', $item->category)
                 ->where('items.quantity', '>', 0)
                 ->where('items.status', 'active')
+                ->where('items.item_id', '!=', $item->item_id)
                 ->orderBy('items.sold_qty', 'desc')
                 ->limit(4)
                 ->get();
