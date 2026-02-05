@@ -11,6 +11,7 @@ const handleSubmit = (event) => {
 	const data = {
 		name: event.target.name.value,
 		email: event.target.email.value,
+		phone: event.target.phone.value,
 		password: event.target.password.value,
 		password_confirmation: event.target.confirmPassword.value,
 		newsletter: event.target.newsletter.checked,
@@ -27,6 +28,16 @@ const handleSubmit = (event) => {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		if (!emailRegex.test(data.email)) {
 			errors.push("Invalid email format");
+		}
+	}
+	if(data.phone.length < 1){
+		errors.push("Contact No is required");
+	}else if (data.phone.length != 10){
+		errors.push("Contact No must contain 10 numbers");
+	}else {
+		const phoneRegex = /^07\d{8}$/;
+		if (!phoneRegex.test(data.phone)) {
+			errors.push("Invalid Contact No format");
 		}
 	}
 	if (data.password.length < 1) {
@@ -166,6 +177,20 @@ function RegisterForm() {
 											id="name"
 											required=""
 											placeholder="John Doe"
+										/>
+									</div>
+									
+									<div className="form-group mb-3">
+										<label htmlFor="phone">
+											Contact No
+										</label>
+										<input
+											type="text"
+											className="form-control"
+											name="phone"
+											id="phone"
+											required=""
+											placeholder="07xxxxxxxx"
 										/>
 									</div>
 

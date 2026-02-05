@@ -7,6 +7,7 @@ use App\Mail\ResetPasswordSuccessMail;
 use App\Mail\WelcomeMail;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
+use App\Notifications\SMSNotification;
 use App\Services\MailConfigService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -77,11 +78,16 @@ class CustomerController extends Controller
         $customer = Customer::create([
             'name' => $request->json('name'),
             'email' => $request->json('email'),
+            'phone' => $request->json('phone'),
             'password' => bcrypt($request->json('password')),
             'subscribed_to_newsletter' => $request->json('newsletter', false),
         ]);
 
         if($customer) {
+            // send SMS
+            $message = "Welcome to Dulyaana Bathik! Your account is now active. We are delighted to have you with us. Discover the timeless beauty of our handmade batik sarees today!";
+            $customer->notify(new SMSNotification($message)); 
+
             MailConfigService::applyMailSettings();
             $customerData = Customer::where('email', $request->json('email'))->first();
             Mail::to($customerData['email'])->send(new WelcomeMail($customerData));
