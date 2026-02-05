@@ -14,6 +14,7 @@ use App\Models\PaymentStatus;
 use App\Models\Cart;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
+use App\Notifications\OrderStatusNotification;
 use App\Services\MailConfigService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -214,6 +215,12 @@ class OrdersController extends Controller
                     'phone' => $customer['phone'],
                 ]);
 
+                // Send SMS notification
+                $notifyCustomer = $this->customer->find($customerID);
+                if ($notifyCustomer) {
+                    $notifyCustomer->notify(new OrderStatusNotification($order, "newOrder"));
+                }
+
                 DB::commit();
 
                 // Send Email
@@ -355,7 +362,9 @@ class OrdersController extends Controller
             $order = $this->order->find($orderID);
             $orderStatus = $order->status;
             $paymentStatus = $order->payment_status;
-            
+            $smsStatus = "";
+            $customer = $this->customer->find($order->customer_id);
+
             if (!$order) {
                 return response()->json([
                     'success' => false,
@@ -376,6 +385,12 @@ class OrdersController extends Controller
                 'courier_tracking_no' => $request->input('tracking_number'),
             ]);
             
+            $orderDetailsForSms = $this->order
+                ->leftJoin('order_shippings', 'orders.id', '=', 'order_shippings.order_id')
+                ->select('orders.*', 'order_shippings.courier_tracking_no')
+                ->where('orders.id', $orderID)
+                ->first();
+                
             // Insert order status history if status changed
             if ($request->input('status') !== $orderStatus) {
                 $this->orderStatus->create([
@@ -383,6 +398,32 @@ class OrdersController extends Controller
                     'status' => $request->input('status'),
                     'changed_user_id' => Auth::id(),
                 ]);
+
+                switch ($request->input('status')) {
+                    case 'pending':
+                        $smsStatus = 'ordPending';
+                        break;
+                    case 'processing':
+                        $smsStatus = 'ordProcessing';
+                        break;
+                    case 'shipped':
+                        $smsStatus = 'ordShipped';
+                        break;
+                    case 'completed':
+                        $smsStatus = 'ordCompleted';
+                        break;
+                    case 'cancelled':
+                        $smsStatus = 'ordCancelled';
+                        break;
+                    default:
+                        $smsStatus = '';
+                        break;
+                }
+
+                // Send SMS notification
+                if ($customer) {
+                    $customer->notify(new OrderStatusNotification($orderDetailsForSms, $smsStatus));
+                }
             }
 
             // Insert payment status history if payment status changed
@@ -392,6 +433,26 @@ class OrdersController extends Controller
                     'payment_status' => $request->input('payment_status'),
                     'changed_user_id' => Auth::id(),
                 ]);
+
+                switch ($request->input('payment_status')) {
+                    case 'completed':
+                        $smsStatus = 'pmtCompleted';
+                        break;
+                    case 'failed':
+                        $smsStatus = 'pmtFailed';
+                        break;
+                    case 'refunded':
+                        $smsStatus = 'pmtRefunded';
+                        break;
+                    default:
+                        $smsStatus = '';
+                        break;
+                }
+
+                // Send SMS notification
+                if ($customer) {
+                    $customer->notify(new OrderStatusNotification($orderDetailsForSms, $smsStatus));
+                }
             }
             
             DB::commit();

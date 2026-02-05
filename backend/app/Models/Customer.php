@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class Customer extends Authenticatable
 {
-    use HasApiTokens;
+    use HasApiTokens, Notifiable;
     
     protected $table = 'customer';
     protected $fillable = [
@@ -34,4 +35,10 @@ class Customer extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    // Method to route notifications to phone number
+    public function routeNotificationForSms()
+    {
+        return $this->phone;
+    }
 }
