@@ -25,22 +25,31 @@ class SmsService
         $formattedPhone = $this->formatPhoneNumber($phoneNumber);
 
         try {
-            $response = Http::get($this->apiUrl . '?mask=' . urlencode($this->senderId) . '&text=' . urlencode($message) . '&number=' . $formattedPhone);
-
-            if ($response->successful()) {
-                Log::info('SMS sent successfully', [
+            if(env('SMS_ENABLED') !== true) {
+                // Mock response for testing
+                Log::info('SMS sending is disabled. Mock send.', [
                     'phone' => $formattedPhone,
-                    'response' => $response->json()
+                    'message' => $message
                 ]);
                 return true;
+            } else {
+                // Actual SMS sending
+                $response = Http::get($this->apiUrl . '?mask=' . urlencode($this->senderId) . '&text=' . urlencode($message) . '&number=' . $formattedPhone);
+
+                if ($response->successful()) {
+                    Log::info('SMS sent successfully', [
+                        'phone' => $formattedPhone,
+                        'response' => $response->json()
+                    ]);
+                    return true;
+                }
+
+                Log::error('SMS sending failed', [
+                    'phone' => $formattedPhone,
+                    'response' => $response->body()
+                ]);
+                return false;
             }
-
-            Log::error('SMS sending failed', [
-                'phone' => $formattedPhone,
-                'response' => $response->body()
-            ]);
-            return false;
-
         } catch (\Exception $e) {
             Log::error('SMS exception', [
                 'phone' => $formattedPhone,
