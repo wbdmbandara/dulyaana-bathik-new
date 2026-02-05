@@ -203,9 +203,9 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <i class="bi bi-x-circle"></i> Close
                     </button>
-                    <button type="button" class="btn btn-primary">
+                    <a href="#" class="btn btn-primary" target="_blank">
                         <i class="bi bi-printer"></i> Print
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -267,9 +267,9 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="bi bi-x-circle"></i> Close
                 </button>
-                <button type="button" class="btn btn-primary">
+                <a href="/generate-pdf/`+ orderId +`" target="_blank" class="btn btn-primary">
                     <i class="bi bi-printer"></i> Print
-                </button>
+                </a>
             `;
             
             // Show loading state

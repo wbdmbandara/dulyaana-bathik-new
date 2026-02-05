@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Items;
 use App\Models\Order;
+use App\Models\FooterContents;
 use App\Models\OrderedItems;
 use App\Models\OrderShipping;
 use App\Models\OrderStatus;
@@ -17,6 +18,7 @@ use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Notifications\OrderStatusNotification;
 use App\Services\MailConfigService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use PhpParser\JsonDecoder;
@@ -513,5 +515,19 @@ class OrdersController extends Controller
             'status' => 'success',
             'orders' => $orders,
         ]);
+    }
+
+    public function downloadShippingLabel($orderID){
+        $data['order'] = $this->order
+            ->leftJoin('customer', 'orders.customer_id', '=', 'customer.id')
+            ->leftJoin('order_shippings', 'orders.id', '=', 'order_shippings.order_id')
+            ->select('orders.*', 'customer.name as customer_name', 'customer.email as email', 'customer.phone as phone', 'order_shippings.address_line1', 'order_shippings.address_line2', 'order_shippings.city', 'order_shippings.state', 'order_shippings.postal_code', 'order_shippings.courier_name', 'order_shippings.courier_tracking_no', 'order_shippings.full_name as shipping_full_name', 'order_shippings.phone_number as shipping_phone_number')
+            ->where('orders.id', $orderID)
+            ->first();
+
+        $data['companyData'] = FooterContents::first();
+        // $pdf = Pdf::loadView('shipping-label', $data);
+        // return $pdf->download('shipping-label-'. $orderID .'.pdf');
+        return view('shipping-label', $data);
     }
 }

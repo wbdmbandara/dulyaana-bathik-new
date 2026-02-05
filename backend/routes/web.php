@@ -42,6 +42,7 @@ Route::post('/products/delete/{id}', [ItemsController::class, 'delete']);
 Route::get('/orders', [OrdersController::class, 'index']);
 Route::get('/orders/view/{id}', [OrdersController::class, 'viewOrderDetails']);
 Route::post('/orders/update/{id}', [OrdersController::class, 'updateOrder']);
+Route::get('/generate-pdf/{id}',[OrdersController::class,'downloadShippingLabel']);
 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::post('/categories/new', [CategoryController::class, 'store']);
