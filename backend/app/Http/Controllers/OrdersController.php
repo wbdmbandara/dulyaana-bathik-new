@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NewOrderAdminMail;
 use App\Mail\NewOrderMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -225,6 +226,7 @@ class OrdersController extends Controller
 
                 // Send Email
                 $this->sendCustomerEmail($orderId);
+                $this->sendAdminNotification($orderId);
 
                 return response()->json([
                     'status' => 'success',
@@ -323,6 +325,34 @@ class OrdersController extends Controller
         $customer = $this->customer->find($order->customer_id);
         MailConfigService::applyMailSettings();
         Mail::to($customer->email)->send(new NewOrderMail($order, $customer));
+    }
+
+    public function sendAdminNotification($orderID)
+    {
+        $order = $this->order
+            ->leftJoin('customer', 'orders.customer_id', '=', 'customer.id')
+            ->leftJoin('order_shippings', 'orders.id', '=', 'order_shippings.order_id')
+            ->select('orders.*', 'customer.name as customer_name', 'customer.email as email', 'customer.phone as phone', 'order_shippings.address_line1', 'order_shippings.address_line2', 'order_shippings.city', 'order_shippings.state', 'order_shippings.postal_code', 'order_shippings.courier_name', 'order_shippings.courier_tracking_no', 'order_shippings.full_name as shipping_full_name', 'order_shippings.phone_number as shipping_phone_number')
+            ->where('orders.id', $orderID)
+            ->first();
+
+        if (!$order) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Order not found',
+            ], 404);
+        }
+
+        $orderedItems = $this->orderedItems
+            ->where('order_id', $orderID)
+            ->join('items', 'ordered_items.product_id', '=', 'items.item_id')
+            ->select('ordered_items.*', 'items.name', 'items.url', 'items.main_image')
+            ->get();
+
+
+        $adminEmails = env("ADMIN_NOTIFICATION_MAIL");
+        MailConfigService::applyMailSettings();
+        Mail::to($adminEmails)->send(new NewOrderAdminMail($order, $orderedItems, $order->customer_name));
     }
 
     public function viewOrderDetails($orderID)
