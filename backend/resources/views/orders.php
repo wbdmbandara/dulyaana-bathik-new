@@ -12,7 +12,7 @@
             <h1>Orders</h1>
                 <nav>
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item"><a href="<?= url('/'); ?>">Home</a></li>
                         <li class="breadcrumb-item active">Orders</li>
                     </ol>
                 </nav>
@@ -267,7 +267,7 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="bi bi-x-circle"></i> Close
                 </button>
-                <a href="/generate-pdf/`+ orderId +`" target="_blank" class="btn btn-primary">
+                <a href="<?= url('/generate-pdf') ?>/`+ orderId +`" target="_blank" class="btn btn-primary">
                     <i class="bi bi-printer"></i> Print
                 </a>
             `;

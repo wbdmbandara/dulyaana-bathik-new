@@ -18,7 +18,7 @@
             <h1>Email Settings</h1>
                 <nav>
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item"><a href="<?= url('/'); ?>">Home</a></li>
                         <li class="breadcrumb-item active">Email Settings</li>
                     </ol>
                 </nav>
@@ -46,7 +46,7 @@
                     </div>
 
                     <section class="section dashboard">
-                        <form action="/update-email-settings" method="POST">
+                        <form action="<?= url('/update-email-settings') ?>" method="POST">
                             <div class="row mb-3">
                                 <label for="mail_mailer" class="col-sm-2 col-form-label">Mail Mailer</label>
                                 <div class="col-sm-10">

@@ -18,7 +18,7 @@
             <h1>Footer</h1>
                 <nav>
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item"><a href="<?= url('/'); ?>">Home</a></li>
                         <li class="breadcrumb-item active">Footer</li>
                     </ol>
                 </nav>
@@ -49,7 +49,7 @@
 
                     <section class="section dashboard">
                         <div class="footer-management">
-                            <form id="footerManagementForm" method="post" action="/footer/save" enctype="multipart/form-data">
+                            <form id="footerManagementForm" method="post" action="<?= url('/footer/save') ?>" enctype="multipart/form-data">
                                 <input type="hidden" name="_token" value="<?= csrf_token() ?>">
 
                                 <div class="mb-3">
