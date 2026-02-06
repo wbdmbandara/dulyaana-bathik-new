@@ -13,6 +13,7 @@ function OrderDetails() {
 	const [orderID, setOrderID] = useState(null);
 	const [orderData, setOrderData] = useState(null);
 	const [orderedItems, setOrderedItems] = useState([]);
+	const [shippingAddress, setShippingAddress] = useState(null);
 	const { showSnackbar } = useSnackbar();
 
 	// Get order ID from URL and check authentication
@@ -61,6 +62,7 @@ function OrderDetails() {
 					.then((data) => {
 						setOrderData(data.order_data);
 						setOrderedItems(data.ordered_items);
+						setShippingAddress(data.shipping_address);
 					})
 					.catch((error) => {
 						console.error(error);
@@ -110,6 +112,36 @@ function OrderDetails() {
 		}
 	};
 
+	// Helper function to format payment status
+	const formatPaymentStatus = (status) => {
+		switch (status?.toLowerCase()) {
+			case "completed":
+				return (
+					<span className="text-success">
+						<i className="bi bi-check-circle me-2"></i>Paid
+					</span>
+				);
+			case "pending":
+				return (
+					<span className="text-warning">
+						<i className="bi bi-clock me-2"></i>Pending
+					</span>
+				);
+			case "failed":
+				return (
+					<span className="text-danger">
+						<i className="bi bi-x-circle me-2"></i>Failed
+					</span>
+				);
+			default:
+				return (
+					<span className="text-muted">
+						<i className="bi bi-question-circle me-2"></i>Unknown
+					</span>
+				);
+		}
+	};
+
 	return (
 		<section id="cart" className="cart section">
 			<div
@@ -124,9 +156,7 @@ function OrderDetails() {
 							<div className="col-12">
 								<div className="d-flex justify-content-between align-items-center flex-wrap">
 									<div>
-										<h3 className="mb-2">
-											Order Details
-										</h3>
+										<h3 className="mb-2">Order Details</h3>
 										<p className="text-muted mb-0">
 											Order ID: #{orderID}
 										</p>
@@ -232,6 +262,95 @@ function OrderDetails() {
 										</div>
 									))}
 								</div>
+
+								{shippingAddress && (
+									<div className="card mt-4 shadow-sm">
+										<div className="card-header bg-light">
+											<h5 className="my-1">
+												Shipping Address
+											</h5>
+										</div>
+										<div className="card-body">
+											<div className="row">
+												<div className="col-md-6">
+													<p className="mb-1">
+														<strong>
+															{
+																shippingAddress.full_name
+															}
+														</strong>
+													</p>
+													<p className="text-muted mb-1">
+														{
+															shippingAddress.address_line1
+														}
+														{shippingAddress.address_line2
+															? ", " +
+															  shippingAddress.address_line2
+															: ""}
+													</p>
+													<p className="text-muted mb-1">
+														{shippingAddress.city},{" "}
+														{shippingAddress.state}{" "}
+														{
+															shippingAddress.postal_code
+														}
+													</p>
+													<p className="text-muted mb-0">
+														{
+															shippingAddress.phone_number
+														}
+													</p>
+												</div>
+												{(shippingAddress.courier_name ||
+													shippingAddress.courier_tracking_no) && (
+													<div className="col-md-6 mt-3 mt-md-0">
+														<div className="d-flex align-items-center">
+															<i className="bi bi-truck me-2 text-primary"></i>
+															<div>
+																{shippingAddress.courier_name && (
+																	<p className="mb-0">
+																		<strong>
+																			Courier:{" "}
+																			{
+																				shippingAddress.courier_name
+																			}
+																		</strong>
+																	</p>
+																)}
+																{shippingAddress.courier_tracking_no && (
+																	<>
+																		<p className="mb-0">
+																			<strong>
+																				Courier
+																				Tracking
+																				Number
+																			</strong>
+																		</p>
+																		<p className="text-muted mb-0">
+																			{
+																				shippingAddress.courier_tracking_no
+																			}
+																		</p>
+																	</>
+																)}
+															</div>
+														</div>
+													</div>
+												)}
+											</div>
+										</div>
+									</div>
+								)}
+
+								{orderData?.admin_note && (
+									<div className="admin-note mt-4">
+										<h5>Note</h5>
+										<p className="text-muted">
+											{orderData.admin_note}
+										</p>
+									</div>
+								)}
 							</div>
 
 							<div
@@ -251,6 +370,17 @@ function OrderDetails() {
 										</span>
 										<span className="summary-value">
 											#{orderID}
+										</span>
+									</div>
+
+									<div className="summary-item">
+										<span className="summary-label">
+											Order Date
+										</span>
+										<span className="summary-value">
+											{new Date(
+												orderData?.order_date
+											).toLocaleDateString()}
 										</span>
 									</div>
 
@@ -278,6 +408,16 @@ function OrderDetails() {
 											></i>
 											{formatPaymentMethod(
 												orderData?.payment_method
+											)}
+										</span>
+									</div>
+									<div className="summary-item">
+										<span className="summary-label">
+											Payment Status
+										</span>
+										<span className="summary-value">
+											{formatPaymentStatus(
+												orderData?.payment_status
 											)}
 										</span>
 									</div>
@@ -334,7 +474,8 @@ function OrderDetails() {
 						<i className="bi bi-receipt-cutoff display-1 text-muted mb-3"></i>
 						<h3>No Order Details Found</h3>
 						<p className="text-muted">
-							We couldn't find any details for this order. Please check the order ID and try again.
+							We couldn't find any details for this order. Please
+							check the order ID and try again.
 						</p>
 						<a href="/shop" className="btn btn-accent">
 							Continue Shopping

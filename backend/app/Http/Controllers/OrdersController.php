@@ -283,10 +283,13 @@ class OrdersController extends Controller
             ->select('ordered_items.*', 'items.name', 'items.url', 'items.main_image')
             ->get();
 
+        $address = $this->orderShipping->where('order_id', $orderID)->first();
+
         return response()->json([
             'status' => 'success',
             'order_data' => $order,
             'ordered_items' => $orderedItems,
+            'shipping_address' => $address,
         ]);
     }
 
