@@ -156,7 +156,7 @@ function ProductDetails({ url }) {
 													<video
 														src={media}
 														className="img-fluid"
-														style={{ maxHeight: "100px" }}
+														style={{ maxHeight: "60px" }}
 														muted
 													/>
 												) : media.includes("youtube.com") || media.includes("youtu.be") ? (
@@ -165,6 +165,7 @@ function ProductDetails({ url }) {
 															src={`https://img.youtube.com/vi/${media.match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/watch\?.+&v=))([\w-]{11})/)?.[1]}/mqdefault.jpg`}
 															alt="YouTube video"
 															className="img-fluid"
+															style={{ maxHeight: "60px" }}
 														/>
 														<div className="youtube-play-icon">
 															<i className="bi bi-youtube"></i>
@@ -175,6 +176,7 @@ function ProductDetails({ url }) {
 														src={BACKEND_URL + media}
 														alt={product.name}
 														className="img-fluid"
+														style={{ maxHeight: "60px" }}
 													/>
 												)}
 											</div>

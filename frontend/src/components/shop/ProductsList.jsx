@@ -135,7 +135,7 @@ function ProductsList() {
 									key={
 										product.product.id || `product-${index}`
 									}
-									className="col-lg-6 col-md-4 col-6"
+									className="col-lg-6 col-md-6 col-12"
 								>
 									<div className="product-box">
 										<div className="product-thumb">
