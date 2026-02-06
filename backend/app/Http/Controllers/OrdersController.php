@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\NewOrderAdminMail;
 use App\Mail\NewOrderMail;
+use App\Mail\OrderUpdateMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Items;
@@ -332,6 +333,25 @@ class OrdersController extends Controller
         Mail::to($customer->email)->send(new NewOrderMail($order, $customer));
     }
 
+    public function sendOrderUpdateEmail($orderID)
+    {
+        $order = $this->order
+            ->leftJoin('order_shippings', 'orders.id', '=', 'order_shippings.order_id')
+            ->select('orders.*', 'order_shippings.courier_name', 'order_shippings.courier_tracking_no')
+            ->where('orders.id', $orderID)
+            ->first();
+        if (!$order) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Order not found',
+            ], 404);
+        }
+
+        $customer = $this->customer->find($order->customer_id);
+        MailConfigService::applyMailSettings();
+        Mail::to($customer->email)->send(new OrderUpdateMail($order, $customer));
+    }
+
     public function sendAdminNotification($orderID)
     {
         $order = $this->order
@@ -492,6 +512,11 @@ class OrdersController extends Controller
             
             DB::commit();
             
+            // Send email to customer if order status or payment status changes
+            if ($request->input('status') !== $orderStatus || $request->input('payment_status') !== $paymentStatus){
+                $this->sendOrderUpdateEmail($orderID);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Order updated successfully',
