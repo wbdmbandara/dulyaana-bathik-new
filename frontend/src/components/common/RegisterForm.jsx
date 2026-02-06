@@ -12,6 +12,7 @@ const handleSubmit = (event) => {
 		name: event.target.name.value,
 		email: event.target.email.value,
 		phone: event.target.phone.value,
+		username: event.target.username.value,
 		password: event.target.password.value,
 		password_confirmation: event.target.confirmPassword.value,
 		newsletter: event.target.newsletter.checked,
@@ -50,6 +51,9 @@ const handleSubmit = (event) => {
 			errors.push("Password and Confirm Password do not match");
 		}
 	}
+	if (data.username.length < 3) {
+		errors.push("Username must be at least 3 characters long");
+	}
 	if (data.terms !== true) {
 		errors.push("You must accept the terms and conditions");
 	}
@@ -79,6 +83,9 @@ const handleSubmit = (event) => {
 		.then((response) => {
 			if(response.status === 409){
 				throw new Error("Email already exists");
+			}
+			if(response.status === 410){
+				throw new Error("Username already exists");
 			}
 			if(response.status === 500){
 				throw new Error("There was a problem with the server. Please try again later.");
@@ -205,6 +212,20 @@ function RegisterForm() {
 											id="email"
 											required=""
 											placeholder="you@example.com"
+										/>
+									</div>
+
+									<div className="form-group mb-3">
+										<label htmlFor="username">
+											Username
+										</label>
+										<input
+											type="text"
+											className="form-control"
+											name="username"
+											id="username"
+											required=""
+											placeholder="johndoe"
 										/>
 									</div>
 

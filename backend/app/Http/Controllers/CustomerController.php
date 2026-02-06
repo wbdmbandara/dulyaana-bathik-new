@@ -75,9 +75,18 @@ class CustomerController extends Controller
             ], 409);
         }
 
+        $existingUsername = Customer::where('username', $request->json('username'))->first();
+        if($existingUsername) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Username already exists',
+            ], 410);
+        }
+
         $customer = Customer::create([
             'name' => $request->json('name'),
             'email' => $request->json('email'),
+            'username' => $request->json('username'),
             'phone' => $request->json('phone'),
             'password' => bcrypt($request->json('password')),
             'subscribed_to_newsletter' => $request->json('newsletter', false),
