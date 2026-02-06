@@ -116,14 +116,16 @@ class CustomerController extends Controller
     {
         // Validate the request
         $request->validate([
-            'email' => 'required|email',
+            'email' => 'required',
             'password' => 'required',
         ]);
 
         $credentials = $request->only('email', 'password');
         
-        // First try to find the customer by email
-        $customer = Customer::where('email', $credentials['email'])->first();
+        // Find the customer by email or username (since username comes from email input)
+        $customer = Customer::where('email', $credentials['email'])
+                            ->orWhere('username', $credentials['email'])
+                            ->first();
         
         if ($customer && Hash::check($credentials['password'], $customer->password)) {
             // Update last login timestamp
@@ -142,6 +144,7 @@ class CustomerController extends Controller
                     'id' => $customer->id,
                     'name' => $customer->name,
                     'email' => $customer->email,
+                    'username' => $customer->username,
                     'email_confirmed' => $customer->email_confirmed,
                     'phone' => $customer->phone,
                     'birthday' => $customer->birthday,

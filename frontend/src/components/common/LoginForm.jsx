@@ -110,13 +110,13 @@ function Login() {
 											htmlFor="email"
 											className="form-label"
 										>
-											Email
+											Email or Username
 										</label>
 										<input
-											type="email"
+											type="text"
 											className="form-control"
 											id="email"
-											placeholder="Enter your email"
+											placeholder="Enter your email or username"
 											required=""
 											autoComplete="email"
 											onChange={(e) =>
