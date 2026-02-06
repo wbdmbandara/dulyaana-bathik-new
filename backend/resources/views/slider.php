@@ -12,7 +12,7 @@
             <h1>Home Slider</h1>
                 <nav>
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item"><a href="<?= url('/'); ?>">Home</a></li>
                         <li class="breadcrumb-item active">Home Slider</li>
                     </ol>
                 </nav>
@@ -88,7 +88,7 @@
                     <h5 class="modal-title">Add New Slide</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>                
-                <form id="newSlideForm" method="post" action="/slides/new" enctype="multipart/form-data">
+                <form id="newSlideForm" method="post" action="<?= url('/slides/new') ?>" enctype="multipart/form-data">
                     <input type="hidden" name="_token" value="<?= csrf_token() ?>">
                     
                     <div class="modal-body">

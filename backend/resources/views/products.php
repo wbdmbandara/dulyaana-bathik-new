@@ -12,7 +12,7 @@
             <h1>Products</h1>
                 <nav>
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item"><a href="<?= url('/'); ?>">Home</a></li>
                         <li class="breadcrumb-item active">Products</li>
                     </ol>
                 </nav>
@@ -40,7 +40,7 @@
 
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">Manage Products</h5>
-                        <a href="/new-product" class="btn btn-primary">Add New Product</a>
+                        <a href="<?= url('/new-product'); ?>" class="btn btn-primary">Add New Product</a>
                     </div>
 
                     <!-- Search product -->
@@ -87,7 +87,7 @@
                                         <td class="text-center"><?= htmlspecialchars($product['discount_price']) ?></td>
                                         <td class="text-center gap-2">
                                             <a href="<?= env('FRONTEND_URL') ?>/product/<?= $product['url'] ?>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-info"><i class="bi bi-box-arrow-up-right"></i></a>
-                                            <a href="/edit-product/<?= $product['item_id'] ?>" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
+                                            <a href="<?= url('/edit-product/' . $product['item_id']) ?>" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
                                             <button class="btn btn-sm btn-danger deletebtn" onclick="deleteProduct(<?= $product['item_id'] . ',\'' . $product['name'] . '\'' ?>)"><i class="bi bi-trash"></i></button>
                                         </td>
                                     </tr>
