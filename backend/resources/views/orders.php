@@ -471,7 +471,7 @@
             modal.show();
             
             // Fetch order details via AJAX
-            fetch(`/orders/view/${orderId}`, {
+            fetch(`<?= url('/orders/view') ?>/${orderId}`, {
             method: 'GET',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -672,7 +672,7 @@
             const form = document.getElementById('editOrderForm');
             const formData = new FormData(form);
             const orderId = formData.get('order_id');
-            console.log(formData);
+            // console.log(formData);
             
             // Show loading state
             const saveButton = event.target;
@@ -681,7 +681,7 @@
             saveButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
             
             // Send update request
-            fetch(`/orders/update/${orderId}`, {
+            fetch(`<?= url('/orders/update') ?>/${orderId}`, {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
