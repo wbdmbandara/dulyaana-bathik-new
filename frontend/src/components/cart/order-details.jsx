@@ -51,10 +51,13 @@ function OrderDetails() {
 						if (!response.ok) {
 							return response.json().then((data) => {
 								showSnackbar(
-									data.message || "Failed to fetch order details",
+									data.message ||
+										"Failed to fetch order details",
 									"error"
 								);
-								throw new Error("Failed to fetch order details");
+								throw new Error(
+									"Failed to fetch order details"
+								);
 							});
 						}
 						return response.json();
@@ -201,9 +204,11 @@ function OrderDetails() {
 										</div>
 									</div>
 
-									{orderedItems.map((item) => (
+									{orderedItems.map((item, index) => (
 										<div
-											key={item.item_id}
+											key={
+												item.item_id || item.id || index
+											}
 											className="cart-item"
 										>
 											<div className="row align-items-center">
