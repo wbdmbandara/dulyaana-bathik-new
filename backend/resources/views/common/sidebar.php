@@ -6,7 +6,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link <?php if($active != 'dashboard'){echo 'collapsed';} ?>" href="/dashboard">
+        <a class="nav-link <?php if($active != 'dashboard'){echo 'collapsed';} ?>" href="<?= url('/dashboard'); ?>">
           <i class="bi bi-grid"></i>
           <span>Dashboard</span>
         </a>
@@ -18,17 +18,17 @@
         </a>
         <ul id="products-nav" class="nav-content <?php if($active != 'products'){echo 'collapse';} ?>" data-bs-parent="#sidebar-nav">
           <li>
-            <a href="/products" class="<?php if($subMenu == 'products'){echo 'active';} ?>">
+            <a href="<?= url('/products'); ?>" class="<?php if($subMenu == 'products'){echo 'active';} ?>">
               <i class="bi bi-circle"></i><span>Products</span>
             </a>
           </li>
           <li>
-            <a href="/new-product" class="<?php if($subMenu == 'new-product'){echo 'active';} ?>">
+            <a href="<?= url('/new-product'); ?>" class="<?php if($subMenu == 'new-product'){echo 'active';} ?>">
               <i class="bi bi-circle"></i><span>New Product</span>
             </a>
           </li>
           <li>
-            <a href="/categories" class="<?php if($subMenu == 'categories'){echo 'active';} ?>">
+            <a href="<?= url('/categories'); ?>" class="<?php if($subMenu == 'categories'){echo 'active';} ?>">
               <i class="bi bi-circle"></i><span>Categories</span>
             </a>
           </li>
@@ -36,21 +36,21 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link <?php if($active != 'users'){echo 'collapsed';} ?>" href="/users">
+        <a class="nav-link <?php if($active != 'users'){echo 'collapsed';} ?>" href="<?= url('/users'); ?>">
           <i class="bi bi-people"></i>
           <span>Users</span>
         </a>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link <?php if($active != 'customers'){echo 'collapsed';} ?>" href="/customers">
+        <a class="nav-link <?php if($active != 'customers'){echo 'collapsed';} ?>" href="<?= url('/customers'); ?>">
           <i class="bi bi-people"></i>
           <span>Customers</span>
         </a>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link <?php if($active != 'orders'){echo 'collapsed';} ?>" href="/orders">
+        <a class="nav-link <?php if($active != 'orders'){echo 'collapsed';} ?>" href="<?= url('/orders'); ?>">
           <i class="bi bi-cart"></i>
           <span>Orders</span>
         </a>
@@ -62,7 +62,7 @@
         </a>
         <ul id="payments-nav" class="nav-content <?php if($active != 'payments'){echo 'collapse';} ?>" data-bs-parent="#sidebar-nav">
           <li>
-            <a href="/bank-details" class="<?php if($subMenu == 'bank-details'){echo 'active';} ?>">
+            <a href="<?= url('/bank-details'); ?>" class="<?php if($subMenu == 'bank-details'){echo 'active';} ?>">
               <i class="bi bi-circle"></i><span>Bank Details</span>
             </a>
           </li>
@@ -75,12 +75,12 @@
         </a>
         <ul id="home-page-nav" class="nav-content <?php if($active != 'home-page'){echo 'collapse';} ?>" data-bs-parent="#sidebar-nav">
           <li>
-            <a href="/home-slider" class="<?php if($subMenu == 'home-slider'){echo 'active';} ?>">
+            <a href="<?= url('/home-slider'); ?>" class="<?php if($subMenu == 'home-slider'){echo 'active';} ?>">
               <i class="bi bi-circle"></i><span>Home Slider</span>
             </a>
           </li>
           <li>
-            <a href="/promo-cards" class="<?php if($subMenu == 'promo-cards'){echo 'active';} ?>">
+            <a href="<?= url('/promo-cards'); ?>" class="<?php if($subMenu == 'promo-cards'){echo 'active';} ?>">
               <i class="bi bi-circle"></i><span>Promo Cards</span>
             </a>
           </li>
@@ -93,12 +93,12 @@
         </a>
         <ul id="appearance-nav" class="nav-content <?php if($active != 'appearance'){echo 'collapse';} ?>" data-bs-parent="#sidebar-nav">
           <li>
-            <a href="/theme-settings" class="<?php if($subMenu == 'theme-settings'){echo 'active';} ?>">
+            <a href="<?= url('/theme-settings'); ?>" class="<?php if($subMenu == 'theme-settings'){echo 'active';} ?>">
               <i class="bi bi-circle"></i><span>Theme Settings</span>
             </a>
           </li>
           <li>
-            <a href="/footer" class="<?php if($subMenu == 'footer'){echo 'active';} ?>">
+            <a href="<?= url('/footer'); ?>" class="<?php if($subMenu == 'footer'){echo 'active';} ?>">
               <i class="bi bi-circle"></i><span>Footer</span>
             </a>
           </li>
@@ -111,7 +111,7 @@
         </a>
         <ul id="settings-nav" class="nav-content <?php if($active != 'settings'){echo 'collapse';} ?>" data-bs-parent="#sidebar-nav">
           <li>
-            <a href="/email-settings" class="<?php if($subMenu == 'email-settings'){echo 'active';} ?>">
+            <a href="<?= url('/email-settings'); ?>" class="<?php if($subMenu == 'email-settings'){echo 'active';} ?>">
               <i class="bi bi-circle"></i><span>Email Settings</span>
             </a>
           </li>
