@@ -12,7 +12,7 @@
             <h1>Products</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item"><a href="<?= url('/'); ?>">Home</a></li>
                     <li class="breadcrumb-item active">Edit Product</li>
                 </ol>
             </nav>
@@ -23,11 +23,11 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center border-bottom mb-3 pb-1">
                         <h5 class="card-title mb-0">Edit Product</h5>
-                        <a href="/products" class="btn btn-primary">View All Products</a>
+                        <a href="<?= url('/products'); ?>" class="btn btn-primary">View All Products</a>
                     </div>
 
                     <!-- Edit Product Form -->
-                    <form action="/products/update/<?= $product['item_id'] ?>" method="post" enctype="multipart/form-data" class="row" id="editProductForm">
+                    <form action="<?= url('/products/update/' . $product['item_id']) ?>" method="post" enctype="multipart/form-data" class="row" id="editProductForm">
                         <!-- Success/Error Messages -->
                         <?php if(session('success')): ?>
                             <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
@@ -283,7 +283,7 @@
                             </div>
                         </div>
                         <div class="text-center mt-3">
-                            <a href="/products" class="btn btn-warning">Back to Products</a>
+                            <a href="<?= url('/products'); ?>" class="btn btn-warning">Back to Products</a>
                             <button type="submit" class="btn btn-success">Update Product</button>
                         </div>
                     </form>

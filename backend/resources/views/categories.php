@@ -12,7 +12,7 @@
             <h1>Categories</h1>
                 <nav>
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item"><a href="<?= url('/dashboard'); ?>">Home</a></li>
                         <li class="breadcrumb-item active">Categories</li>
                     </ol>
                 </nav>
@@ -86,7 +86,7 @@
                     <h5 class="modal-title">Add New Category</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>                
-                <form id="newCategoryForm" method="post" action="/categories/new">
+                <form id="newCategoryForm" method="post" action="<?= url('/categories/new'); ?>">
                     <input type="hidden" name="_token" value="<?= csrf_token() ?>">
                     
                     <div class="modal-body">

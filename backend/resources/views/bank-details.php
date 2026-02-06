@@ -18,7 +18,7 @@
             <h1>Bank Details</h1>
                 <nav>
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item"><a href="<?= url('/'); ?>">Home</a></li>
                         <li class="breadcrumb-item active">Bank Details</li>
                     </ol>
                 </nav>
@@ -101,7 +101,7 @@
                                         <h5 class="modal-title" id="addBankModalLabel">Add Bank Details</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
-                                    <form action="/bank-details/store" method="POST" id="bankDetailsForm">
+                                    <form action="<?= url('bank-details/store') ?>" method="POST" id="bankDetailsForm">
                                         <input type="hidden" name="_token" value="<?= csrf_token() ?>">
                                         <div class="modal-body">
                                             <div class="mb-3">
