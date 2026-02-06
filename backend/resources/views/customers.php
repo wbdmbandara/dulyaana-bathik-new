@@ -49,6 +49,7 @@
                                 <th scope="col" class="text-center">ID</th>
                                 <th scope="col" class="text-center">Name</th>
                                 <th scope="col" class="text-center">Email</th>
+                                <th scope="col" class="text-center">Username</th>
                                 <th scope="col" class="text-center">Mobile No</th>
                                 <th scope="col" class="text-center">Actions</th>
                             </tr>
@@ -60,6 +61,7 @@
                                         <th class="text-center" scope="row"><?= $index + 1 ?></th>
                                         <td><?= htmlspecialchars($customer['name']) ?></td>
                                         <td><?= htmlspecialchars($customer['email']) ?></td>
+                                        <td><?= htmlspecialchars($customer['username']) ?></td>
                                         <td class="text-capitalize"><?= htmlspecialchars($customer['phone']) ?></td>
                                         <td class="text-center">
                                             <button class="btn btn-sm btn-info viewbtn" onclick="viewCustomer(<?= $customer['id'] ?>)"><i class="bi bi-eye"></i> View</button>
@@ -105,6 +107,10 @@
                             <input type="email" class="form-control" id="customerEmail" name="email" required>
                         </div>
                         <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="mb-3">
                             <label for="mobileno" class="form-label">Mobile No</label>
                             <input type="text" class="form-control" id="mobileno" name="mobileno" required>
                         </div>
@@ -132,10 +138,12 @@
                         <div class="col-8" id="viewCustomerName"></div>
                         <div class="col-4 font-weight-bold">Email:</div>
                         <div class="col-8" id="viewCustomerEmail"></div>
+                        <div class="col-4 font-weight-bold">Username:</div>
+                        <div class="col-8" id="viewCustomerUsername"></div>
                         <div class="col-4 font-weight-bold">Mobile No:</div>
                         <div class="col-8" id="viewCustomerMobileNo"></div>
                         <div class="col-4 font-weight-bold">Gender:</div>
-                        <div class="col-8" id="viewCustomerGender"></div>
+                        <div class="col-8 text-capitalize" id="viewCustomerGender"></div>
                         <div class="col-4 font-weight-bold">Birthday:</div>
                         <div class="col-8" id="viewCustomerBirthday"></div>
                         <div class="col-4 font-weight-bold">Newsletter Subscription:</div>
@@ -255,12 +263,13 @@
                     if(customer.email_confirmed) {
                         document.getElementById('viewCustomerEmail').innerHTML = ' <i class="bi bi-check-circle-fill text-success"></i> <a href="mailto:' + customer.email + '">' + customer.email + '</a>';
                     } else {
-                        document.getElementById('viewCustomerEmail').innerHTML = ' <i class="bi bi-x-circle-fill text-danger"></i> <a href="mailto:' + customer.email + '">' + customer.email + '</a>';
+                        document.getElementById('viewCustomerEmail').innerHTML = ' <a href="mailto:' + customer.email + '">' + customer.email + '</a>';
                     }
+                    document.getElementById('viewCustomerUsername').textContent = customer.username;
                     if(customer.phone && customer.phone_confirmed) {
                         document.getElementById('viewCustomerMobileNo').innerHTML = ' <i class="bi bi-check-circle-fill text-success"></i> ' + customer.phone;
                     } else if(customer.phone && !customer.phone_confirmed) {
-                        document.getElementById('viewCustomerMobileNo').innerHTML = ' <i class="bi bi-x-circle-fill text-danger"></i> ' + customer.phone;
+                        document.getElementById('viewCustomerMobileNo').innerHTML = ' ' + customer.phone;
                     }else {
                         document.getElementById('viewCustomerMobileNo').innerHTML = '<span class="text-muted">N/A</span>';
                     }
@@ -302,6 +311,7 @@
                 document.getElementById('customerId').value = customer.id;
                 document.getElementById('customerName').value = customer.name;
                 document.getElementById('customerEmail').value = customer.email;
+                document.getElementById('username').value = customer.username;
                 document.getElementById('customerRole').value = customer.role;
                 document.getElementById('mobileno').value = customer.mobileno;
                 } else {
