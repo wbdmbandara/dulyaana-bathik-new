@@ -161,9 +161,9 @@
             // Get form data
             const formData = new FormData(newSlideForm);
 
-            let url = '/slides/new';
+            let url = '<?= url('/slides/new') ?>';
             if (slideId.value) {
-                url = `/slides/update/${slideId.value}`;
+                url = '<?= url('/slides/update') ?>/' + slideId.value;
             }
             // Send AJAX request
             fetch(url, {
@@ -240,7 +240,7 @@
             modal.show();
 
             // Fetch slide data via AJAX and populate the modal fields
-            fetch(`/slides/${slideId}`)
+            fetch('<?= url('/slides') ?>/' + slideId)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -280,7 +280,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 // Send AJAX request to delete slide
-                fetch(`/slides/delete/${slideId}`, {
+                fetch('<?= url('/slides/delete') ?>/' + slideId, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '<?= csrf_token() ?>',

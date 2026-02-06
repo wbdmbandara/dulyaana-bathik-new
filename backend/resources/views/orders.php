@@ -285,7 +285,7 @@
             modal.show();
             
             // Fetch order details via AJAX
-            fetch(`/orders/view/${orderId}`, {
+            fetch(`<?= url('/orders/view') ?>/${orderId}`, {
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'

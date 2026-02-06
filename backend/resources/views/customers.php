@@ -173,9 +173,9 @@
             // Get form data
             const formData = new FormData(newCustomerForm);
 
-            let url = '/customers/new';
+            let url = '<?= url('/customers/new'); ?>';
             if (customerId.value) {
-                url = `/customers/update/${customerId.value}`;
+                url = '<?= url('/customers/update'); ?>/' + customerId.value;
             }
             // Send AJAX request
             fetch(url, {
@@ -246,7 +246,7 @@
 
     function viewCustomer(customerId) {
         try {
-            fetch(`/customers/${customerId}`)
+            fetch(`<?= url('/customers'); ?>/${customerId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -294,7 +294,7 @@
             modal.show();
 
             // Fetch customer data via AJAX and populate the modal fields
-            fetch(`/customers/${customerId}`)
+            fetch(`<?= url('/customers'); ?>/${customerId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -332,7 +332,7 @@
             confirmButtonText: 'Yes, Delete!'
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch(`/customers/delete/${customerId}`, {
+                fetch(`<?= url('/customers/delete'); ?>/${customerId}`, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '<?= csrf_token() ?>',

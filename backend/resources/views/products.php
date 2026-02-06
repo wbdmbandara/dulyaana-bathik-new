@@ -145,7 +145,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 // Send AJAX request to delete product
-                fetch(`/products/delete/${productId}`, {
+                fetch(`<?= url('/products/delete') ?>/${productId}`, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '<?= csrf_token() ?>',

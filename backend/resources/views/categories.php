@@ -149,9 +149,9 @@
             // Get form data
             const formData = new FormData(newCategoryForm);
 
-            let url = '/categories/new';
+            let url = '<?= url('/categories/new'); ?>';
             if (categoryId.value) {
-                url = `/categories/update/${categoryId.value}`;
+                url = '<?= url('/categories/update'); ?>/' + categoryId.value;
             }
             // Send AJAX request
             fetch(url, {
@@ -266,7 +266,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 // Send AJAX request to delete category
-                fetch(`/categories/delete/${categoryId}`, {
+                fetch('<?= url('/categories/delete'); ?>/' + categoryId, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '<?= csrf_token() ?>',

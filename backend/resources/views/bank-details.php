@@ -197,7 +197,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Send AJAX request to delete bank detail
-                    fetch(`/bank-details/delete/${bankId}`, {
+                    fetch(`<?= url('bank-details/delete') ?>/${bankId}`, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '<?= csrf_token() ?>',

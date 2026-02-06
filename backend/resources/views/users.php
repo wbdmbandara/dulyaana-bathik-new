@@ -153,9 +153,9 @@
             // Get form data
             const formData = new FormData(newUserForm);
 
-            let url = '/users/new';
+            let url = '<?= url('/users/new') ?>';
             if (userId.value) {
-                url = `/users/update/${userId.value}`;
+                url = '<?= url('/users/update') ?>/' + userId.value;
             }
             // Send AJAX request
             fetch(url, {
@@ -233,7 +233,7 @@
             modal.show();
 
             // Fetch user data via AJAX and populate the modal fields
-            fetch(`/users/${userId}`)
+            fetch(`<?= url('/users') ?>/${userId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -272,7 +272,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 // Send AJAX request to delete user
-                fetch(`/users/delete/${userId}`, {
+                fetch(`<?= url('/users/delete') ?>/${userId}`, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '<?= csrf_token() ?>',

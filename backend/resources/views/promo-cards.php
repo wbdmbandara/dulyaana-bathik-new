@@ -345,9 +345,9 @@
             // Get form data
             const formData = new FormData(newPromoCardForm);
 
-            let url = '/promo-cards/new';
+            let url = '<?= url('/promo-cards/new') ?>';
             if (promoCardId.value) {
-                url = `/promo-cards/update/${promoCardId.value}`;
+                url = '<?= url('/promo-cards/update') ?>/' + promoCardId.value;
             }
             // Send AJAX request
             fetch(url, {
@@ -424,7 +424,7 @@
             modal.show();
 
             // Fetch promo card data via AJAX and populate the modal fields
-            fetch(`/promo-cards/${promoCardId}`, {
+            fetch(`<?= url('/promo-cards') ?>/${promoCardId}`, {
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
@@ -471,7 +471,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 // Send AJAX request to delete promo card
-                fetch(`/promo-cards/delete/${promoCardId}`, {
+                fetch(`<?= url('/promo-cards/delete') ?>/${promoCardId}`, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '<?= csrf_token() ?>',

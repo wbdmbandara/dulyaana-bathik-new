@@ -23,11 +23,11 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center border-bottom mb-3 pb-1">
                         <h5 class="card-title mb-0">Add New Product</h5>
-                        <a href="/products" class="btn btn-primary">View All Products</a>
+                        <a href="<?= url('/products'); ?>" class="btn btn-primary">View All Products</a>
                     </div>
 
                     <!-- New Product Form -->
-                    <form action="/products/new" method="post" enctype="multipart/form-data" class="row" id="newProductForm">
+                    <form action="<?= url('/products/new'); ?>" method="post" enctype="multipart/form-data" class="row" id="newProductForm">
                         <!-- Success/Error Messages -->
                         <?php if(session('success')): ?>
                             <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
