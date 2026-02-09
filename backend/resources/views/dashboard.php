@@ -1,15 +1,29 @@
 <?php
-    include_once 'common/header.php';
-    setTitle('Dashboard');
-    include_once 'common/topbar.php';
-    include_once 'common/sidebar.php';
-    setActiveMenuItem('dashboard', '');
+  include_once 'common/header.php';
+  setTitle('Dashboard');
+  include_once 'common/topbar.php';
+  include_once 'common/sidebar.php';
+  setActiveMenuItem('dashboard', '');
+  $selectedFilterText = ucwords(str_replace('-', ' ', $selectedFilter));
 ?>
 
   <main id="main" class="main">
 
     <div class="pagetitle">
-      <h1>Dashboard</h1>
+      <div class="d-flex justify-content-between align-items-center">
+        <h1>Dashboard</h1>
+        <form action="" method="get">
+          <div class="filter d-flex align-items-center me-4">
+            <label for="filter-select" class="form-label me-2">Filter:</label>
+            <select id="filter-select" class="form-select" name="filter" style="width: auto;" onchange="this.form.submit()">
+              <option <?php if ($selectedFilter === 'today') echo 'selected'; ?> value="today">Today</option>
+              <option <?php if ($selectedFilter === 'this-week') echo 'selected'; ?> value="this-week">This Week</option>
+              <option <?php if ($selectedFilter === 'this-month') echo 'selected'; ?> value="this-month">This Month</option>
+              <option <?php if ($selectedFilter === 'this-year') echo 'selected'; ?> value="this-year">This Year</option>
+            </select>
+          </div>
+        </form>
+      </div>
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="<?= url('/'); ?>">Home</a></li>
@@ -19,354 +33,289 @@
     </div><!-- End Page Title -->
 
     <section class="section dashboard">
-      <div class="row d-none">
+      <div class="row">
 
         <!-- Left side columns -->
-        <div class="col-lg-8">
-          <div class="row">
+        <div class="row">
 
-            <!-- Sales Card -->
-            <div class="col-xxl-4 col-md-6">
-              <div class="card info-card sales-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
+          
+          <!-- Revenue Card -->
+          <div class="col-xxl-3 col-md-6">
+            <div class="card info-card revenue-card">
 
                 <div class="card-body">
-                  <h5 class="card-title">Sales <span>| Today</span></h5>
+                <h5 class="card-title">Revenue <span>| <?php echo $selectedFilterText; ?></span></h5>
 
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-cart"></i>
-                    </div>
-                    <div class="ps-3">
-                      <h6>145</h6>
-                      <span class="text-success small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">increase</span>
+                <div class="d-flex align-items-center">
+                  <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                  <i class="bi bi-currency-dollar"></i>
+                  </div>
+                  <div class="ps-3">
+                  <h6>Rs.<?php echo number_format($todayRevenue); ?></h6>
+                  <?php echo $revenueChangeDisplay; ?>
 
-                    </div>
                   </div>
                 </div>
-
-              </div>
-            </div><!-- End Sales Card -->
-
-            <!-- Revenue Card -->
-            <div class="col-xxl-4 col-md-6">
-              <div class="card info-card revenue-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
                 </div>
 
-                <div class="card-body">
-                  <h5 class="card-title">Revenue <span>| This Month</span></h5>
+            </div>
+          </div><!-- End Revenue Card -->
 
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-currency-dollar"></i>
-                    </div>
-                    <div class="ps-3">
-                      <h6>$3,264</h6>
-                      <span class="text-success small pt-1 fw-bold">8%</span> <span class="text-muted small pt-2 ps-1">increase</span>
+          <!-- Sales Card -->
+          <div class="col-xxl-3 col-md-6">
+            <div class="card info-card sales-card">
 
-                    </div>
+              <div class="card-body">
+                <h5 class="card-title">Orders <span>| <?php echo $selectedFilterText; ?></span></h5>
+
+                <div class="d-flex align-items-center">
+                  <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="bi bi-cart"></i>
+                  </div>
+                  <div class="ps-3">
+                    <h6><?php echo $totalOrdersDisplay; ?></h6>
+                    <?php echo $ordersChangeDisplay; ?>
                   </div>
                 </div>
-
-              </div>
-            </div><!-- End Revenue Card -->
-
-            <!-- Customers Card -->
-            <div class="col-xxl-4 col-xl-12">
-
-              <div class="card info-card customers-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
-                <div class="card-body">
-                  <h5 class="card-title">Customers <span>| This Year</span></h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-people"></i>
-                    </div>
-                    <div class="ps-3">
-                      <h6>1244</h6>
-                      <span class="text-danger small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">decrease</span>
-
-                    </div>
-                  </div>
-
-                </div>
               </div>
 
-            </div><!-- End Customers Card -->
+            </div>
+          </div><!-- End Sales Card -->
 
-            <!-- Reports -->
-            <div class="col-12">
-              <div class="card">
+          <!-- Pending Orders Card -->
+          <div class="col-xxl-3 col-md-6">
 
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
+            <div class="card info-card pending-orders-card">
 
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
+              <div class="card-body">
+              <h5 class="card-title">Pending Orders</h5>
 
-                <div class="card-body">
-                  <h5 class="card-title">Reports <span>/Today</span></h5>
-
-                  <!-- Line Chart -->
-                  <div id="reportsChart"></div>
-
-                  <script>
-                    document.addEventListener("DOMContentLoaded", () => {
-                      new ApexCharts(document.querySelector("#reportsChart"), {
-                        series: [{
-                          name: 'Sales',
-                          data: [31, 40, 28, 51, 42, 82, 56],
-                        }, {
-                          name: 'Revenue',
-                          data: [11, 32, 45, 32, 34, 52, 41]
-                        }, {
-                          name: 'Customers',
-                          data: [15, 11, 32, 18, 9, 24, 11]
-                        }],
-                        chart: {
-                          height: 350,
-                          type: 'area',
-                          toolbar: {
-                            show: false
-                          },
-                        },
-                        markers: {
-                          size: 4
-                        },
-                        colors: ['#4154f1', '#2eca6a', '#ff771d'],
-                        fill: {
-                          type: "gradient",
-                          gradient: {
-                            shadeIntensity: 1,
-                            opacityFrom: 0.3,
-                            opacityTo: 0.4,
-                            stops: [0, 90, 100]
-                          }
-                        },
-                        dataLabels: {
-                          enabled: false
-                        },
-                        stroke: {
-                          curve: 'smooth',
-                          width: 2
-                        },
-                        xaxis: {
-                          type: 'datetime',
-                          categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
-                        },
-                        tooltip: {
-                          x: {
-                            format: 'dd/MM/yy HH:mm'
-                          },
-                        }
-                      }).render();
-                    });
-                  </script>
-                  <!-- End Line Chart -->
-
-                </div>
+              <div class="d-flex align-items-center">
+              <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+              <i class="bi bi-cart"></i>
+              </div>
+              <div class="ps-3">
+              <h6>Rs.<?php echo number_format($pendingOrdersValue); ?></h6>
+              <span class="text-muted small pt-2 ps-1"><?php echo $pendingOrders; ?> Orders</span>
 
               </div>
-            </div><!-- End Reports -->
-
-            <!-- Recent Sales -->
-            <div class="col-12">
-              <div class="card recent-sales overflow-auto">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
-                <div class="card-body">
-                  <h5 class="card-title">Recent Sales <span>| Today</span></h5>
-
-                  <table class="table table-borderless datatable">
-                    <thead>
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Customer</th>
-                        <th scope="col">Product</th>
-                        <th scope="col">Price</th>
-                        <th scope="col">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th scope="row"><a href="#">#2457</a></th>
-                        <td>Brandon Jacob</td>
-                        <td><a href="#" class="text-primary">At praesentium minu</a></td>
-                        <td>$64</td>
-                        <td><span class="badge bg-success">Approved</span></td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#">#2147</a></th>
-                        <td>Bridie Kessler</td>
-                        <td><a href="#" class="text-primary">Blanditiis dolor omnis similique</a></td>
-                        <td>$47</td>
-                        <td><span class="badge bg-warning">Pending</span></td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#">#2049</a></th>
-                        <td>Ashleigh Langosh</td>
-                        <td><a href="#" class="text-primary">At recusandae consectetur</a></td>
-                        <td>$147</td>
-                        <td><span class="badge bg-success">Approved</span></td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#">#2644</a></th>
-                        <td>Angus Grady</td>
-                        <td><a href="#" class="text-primar">Ut voluptatem id earum et</a></td>
-                        <td>$67</td>
-                        <td><span class="badge bg-danger">Rejected</span></td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#">#2644</a></th>
-                        <td>Raheem Lehner</td>
-                        <td><a href="#" class="text-primary">Sunt similique distinctio</a></td>
-                        <td>$165</td>
-                        <td><span class="badge bg-success">Approved</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
-
-                </div>
+              </div>
 
               </div>
-            </div><!-- End Recent Sales -->
+            </div>
 
-            <!-- Top Selling -->
-            <div class="col-12">
-              <div class="card top-selling overflow-auto">
+          </div><!-- End Pending Orders Card -->
 
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
+          <!-- Pending Bank Transfer Card -->
+          <div class="col-xxl-3 col-md-6">
 
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
+            <div class="card info-card pending-transfer-card">
+
+              <div class="card-body">
+              <h5 class="card-title">Pending Bank Transfer</h5>
+
+              <div class="d-flex align-items-center">
+                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-cash"></i>
                 </div>
-
-                <div class="card-body pb-0">
-                  <h5 class="card-title">Top Selling <span>| Today</span></h5>
-
-                  <table class="table table-borderless">
-                    <thead>
-                      <tr>
-                        <th scope="col">Preview</th>
-                        <th scope="col">Product</th>
-                        <th scope="col">Price</th>
-                        <th scope="col">Sold</th>
-                        <th scope="col">Revenue</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th scope="row"><a href="#"><img src="assets/img/product-1.jpg" alt=""></a></th>
-                        <td><a href="#" class="text-primary fw-bold">Ut inventore ipsa voluptas nulla</a></td>
-                        <td>$64</td>
-                        <td class="fw-bold">124</td>
-                        <td>$5,828</td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#"><img src="assets/img/product-2.jpg" alt=""></a></th>
-                        <td><a href="#" class="text-primary fw-bold">Exercitationem similique doloremque</a></td>
-                        <td>$46</td>
-                        <td class="fw-bold">98</td>
-                        <td>$4,508</td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#"><img src="assets/img/product-3.jpg" alt=""></a></th>
-                        <td><a href="#" class="text-primary fw-bold">Doloribus nisi exercitationem</a></td>
-                        <td>$59</td>
-                        <td class="fw-bold">74</td>
-                        <td>$4,366</td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#"><img src="assets/img/product-4.jpg" alt=""></a></th>
-                        <td><a href="#" class="text-primary fw-bold">Officiis quaerat sint rerum error</a></td>
-                        <td>$32</td>
-                        <td class="fw-bold">63</td>
-                        <td>$2,016</td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#"><img src="assets/img/product-5.jpg" alt=""></a></th>
-                        <td><a href="#" class="text-primary fw-bold">Sit unde debitis delectus repellendus</a></td>
-                        <td>$79</td>
-                        <td class="fw-bold">41</td>
-                        <td>$3,239</td>
-                      </tr>
-                    </tbody>
-                  </table>
+                <div class="ps-3">
+                <h6>Rs.<?php echo number_format($pendingBankTransfersValue); ?></h6>
+                <span class="text-muted small pt-2 ps-1"><?php echo $pendingBankTransfers; ?> Orders</span>
 
                 </div>
+              </div>
 
               </div>
-            </div><!-- End Top Selling -->
+            </div>
 
-          </div>
+          </div><!-- End Pending Bank Transfer Card -->
+
+          <!-- Revenue Trends by Payment Method -->
+          <div class="col-12">
+            <div class="card">
+
+              <div class="card-body">
+                <h5 class="card-title">Revenue Trends by Payment Method <span>| <?php echo $selectedFilterText; ?></span></h5>
+
+                <!-- Line Chart -->
+                <div id="reportsChart"></div>
+
+                <script>
+                  document.addEventListener("DOMContentLoaded", () => {
+                    new ApexCharts(document.querySelector("#reportsChart"), {
+                    series: [{
+                      name: 'Revenue',
+                      data: [<?php echo implode(',', array_column($salesChart, 'revenue')); ?>]
+                      }, {
+                      name: 'Bank Transfers',
+                      data: [<?php echo implode(',', array_column($salesChart, 'bankTransfers')); ?>]
+                      }, {
+                      name: 'Cash on Delivery',
+                      data: [<?php echo implode(',', array_column($salesChart, 'cod')); ?>]
+                    }],
+                    chart: {
+                      height: 350,
+                      type: 'area',
+                      toolbar: {
+                        show: false
+                      },
+                    },
+                    markers: {
+                    size: 4
+                    },
+                    colors: ['#4154f1', '#2eca6a', '#ff771d', '#e74c3c'],
+                    fill: {
+                      type: "gradient",
+                      gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.3,
+                        opacityTo: 0.4,
+                        stops: [0, 90, 100]
+                      }
+                    },
+                    dataLabels: {
+                      enabled: false
+                    },
+                    stroke: {
+                      curve: 'smooth',
+                      width: 2
+                    },
+                    xaxis: {
+                      type: 'datetime',
+                      categories: [<?php $dates = array_map(function($d) { return '"' . $d['date'] . '"'; }, $salesChart); echo implode(',', $dates); ?>]
+                    },
+                    yaxis: {
+                      title: {
+                        text: '(Rs)'
+                      }
+                    },
+                    tooltip: {
+                      x: {
+                          format: 'dd/MM/yy'
+                        },
+                      }
+                    }).render();
+                  });
+                </script>
+                <!-- End Line Chart -->
+
+              </div>
+
+            </div>
+          </div><!-- End Revenue Trends by Payment Method -->
+
+          <!-- Recent Sales -->
+          <div class="col-12">
+            <div class="card recent-sales overflow-auto">
+
+              <div class="card-body">
+                <h5 class="card-title">Recent Sales <span>| <?php echo $selectedFilterText; ?></span></h5>
+
+                <table class="table table-bordered">
+                  <thead>
+                    <tr class="text-center">
+                      <th scope="col">Order ID</th>
+                      <th scope="col">Customer</th>
+                      <th scope="col">Product</th>
+                      <th scope="col">QTY</th>
+                      <th scope="col">Price</th>
+                      <th scope="col">Value</th>
+                      <th scope="col">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php foreach ($recentSales as $sale): ?>
+                      <?php
+                        $orderStatus = htmlspecialchars($sale['status']);
+                        $orderStatusBg = '';
+                        $orderStatusTxtColor = '';
+                        switch (strtolower($orderStatus)) {
+                          case 'pending':
+                            $orderStatusBg = '#fff3cd';
+                            // $orderStatusTxtColor = '#856404';
+                            break;
+                          case 'completed':
+                            $orderStatusBg = '#d1e7dd';
+                            $orderStatusTxtColor = '#0f5132';
+                            break;
+                          case 'cancelled':
+                            $orderStatusBg = '#f8d7da';
+                            $orderStatusTxtColor = '#721c24';
+                            break;
+                          case 'processing':
+                            $orderStatusBg = '#cce5ff';
+                            $orderStatusTxtColor = '#000000';
+                            break;
+                          case 'shipped':
+                            $orderStatusBg = '#0d6efd';
+                            $orderStatusTxtColor = '#ffffff';
+                            break;
+                          default:
+                            $orderStatusBg = '#6c757d';
+                            $orderStatusTxtColor = '#000000';
+                        }  
+                      ?>
+                      <tr>
+                        <th class="text-center" scope="row"><?php echo htmlspecialchars($sale['id']); ?></th>
+                        <td><?php echo htmlspecialchars($sale['customer_name']); ?></td>
+                        <td><?php echo htmlspecialchars($sale['item_name']); ?></td>
+                        <td class="text-center"><?php echo htmlspecialchars($sale['quantity']); ?></td>
+                        <td class="text-end">Rs. <?php echo number_format($sale['price'], 2); ?></td>
+                        <td class="text-end">Rs. <?php echo number_format($sale['quantity'] * $sale['price'], 2); ?></td>
+                        <td class="text-center text-capitalize" style="background-color: <?php echo $orderStatusBg; ?>; color: <?php echo $orderStatusTxtColor; ?>;"><?php echo htmlspecialchars($sale['status']); ?></td>
+                      </tr>
+                    <?php endforeach; ?>
+                  </tbody>
+                </table>
+
+              </div>
+
+            </div>
+          </div><!-- End Recent Sales -->
+
+          <!-- Top Selling -->
+          <div class="col-12">
+            <div class="card top-selling overflow-auto">
+
+              <div class="card-body pb-0">
+                <h5 class="card-title">Top Selling <span>| <?php echo $selectedFilterText; ?></span></h5>
+
+                <table class="table table-bordered">
+                  <thead>
+                  <tr class="text-center">
+                    <th scope="col">Image</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Product</th>
+                    <th scope="col">Stock</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Sold</th>
+                    <th scope="col">Revenue</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <?php foreach ($topSelling as $item): ?>
+                    <tr>
+                    <th scope="row" class="text-center"><img src="<?php echo htmlspecialchars($item['main_image']); ?>" alt=""></th>
+                    <td><?php echo htmlspecialchars($item['category_name']); ?></td>
+                    <td><?php echo htmlspecialchars($item['item_name']); ?></td>
+                    <td class="text-center"><?php echo htmlspecialchars($item['stock_quantity']); ?></td>
+                    <td class="text-end">Rs. <?php echo number_format($item['total_revenue'] / $item['total_quantity'], 2); ?></td>
+                    <td class="fw-bold text-center"><?php echo htmlspecialchars($item['total_quantity']); ?></td>
+                    <td class="fw-bold text-end">Rs. <?php echo number_format($item['total_revenue'], 2); ?></td>
+                    </tr>
+                  <?php endforeach; ?>
+                  </tbody>
+                </table>
+
+              </div>
+
+            </div>
+          </div><!-- End Top Selling -->
+
         </div><!-- End Left side columns -->
 
         <!-- Right side columns -->
-        <div class="col-lg-4">
+        <div class="col-lg-4 d-none">
 
           <!-- Recent Activity -->
           <div class="card">
@@ -652,7 +601,7 @@
       </div>
 
       <!-- under construction -->
-      <div class="row">
+      <div class="row d-none">
         <div class="col-12">
           <div class="alert alert-warning d-flex align-items-center" role="alert">
             <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2"></i>

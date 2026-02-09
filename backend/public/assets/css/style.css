@@ -835,6 +835,16 @@ h6 {
   background: #ffecdf;
 }
 
+.dashboard .pending-orders-card .card-icon {
+  color: #ffbb55;
+  background: #fff2e5;
+}
+
+.dashboard .pending-transfer-card .card-icon {
+  color: #ffbb55;
+  background: #fff2e5;
+}
+
 /* Activity */
 .dashboard .activity {
   font-size: 14px;
