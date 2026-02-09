@@ -171,11 +171,11 @@
 
         <!-- Go Back Button -->
         <div class="go-back">
-            <a href="http://localhost:3000" class="btn btn-secondary">← Go Back to Website</a>
+            <a href="<?php echo getenv('FRONTEND_URL'); ?>" class="btn btn-secondary">← Go Back to Website</a>
         </div>
 
         <div class="brand">
-            <strong><a href="http://localhost:3000">DULYAANA BATHIK</a> © <?php echo date('Y'); ?></strong> - All rights reserved.<br>
+            <strong><a href="<?php echo getenv('FRONTEND_URL'); ?>">DULYAANA BATHIK</a> © <?php echo date('Y'); ?></strong> - All rights reserved.<br>
             Developed by <strong><a href="https://hyperflex.lk/" target="_blank">HYPERFLEX INNOVATION (PVT) LTD</a></strong>.
         </div>
     </div>
