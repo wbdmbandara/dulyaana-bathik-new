@@ -13,6 +13,7 @@ use App\Http\Controllers\FooterController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\PromoCardsController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SliderController;
 use App\Http\Controllers\ThemeController;
 use Inertia\Inertia;
@@ -82,6 +83,8 @@ Route::post('/footer/save', [FooterController::class, 'store']);
 
 Route::get('/theme-settings', [ThemeController::class, 'index']);
 Route::post('/theme-settings/update', [ThemeController::class, 'updateThemeSettings']);
+
+Route::get('/sales-report', [ReportsController::class, 'index']);
 
 // Route::get('/', function () {
 //     return Inertia::render('Welcome', [

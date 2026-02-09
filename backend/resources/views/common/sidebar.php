@@ -57,6 +57,19 @@
       </li>
 
       <li class="nav-item">
+        <a class="nav-link <?php if($active != 'reports'){echo 'collapsed';} ?>" data-bs-target="#reports-nav" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-file-earmark-text"></i><span>Reports</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="reports-nav" class="nav-content <?php if($active != 'reports'){echo 'collapse';} ?>" data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="<?= url('/sales-report'); ?>" class="<?php if($subMenu == 'sales-report'){echo 'active';} ?>">
+              <i class="bi bi-circle"></i><span>Sales Report</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <li class="nav-item">
         <a class="nav-link <?php if($active != 'payments'){echo 'collapsed';} ?>" data-bs-target="#payments-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-credit-card"></i><span>Payments</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
