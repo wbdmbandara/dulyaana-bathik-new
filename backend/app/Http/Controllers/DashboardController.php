@@ -135,7 +135,7 @@ class DashboardController extends Controller
             ->leftJoin('item_category as category', 'items.category', '=', 'category.id')
             ->whereBetween('orders.order_date', [$fromDate, $toDate])
             ->select('items.name as item_name', 'items.main_image', 'category.cat_name as category_name', DB::raw('SUM(ordered_items.quantity) as total_quantity'), DB::raw('SUM(ordered_items.quantity * ordered_items.price) as total_revenue'), 'items.quantity as stock_quantity')
-            ->groupBy('ordered_items.product_id')
+            ->groupBy('ordered_items.product_id', 'items.name', 'items.main_image', 'category.cat_name', 'items.quantity')
             ->orderBy('total_quantity', 'desc')
             ->limit(5)
             ->get();
