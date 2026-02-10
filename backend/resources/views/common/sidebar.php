@@ -118,7 +118,7 @@
         </ul>
       </li>
 
-      <li class="nav-item d-none">
+      <li class="nav-item">
         <a class="nav-link <?php if($active != 'settings'){echo 'collapsed';} ?>" data-bs-target="#settings-nav" data-bs-toggle="collapse" href="#">
           <i class="bi bi-gear"></i><span>Settings</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>

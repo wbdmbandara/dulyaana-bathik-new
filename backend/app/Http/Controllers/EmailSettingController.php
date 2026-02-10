@@ -37,6 +37,7 @@ class EmailSettingController extends Controller
             'mail_encryption' => 'nullable|string',
             'mail_from_address' => 'required|email',
             'mail_from_name' => 'required|string',
+            'admin_notification_email' => 'required|email',
         ]);
 
         $settings = EmailSetting::first();
@@ -52,6 +53,7 @@ class EmailSettingController extends Controller
         $settings->mail_encryption = $request->input('mail_encryption');
         $settings->mail_from_address = $request->input('mail_from_address');
         $settings->mail_from_name = $request->input('mail_from_name');
+        $settings->admin_notification_email = $request->input('admin_notification_email');
 
         $settings->save();
 
@@ -63,7 +65,7 @@ class EmailSettingController extends Controller
         return redirect('/email-settings')->with('success', 'Email settings updated successfully.');
     }
     
-    public function sendTestEmail(){
+    public function sendTestEmail(Request $request){
         $settings = Cache::get('email_settings');
 
         if (!$settings) {
@@ -72,8 +74,14 @@ class EmailSettingController extends Controller
 
         try {
             MailConfigService::applyMailSettings();
-            Mail::to('dilshanmadusanka20160@gmail.com')->send(new WelcomeMail(['customer' => 'Dilshan']));
-            dd(config('mail.mailers.smtp'));
+            $testEmail = $request->input('test_email');
+            // $testEmail = "dilshanmadusanka20160@gmail.com";
+            $testCustomer = (object) [
+                'name' => 'Test User',
+                'email' => $testEmail,
+            ];
+            Mail::to($testEmail)->send(new WelcomeMail($testCustomer));
+            // dd(config('mail.mailers.smtp'));
             return redirect('/email-settings')->with('success', 'Test email sent successfully.');
         } catch (\Exception $e) {
             return redirect('/email-settings')->with('error', 'Failed to send test email: ' . $e->getMessage());

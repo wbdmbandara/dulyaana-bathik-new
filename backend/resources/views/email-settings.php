@@ -24,7 +24,7 @@
                 </nav>
         </div><!-- End Page Title -->
 
-        <div class="card">
+            <div class="card">
                 <div class="card-body">
                     <!-- Success/Error Messages -->
                     <?php if(session('success')): ?>
@@ -104,12 +104,41 @@
                                 </div>
                             </div>
 
+                            <div class="row mb-3">
+                                <label for="admin_notification_email" class="col-sm-2 col-form-label">Admin Notification Email</label>
+                                <div class="col-sm-10">
+                                    <input type="email" class="form-control" id="admin_notification_email" name="admin_notification_email" value="<?= htmlspecialchars($settings['admin_notification_email'] ?? '') ?>">
+                                </div>
+                            </div>
+
                             <div class="float-end">
                                 <button type="submit" class="btn btn-primary">Update Email Settings</button>
                             </div>
                         </form>
                     </section>
 
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                <section class="section dashboard mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title mb-0">Test Email Configuration</h5>
+                        </div>
+                        <form action="<?= url('/send-test-email') ?>" method="POST">
+                            <div class="row mb-3">
+                                <label for="test_email" class="col-sm-2 col-form-label">Test Email</label>
+                                <div class="col-sm-10">
+                                    <input type="hidden" name="_token" value="<?= csrf_token() ?>">
+                                    <input type="email" class="form-control" id="test_email" name="test_email" required>
+                                </div>
+                            </div>
+                            <div class="float-end">
+                                <button type="submit" class="btn btn-primary">Send Test Email</button>
+                            </div>
+                        </form>
+                    </section>
                 </div>
             </div>
 

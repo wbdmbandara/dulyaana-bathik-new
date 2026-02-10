@@ -71,6 +71,7 @@ Route::post('/customers/delete/{id}', [CustomerController::class, 'delete']);
 
 Route::get('/email-settings', [EmailSettingController::class, 'index']);
 Route::post('/update-email-settings', [EmailSettingController::class, 'update']);
+Route::post('/send-test-email', [EmailSettingController::class, 'sendTestEmail']); // For testing email settings
 // Route::get('/send-test-email', [EmailSettingController::class, 'sendTestEmail']); // For testing email settings
 
 Route::get('/bank-details', [BankDetailsController::class, 'index']);

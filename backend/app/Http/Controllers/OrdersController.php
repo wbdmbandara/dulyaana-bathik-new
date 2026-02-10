@@ -21,6 +21,7 @@ use App\Notifications\OrderStatusNotification;
 use App\Services\MailConfigService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use PhpParser\JsonDecoder;
 
@@ -375,7 +376,9 @@ class OrdersController extends Controller
             ->get();
 
 
-        $adminEmails = env("ADMIN_NOTIFICATION_MAIL");
+        // $adminEmails = env("ADMIN_NOTIFICATION_MAIL");
+        $settings = Cache::get('email_settings');
+        $adminEmails = $settings ? $settings->admin_notification_email : null;
         MailConfigService::applyMailSettings();
         Mail::to($adminEmails)->send(new NewOrderAdminMail($order, $orderedItems, $order->customer_name));
     }
